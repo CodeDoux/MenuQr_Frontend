@@ -1,0 +1,60 @@
+<a routerLink="/menus" class="back-link">← Retour aux menus</a>
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ menu()?.nom ?? 'Menu' }} — Catégories</h1>
+    <p class="page-subtitle">Organisez les catégories de ce menu et leur ordre d'affichage.</p>
+  </div>
+  <button type="button" class="btn btn--primary" (click)="ouvrirCreation()">+ Nouvelle catégorie</button>
+</div>
+
+@if (categories().length === 0) {
+  <div class="card empty-state">
+    <div class="empty-state-title">Aucune catégorie pour ce menu</div>
+    <p>Ajoutez une première catégorie (ex. Entrées, Plats, Boissons) pour commencer.</p>
+    <button type="button" class="btn btn--primary" (click)="ouvrirCreation()">+ Créer une catégorie</button>
+  </div>
+} @else {
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Ordre</th>
+          <th>Nom</th>
+          <th>Description</th>
+          <th>Statut</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (cat of categories(); track cat.id) {
+          <tr>
+            <td class="table-muted">{{ cat.ordreAffichage }}</td>
+            <td class="table-strong table-with-icon">
+              @if (cat.icone) {
+                <span class="cat-icon">{{ cat.icone }}</span>
+              }
+              {{ cat.nom }}
+            </td>
+            <td class="table-muted">{{ cat.description || '—' }}</td>
+            <td>
+              <app-badge [label]="cat.estActive ? 'Active' : 'Inactive'" [tone]="cat.estActive ? 'success' : 'neutral'" />
+            </td>
+            <td class="table-actions">
+              <button type="button" class="btn btn--icon" title="Modifier" (click)="ouvrirEdition(cat)">✎</button>
+              <button type="button" class="btn btn--icon" title="Supprimer" (click)="supprimer(cat)">🗑</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+<app-categorie-form
+  [ouvert]="formOuvert()"
+  [menuId]="menuId"
+  [categorieAEditer]="categorieEnEdition()"
+  (fermer)="fermerForm()"
+  (valider)="valider($event)"
+/>

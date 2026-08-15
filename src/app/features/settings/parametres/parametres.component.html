@@ -1,0 +1,84 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Paramètres</h1>
+    <p class="page-subtitle">Horaires d'ouverture et moyens de paiement acceptés.</p>
+  </div>
+</div>
+
+<div class="card settings-section">
+  <h3 class="settings-section-title">Horaires d'ouverture</h3>
+  <p class="field-hint settings-hint">Un seul créneau par jour en V1 (pas encore de gestion des services coupés midi/soir).</p>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Jour</th>
+        <th>Statut</th>
+        <th>Ouverture</th>
+        <th>Fermeture</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (h of horaires(); track h.id) {
+        <tr>
+          <td class="table-strong">{{ LIBELLE_JOUR[h.jourSemaine] }}</td>
+          <td>
+            <label class="field--switch horaire-toggle">
+              <input type="checkbox" [checked]="!h.estFerme" (change)="toggleFerme(h)" class="field-switch" />
+              {{ h.estFerme ? 'Fermé' : 'Ouvert' }}
+            </label>
+          </td>
+          <td>
+            @if (!h.estFerme) {
+              <input
+                type="time"
+                class="field-input horaire-time"
+                [ngModel]="h.heureOuverture"
+                (ngModelChange)="changerHeure(h, 'heureOuverture', $event)"
+              />
+            } @else {
+              <span class="table-muted">—</span>
+            }
+          </td>
+          <td>
+            @if (!h.estFerme) {
+              <input
+                type="time"
+                class="field-input horaire-time"
+                [ngModel]="h.heureFermeture"
+                (ngModelChange)="changerHeure(h, 'heureFermeture', $event)"
+              />
+            } @else {
+              <span class="table-muted">—</span>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<div class="card settings-section">
+  <h3 class="settings-section-title">Moyens de paiement acceptés</h3>
+  <p class="field-hint settings-hint">Activez les méthodes que vos clients peuvent utiliser pour payer en ligne.</p>
+
+  <div class="moyens-paiement-list">
+    @for (m of moyensPaiement(); track m.id) {
+      <div class="moyen-paiement-row">
+        <label class="field--switch">
+          <input type="checkbox" [checked]="m.estActif" (change)="toggleMoyenPaiement(m)" class="field-switch" />
+          {{ LIBELLE_METHODE[m.methode] }}
+        </label>
+        @if (m.estActif && m.methode !== 'ESPECES') {
+          <input
+            type="text"
+            class="field-input moyen-paiement-id"
+            placeholder="Identifiant marchand (optionnel)"
+            [ngModel]="m.identifiantMarchand"
+            (ngModelChange)="changerIdentifiant(m, $event)"
+          />
+        }
+      </div>
+    }
+  </div>
+</div>

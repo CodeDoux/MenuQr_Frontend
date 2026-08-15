@@ -1,0 +1,79 @@
+<div class="kanban">
+  <div class="kanban-col">
+    <h3 class="kanban-col-title">En attente <span class="kanban-count">{{ enAttente().length }}</span></h3>
+    @for (c of enAttente(); track c.id) {
+      <div class="kanban-card">
+        <div class="kanban-card-top">
+          <span class="table-strong">{{ numeroCourt(c.id) }}</span>
+          <span class="table-muted">{{ LABEL_MODE[c.mode] }}</span>
+        </div>
+        <ul class="kanban-card-lignes">
+          @for (l of c.lignes; track l.id) {
+            <li>{{ l.quantite }}× {{ l.produitNom }}</li>
+          }
+        </ul>
+        <div class="kanban-card-actions">
+          <button type="button" class="btn btn--sm btn--primary" (click)="avancer(c)">{{ LABEL_ACTION_SUIVANTE[c.statut] }}</button>
+          <button type="button" class="btn btn--sm btn--ghost" (click)="annuler(c)">Annuler</button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="kanban-col">
+    <h3 class="kanban-col-title">Confirmées <span class="kanban-count">{{ confirmees().length }}</span></h3>
+    @for (c of confirmees(); track c.id) {
+      <div class="kanban-card">
+        <div class="kanban-card-top">
+          <span class="table-strong">{{ numeroCourt(c.id) }}</span>
+          <span class="table-muted">{{ LABEL_MODE[c.mode] }}</span>
+        </div>
+        <ul class="kanban-card-lignes">
+          @for (l of c.lignes; track l.id) {
+            <li>{{ l.quantite }}× {{ l.produitNom }}</li>
+          }
+        </ul>
+        <div class="kanban-card-actions">
+          <button type="button" class="btn btn--sm btn--primary" (click)="avancer(c)">{{ LABEL_ACTION_SUIVANTE[c.statut] }}</button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="kanban-col">
+    <h3 class="kanban-col-title">En préparation <span class="kanban-count">{{ enPreparation().length }}</span></h3>
+    @for (c of enPreparation(); track c.id) {
+      <div class="kanban-card">
+        <div class="kanban-card-top">
+          <span class="table-strong">{{ numeroCourt(c.id) }}</span>
+          <span class="table-muted">{{ LABEL_MODE[c.mode] }}</span>
+        </div>
+        <ul class="kanban-card-lignes">
+          @for (l of c.lignes; track l.id) {
+            <li>{{ l.quantite }}× {{ l.produitNom }}</li>
+          }
+        </ul>
+        <div class="kanban-card-actions">
+          <button type="button" class="btn btn--sm btn--primary" (click)="avancer(c)">{{ LABEL_ACTION_SUIVANTE[c.statut] }}</button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="kanban-col">
+    <h3 class="kanban-col-title">Prêtes <span class="kanban-count">{{ pretes().length }}</span></h3>
+    @for (c of pretes(); track c.id) {
+      <div class="kanban-card kanban-card--prete">
+        <div class="kanban-card-top">
+          <span class="table-strong">{{ numeroCourt(c.id) }}</span>
+          <span class="table-muted">{{ LABEL_MODE[c.mode] }}</span>
+        </div>
+        <ul class="kanban-card-lignes">
+          @for (l of c.lignes; track l.id) {
+            <li>{{ l.quantite }}× {{ l.produitNom }}</li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,47 @@
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">MQ</span>
+      <span class="brand-name">MenuQr</span>
+    </div>
+
+    <nav class="nav">
+      @for (item of navItems; track item.route) {
+        <a
+          class="nav-link"
+          [routerLink]="item.route"
+          routerLinkActive="nav-link--active"
+        >
+          <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="restaurant-chip">
+        <span class="restaurant-avatar">{{ currentUser()?.restaurantNom?.slice(0, 2)?.toUpperCase() }}</span>
+        <div>
+          <div class="restaurant-name">{{ currentUser()?.restaurantNom }}</div>
+          <div class="restaurant-plan">Essai — 12 jours restants</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div></div>
+      <div class="topbar-actions">
+        <app-notification-bell />
+        <span class="user-name">{{ currentUser()?.nomComplet }}</span>
+        <span class="user-avatar">{{ initiales() }}</span>
+        <button type="button" class="btn btn--icon" title="Se déconnecter" (click)="deconnexion()">⏻</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

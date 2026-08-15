@@ -1,0 +1,44 @@
+<app-modal [ouvert]="ouvert" [titre]="titre" (fermer)="fermer.emit()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+    <label class="field">
+      <span class="field-label">Nom du menu *</span>
+      <input type="text" formControlName="nom" placeholder="Ex. Menu Principal, Menu Ramadan..." class="field-input" />
+      @if (form.get('nom')?.touched && form.get('nom')?.invalid) {
+        <span class="field-error">Le nom du menu est requis.</span>
+      }
+    </label>
+
+    <label class="field">
+      <span class="field-label">Description</span>
+      <textarea formControlName="description" rows="2" class="field-input" placeholder="Optionnel"></textarea>
+    </label>
+
+    <div class="field-row">
+      <label class="field">
+        <span class="field-label">Ordre d'affichage</span>
+        <input type="number" formControlName="ordreAffichage" min="1" class="field-input" />
+      </label>
+
+      <label class="field field--switch">
+        <span class="field-label">Menu actif</span>
+        <input type="checkbox" formControlName="estActif" class="field-switch" />
+      </label>
+    </div>
+
+    <div class="field-row">
+      <label class="field">
+        <span class="field-label">Disponible à partir de</span>
+        <input type="date" formControlName="dateDebut" class="field-input" />
+      </label>
+      <label class="field">
+        <span class="field-label">Disponible jusqu'au</span>
+        <input type="date" formControlName="dateFin" class="field-input" />
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn--ghost" (click)="fermer.emit()">Annuler</button>
+      <button type="submit" class="btn btn--primary">Enregistrer</button>
+    </div>
+  </form>
+</app-modal>

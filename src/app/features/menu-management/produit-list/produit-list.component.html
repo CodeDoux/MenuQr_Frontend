@@ -1,0 +1,116 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Produits</h1>
+    <p class="page-subtitle">Gérez les plats, boissons et desserts de votre carte.</p>
+  </div>
+  <button type="button" class="btn btn--primary" (click)="ouvrirCreation()">+ Nouveau produit</button>
+</div>
+
+<div class="toolbar">
+  <input
+    type="text"
+    class="field-input toolbar-search"
+    placeholder="Rechercher un produit..."
+    [ngModel]="recherche()"
+    (ngModelChange)="recherche.set($event)"
+  />
+  <div class="chip-select">
+    <button
+      type="button"
+      class="chip"
+      [class.chip--active]="categorieFiltre() === undefined"
+      (click)="categorieFiltre.set(undefined)"
+    >
+      Toutes
+    </button>
+    @for (cat of categories(); track cat.id) {
+      <button
+        type="button"
+        class="chip"
+        [class.chip--active]="categorieFiltre() === cat.id"
+        (click)="categorieFiltre.set(cat.id)"
+      >
+        {{ cat.nom }}
+      </button>
+    }
+  </div>
+</div>
+
+@if (produits().length === 0) {
+  <div class="card empty-state">
+    <div class="empty-state-title">Aucun produit trouvé</div>
+    <p>Ajustez votre recherche ou créez un nouveau produit.</p>
+  </div>
+} @else {
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Produit</th>
+          <th>Catégories</th>
+          <th>Prix</th>
+          <th>Statut</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (p of produits(); track p.id) {
+          <tr>
+            <td>
+              <div class="product-cell">
+                @if (p.images.length > 0) {
+                  <img [src]="p.images[0].url" alt="" class="product-thumb" />
+                } @else {
+                  <div class="product-thumb product-thumb--empty">{{ p.nom.charAt(0) }}</div>
+                }
+                <div>
+                  <div class="table-strong">{{ p.nom }}</div>
+                  @if (p.variantes.length > 0) {
+                    <div class="table-muted product-variantes-count">{{ p.variantes.length }} variante(s)</div>
+                  }
+                </div>
+              </div>
+            </td>
+            <td class="table-muted">
+              {{ p.categorieIds.map(this.nomCategorie).join(', ') }}
+            </td>
+            <td class="table-strong">
+              @if (p.variantes.length > 0) {
+                Dès {{ p.prix }} F
+              } @else {
+                {{ p.prix }} F
+              }
+            </td>
+            <td class="status-cell">
+              <app-badge
+                [label]="p.estDisponible ? 'Disponible' : 'Rupture'"
+                [tone]="p.estDisponible ? 'success' : 'warning'"
+              />
+              @if (!p.estVisible) {
+                <app-badge label="Masqué" tone="neutral" />
+              }
+              @if (p.estPopulaire) {
+                <app-badge label="★ Populaire" tone="info" />
+              }
+            </td>
+            <td class="table-actions">
+              <button type="button" class="btn btn--sm btn--ghost" (click)="basculerDisponibilite(p)">
+                {{ p.estDisponible ? 'Marquer en rupture' : 'Remettre en stock' }}
+              </button>
+              <button type="button" class="btn btn--icon" title="Modifier" (click)="ouvrirEdition(p)">✎</button>
+              <button type="button" class="btn btn--icon" title="Archiver" (click)="archiver(p)">🗑</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+<app-produit-form
+  [ouvert]="formOuvert()"
+  [produitAEditer]="produitEnEdition()"
+  [categoriesDisponibles]="categories()"
+  (fermer)="fermerForm()"
+  (valider)="valider($event)"
+/>

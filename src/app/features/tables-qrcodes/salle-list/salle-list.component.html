@@ -1,0 +1,89 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Salles, Tables & QR Codes</h1>
+    <p class="page-subtitle">Organisez votre espace physique et générez les QR codes associés.</p>
+  </div>
+  <button type="button" class="btn btn--primary" (click)="ouvrirCreationSalle()">+ Nouvelle salle</button>
+</div>
+
+@if (salles().length === 0) {
+  <div class="card empty-state">
+    <div class="empty-state-title">Aucune salle pour le moment</div>
+    <p>Créez votre première salle (ex. Salle intérieure, Terrasse) pour commencer à ajouter des tables.</p>
+    <button type="button" class="btn btn--primary" (click)="ouvrirCreationSalle()">+ Créer une salle</button>
+  </div>
+} @else {
+  <div class="salles-stack">
+    @for (salle of salles(); track salle.id) {
+      <div class="card salle-card">
+        <div class="salle-card-header">
+          <div class="salle-card-title-group">
+            <h3 class="salle-card-title">{{ salle.description }}</h3>
+            <app-badge [label]="salle.statut === 'ACTIVE' ? 'Active' : 'Inactive'" [tone]="salle.statut === 'ACTIVE' ? 'success' : 'neutral'" />
+          </div>
+          <div class="salle-card-actions">
+            <button type="button" class="btn btn--sm btn--ghost" (click)="ouvrirCreationTable(salle.id)">+ Table</button>
+            <button type="button" class="btn btn--icon" title="Modifier" (click)="ouvrirEditionSalle(salle)">✎</button>
+            <button type="button" class="btn btn--icon" title="Supprimer" (click)="supprimerSalle(salle)">🗑</button>
+          </div>
+        </div>
+
+        @if (tablesDeLaSalle(salle.id)().length === 0) {
+          <p class="table-muted salle-empty">Aucune table dans cette salle.</p>
+        } @else {
+          <div class="tables-grid">
+            @for (table of tablesDeLaSalle(salle.id)(); track table.id) {
+              <div class="table-chip">
+                <div class="table-chip-top">
+                  <span class="table-chip-numero">Table {{ table.numero }}</span>
+                  <app-badge [label]="labelStatutTable(table.statut)" [tone]="toneStatutTable(table.statut)" />
+                </div>
+                <div class="table-chip-meta">{{ table.capacite }} pers. @if (table.zone) { · {{ table.zone }} }</div>
+                <div class="table-chip-actions">
+                  <button type="button" class="btn btn--sm btn--ghost" (click)="ouvrirQrTable(table, salle)">
+                    {{ qrDeLaTable(table.id) ? 'Voir QR' : 'Générer QR' }}
+                  </button>
+                  <button type="button" class="btn btn--icon" title="Modifier" (click)="ouvrirEditionTable(table)">✎</button>
+                  <button type="button" class="btn btn--icon" title="Supprimer" (click)="supprimerTable(table)">🗑</button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
+
+<div class="card qr-generaux-card">
+  <h3 class="qr-generaux-title">QR Codes généraux</h3>
+  <p class="page-subtitle">Pour les clients qui commandent à emporter ou en livraison, sans passer par une table.</p>
+  <div class="qr-generaux-actions">
+    <button type="button" class="btn btn--ghost" (click)="ouvrirQrGeneral(TypeQRCode.EMPORTER)">📦 QR À emporter</button>
+    <button type="button" class="btn btn--ghost" (click)="ouvrirQrGeneral(TypeQRCode.LIVRAISON)">🛵 QR Livraison</button>
+  </div>
+</div>
+
+<app-salle-form
+  [ouvert]="salleFormOuvert()"
+  [salleAEditer]="salleEnEdition()"
+  (fermer)="salleFormOuvert.set(false)"
+  (valider)="validerSalle($event)"
+/>
+
+<app-table-form
+  [ouvert]="tableFormOuvert()"
+  [salleId]="salleIdCourante()"
+  [tableAEditer]="tableEnEdition()"
+  (fermer)="tableFormOuvert.set(false)"
+  (valider)="validerTable($event)"
+/>
+
+<app-qrcode-modal
+  [ouvert]="qrModalOuvert()"
+  [titre]="titreModaleQr()"
+  [qrCode]="qrCourant()"
+  [enCoursGeneration]="qrEnCoursGeneration()"
+  (fermer)="fermerQrModal()"
+  (regenerer)="genererOuRegenerer()"
+/>

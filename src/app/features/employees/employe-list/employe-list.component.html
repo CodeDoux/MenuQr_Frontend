@@ -1,0 +1,81 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Employés</h1>
+    <p class="page-subtitle">Gérez votre équipe, leurs postes et leur accès à la plateforme.</p>
+  </div>
+  <button type="button" class="btn btn--primary" (click)="ouvrirCreationEmploye()">+ Ajouter un employé</button>
+</div>
+
+<div class="card">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Employé</th>
+        <th>Poste</th>
+        <th>Statut</th>
+        <th>Accès plateforme</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of employesAvecAcces(); track item.employe.id) {
+        <tr>
+          <td>
+            <div class="table-strong">{{ item.employe.nomComplet }}</div>
+            <div class="table-muted">{{ item.employe.email }}</div>
+          </td>
+          <td class="table-muted">{{ item.poste?.nom ?? '—' }}</td>
+          <td>
+            <app-badge [label]="labelStatutEmploye(item.employe.statut)" [tone]="toneStatutEmploye(item.employe.statut)" />
+          </td>
+          <td>
+            @if (item.acces) {
+              <app-badge [label]="labelStatutAcces(item.acces.statut) + ' · ' + item.acces.role" [tone]="toneStatutAcces(item.acces.statut)" />
+            } @else {
+              <span class="table-muted">Aucun accès</span>
+            }
+          </td>
+          <td class="table-actions">
+            @if (item.acces?.statut === 'INVITE') {
+              <button type="button" class="btn btn--sm btn--ghost" (click)="renvoyerInvitation(item.acces!)">Renvoyer l'invitation</button>
+            }
+            <button type="button" class="btn btn--icon" title="Modifier" (click)="ouvrirEditionEmploye(item.employe, item.acces)">✎</button>
+            <button type="button" class="btn btn--icon" title="Terminer" (click)="terminerEmploye(item.employe)">🗑</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<div class="card postes-card">
+  <div class="postes-header">
+    <h3 class="qr-generaux-title">Postes</h3>
+    <button type="button" class="btn btn--ghost btn--sm" (click)="ouvrirCreationPoste()">+ Nouveau poste</button>
+  </div>
+  <div class="chip-select">
+    @for (poste of postes(); track poste.id) {
+      <span class="chip poste-chip">
+        {{ poste.nom }}
+        <button type="button" class="poste-chip-edit" (click)="ouvrirEditionPoste(poste)" title="Modifier">✎</button>
+        <button type="button" class="poste-chip-edit" (click)="supprimerPoste(poste)" title="Supprimer">✕</button>
+      </span>
+    }
+  </div>
+</div>
+
+<app-poste-form
+  [ouvert]="posteFormOuvert()"
+  [posteAEditer]="posteEnEdition()"
+  (fermer)="posteFormOuvert.set(false)"
+  (valider)="validerPoste($event)"
+/>
+
+<app-employe-form
+  [ouvert]="employeFormOuvert()"
+  [employeAEditer]="employeEnEdition()"
+  [accesAEditer]="accesEnEdition()"
+  [postesDisponibles]="postes()"
+  (fermer)="employeFormOuvert.set(false)"
+  (valider)="validerEmploye($event)"
+/>

@@ -1,0 +1,90 @@
+<h3 class="qr-generaux-title">Additions ouvertes</h3>
+
+@if (additionsOuvertes().length === 0) {
+  <p class="table-muted caisse-empty">Aucune addition ouverte pour le moment.</p>
+} @else {
+  <div class="caisse-grid">
+    @for (item of additionsOuvertes(); track item.addition.id) {
+      <div class="card caisse-card">
+        <div class="caisse-card-header">
+          <span class="table-strong">Table {{ numeroTable(item.visite?.tableId) }}</span>
+          <span class="table-muted">{{ item.commandes.length }} commande(s)</span>
+        </div>
+
+        @for (c of item.commandes; track c.id) {
+          <div class="caisse-commande-bloc">
+            <div class="table-muted caisse-commande-titre">{{ numeroCourt(c.id) }} · {{ LABEL_MODE[c.mode] }}</div>
+            <ul class="kanban-card-lignes">
+              @for (l of c.lignes; track l.id) {
+                <li>{{ l.quantite }}× {{ l.produitNom }} — {{ l.sousTotal }} FCFA</li>
+              }
+            </ul>
+          </div>
+        }
+
+        <div class="caisse-total">
+          <span>Total</span>
+          <span class="table-strong">{{ item.addition.total }} FCFA</span>
+        </div>
+
+        @if (additionEnEncaissement() === item.addition.id) {
+          <div class="caisse-encaissement">
+            <select class="field-input" [ngModel]="methodeChoisie()" (ngModelChange)="methodeChoisie.set($event)">
+              @for (m of moyensPaiementActifs(); track m.id) {
+                <option [value]="m.methode">{{ LIBELLE_METHODE[m.methode] }}</option>
+              }
+            </select>
+            <div class="form-actions">
+              <button type="button" class="btn btn--ghost btn--sm" (click)="fermerEncaissement()">Annuler</button>
+              <button type="button" class="btn btn--primary btn--sm" (click)="confirmerEncaissement()">Confirmer le paiement</button>
+            </div>
+          </div>
+        } @else {
+          <button type="button" class="btn btn--primary" (click)="ouvrirEncaissementAddition(item.addition.id)">Encaisser</button>
+        }
+      </div>
+    }
+  </div>
+}
+
+<h3 class="qr-generaux-title caisse-section-suivante">Commandes à emporter / livraison — paiement direct</h3>
+
+@if (commandesDirectes().length === 0) {
+  <p class="table-muted caisse-empty">Aucune commande en attente de paiement direct.</p>
+} @else {
+  <div class="caisse-grid">
+    @for (c of commandesDirectes(); track c.id) {
+      <div class="card caisse-card">
+        <div class="caisse-card-header">
+          <span class="table-strong">{{ numeroCourt(c.id) }}</span>
+          <span class="table-muted">{{ LABEL_MODE[c.mode] }}</span>
+        </div>
+        <ul class="kanban-card-lignes">
+          @for (l of c.lignes; track l.id) {
+            <li>{{ l.quantite }}× {{ l.produitNom }} — {{ l.sousTotal }} FCFA</li>
+          }
+        </ul>
+        <div class="caisse-total">
+          <span>Total</span>
+          <span class="table-strong">{{ c.total }} FCFA</span>
+        </div>
+
+        @if (commandeEnEncaissement() === c.id) {
+          <div class="caisse-encaissement">
+            <select class="field-input" [ngModel]="methodeChoisie()" (ngModelChange)="methodeChoisie.set($event)">
+              @for (m of moyensPaiementActifs(); track m.id) {
+                <option [value]="m.methode">{{ LIBELLE_METHODE[m.methode] }}</option>
+              }
+            </select>
+            <div class="form-actions">
+              <button type="button" class="btn btn--ghost btn--sm" (click)="fermerEncaissement()">Annuler</button>
+              <button type="button" class="btn btn--primary btn--sm" (click)="confirmerEncaissement()">Confirmer le paiement</button>
+            </div>
+          </div>
+        } @else {
+          <button type="button" class="btn btn--primary" (click)="ouvrirEncaissementDirect(c.id)">Encaisser</button>
+        }
+      </div>
+    }
+  </div>
+}

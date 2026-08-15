@@ -1,0 +1,29 @@
+<div class="notif-bell-wrapper">
+  <button type="button" class="btn btn--icon notif-bell-btn" (click)="togglePanneau()" title="Notifications">
+    🔔
+    @if (nombreNonLues() > 0) {
+      <span class="notif-badge">{{ nombreNonLues() }}</span>
+    }
+  </button>
+
+  @if (panneauOuvert()) {
+    <div class="notif-panel card">
+      <div class="notif-panel-header">
+        <span class="notif-panel-title">Notifications</span>
+        <button type="button" class="btn btn--ghost btn--sm" (click)="toutMarquer()">Tout marquer comme lu</button>
+      </div>
+      @if (notifications().length === 0) {
+        <p class="notif-empty">Aucune notification.</p>
+      } @else {
+        <div class="notif-list">
+          @for (n of notifications(); track n.id) {
+            <button type="button" class="notif-item" [class.notif-item--non-lue]="!n.estLu" (click)="ouvrirNotification(n)">
+              <span class="notif-item-titre">{{ n.titre }}</span>
+              <span class="notif-item-message">{{ n.message }}</span>
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

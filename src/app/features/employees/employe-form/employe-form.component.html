@@ -1,0 +1,89 @@
+<app-modal [ouvert]="ouvert" [titre]="titre" (fermer)="fermer.emit()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+    <div class="field-row">
+      <label class="field">
+        <span class="field-label">Nom complet *</span>
+        <input type="text" formControlName="nomComplet" class="field-input" />
+        @if (form.get('nomComplet')?.touched && form.get('nomComplet')?.invalid) {
+          <span class="field-error">Le nom est requis.</span>
+        }
+      </label>
+      <label class="field">
+        <span class="field-label">Email *</span>
+        <input type="email" formControlName="email" class="field-input" />
+        @if (form.get('email')?.touched && form.get('email')?.invalid) {
+          <span class="field-error">Email valide requis.</span>
+        }
+      </label>
+    </div>
+
+    <div class="field-row">
+      <label class="field">
+        <span class="field-label">Poste *</span>
+        <select formControlName="posteId" class="field-input">
+          <option value="" disabled>Sélectionner un poste</option>
+          @for (poste of postesDisponibles; track poste.id) {
+            <option [value]="poste.id">{{ poste.nom }}</option>
+          }
+        </select>
+        @if (form.get('posteId')?.touched && form.get('posteId')?.invalid) {
+          <span class="field-error">Sélectionnez un poste.</span>
+        }
+      </label>
+      <label class="field">
+        <span class="field-label">Matricule</span>
+        <input type="text" formControlName="matricule" class="field-input" placeholder="Optionnel" />
+      </label>
+    </div>
+
+    <div class="field-row">
+      <label class="field">
+        <span class="field-label">Date d'embauche</span>
+        <input type="date" formControlName="dateEmbauche" class="field-input" />
+      </label>
+      <label class="field">
+        <span class="field-label">Statut</span>
+        <select formControlName="statut" class="field-input">
+          <option [value]="StatutEmploye.ACTIF">Actif</option>
+          <option [value]="StatutEmploye.EN_CONGE">En congé</option>
+          <option [value]="StatutEmploye.SUSPENDU">Suspendu</option>
+        </select>
+      </label>
+    </div>
+
+    <label class="field">
+      <span class="field-label">Notes</span>
+      <textarea formControlName="notes" rows="2" class="field-input" placeholder="Optionnel"></textarea>
+    </label>
+
+    <div class="acces-block">
+      <label class="field field--switch">
+        <span class="field-label">Donner accès à la plateforme MenuQr</span>
+        <input type="checkbox" formControlName="accorderAcces" class="field-switch" />
+      </label>
+
+      @if (form.get('accorderAcces')?.value) {
+        <label class="field">
+          <span class="field-label">Rôle *</span>
+          <select formControlName="role" class="field-input">
+            <option [value]="null" disabled>Sélectionner un rôle</option>
+            <option [value]="RoleCode.GERANT">Gérant</option>
+            <option [value]="RoleCode.SERVEUR">Serveur</option>
+            <option [value]="RoleCode.CUISINIER">Cuisinier</option>
+            <option [value]="RoleCode.CAISSIER">Caissier</option>
+            <option [value]="RoleCode.LIVREUR">Livreur</option>
+          </select>
+          @if (form.get('role')?.touched && form.get('role')?.invalid) {
+            <span class="field-error">Sélectionnez un rôle pour accorder l'accès.</span>
+          }
+          <span class="field-hint">Un email d'invitation sera simulé — l'employé apparaîtra en statut "Invité" jusqu'à acceptation.</span>
+        </label>
+      }
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn--ghost" (click)="fermer.emit()">Annuler</button>
+      <button type="submit" class="btn btn--primary">Enregistrer</button>
+    </div>
+  </form>
+</app-modal>

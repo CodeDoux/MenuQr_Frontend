@@ -1,0 +1,37 @@
+<app-modal [ouvert]="ouvert" [titre]="titre" (fermer)="fermer.emit()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+    <div class="field-row">
+      <label class="field">
+        <span class="field-label">Numéro de table *</span>
+        <input type="text" formControlName="numero" placeholder="Ex. 12" class="field-input" />
+        @if (form.get('numero')?.touched && form.get('numero')?.invalid) {
+          <span class="field-error">Le numéro de table est requis.</span>
+        }
+      </label>
+      <label class="field">
+        <span class="field-label">Capacité (personnes)</span>
+        <input type="number" formControlName="capacite" min="1" class="field-input" />
+      </label>
+    </div>
+
+    <div class="field-row">
+      <label class="field">
+        <span class="field-label">Statut</span>
+        <select formControlName="statut" class="field-input">
+          <option [value]="StatutTable.LIBRE">Libre</option>
+          <option [value]="StatutTable.OCCUPEE">Occupée</option>
+          <option [value]="StatutTable.HORS_SERVICE">Hors service</option>
+        </select>
+      </label>
+      <label class="field">
+        <span class="field-label">Zone</span>
+        <input type="text" formControlName="zone" placeholder="Optionnel" class="field-input" />
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn--ghost" (click)="fermer.emit()">Annuler</button>
+      <button type="submit" class="btn btn--primary">Enregistrer</button>
+    </div>
+  </form>
+</app-modal>

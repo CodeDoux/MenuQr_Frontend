@@ -1,0 +1,23 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Commandes</h1>
+    <p class="page-subtitle">Suivez le cycle de vie des commandes, de la cuisine à l'encaissement.</p>
+  </div>
+</div>
+
+<div class="tabs">
+  @for (o of onglets; track o.id) {
+    <button type="button" class="tab" [class.tab--active]="onglet() === o.id" (click)="onglet.set(o.id)">
+      {{ o.label }}
+    </button>
+  }
+</div>
+
+<div class="tab-content">
+  @switch (onglet()) {
+    @case ('globale') { <app-vue-globale /> }
+    @case ('cuisine') { <app-vue-cuisine /> }
+    @case ('service') { <app-vue-service /> }
+    @case ('caisse') { <app-vue-caisse /> }
+  }
+</div>

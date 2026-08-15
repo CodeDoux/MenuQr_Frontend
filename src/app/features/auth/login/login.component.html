@@ -1,0 +1,44 @@
+<div class="login-shell">
+  <div class="login-card">
+    <div class="login-brand">
+      <span class="brand-mark">MQ</span>
+      <span class="login-brand-name">MenuQr</span>
+    </div>
+    <h1 class="login-title">Connexion</h1>
+    <p class="login-subtitle">Accédez à l'espace de gestion de votre restaurant.</p>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+      <label class="field">
+        <span class="field-label">Email</span>
+        <input type="email" formControlName="email" class="field-input" placeholder="vous@restaurant.sn" autocomplete="username" />
+        @if (form.get('email')?.touched && form.get('email')?.invalid) {
+          <span class="field-error">Email valide requis.</span>
+        }
+      </label>
+
+      <label class="field">
+        <span class="field-label">Mot de passe</span>
+        <input type="password" formControlName="motDePasse" class="field-input" placeholder="••••••••" autocomplete="current-password" />
+        @if (form.get('motDePasse')?.touched && form.get('motDePasse')?.invalid) {
+          <span class="field-error">Mot de passe requis.</span>
+        }
+      </label>
+
+      @if (erreur()) {
+        <div class="login-error">{{ erreur() }}</div>
+      }
+
+      <button type="submit" class="btn btn--primary login-submit" [disabled]="enCours()">
+        {{ enCours() ? 'Connexion...' : 'Se connecter' }}
+      </button>
+    </form>
+
+    <div class="login-demo">
+      <p class="field-hint">Comptes de démonstration (mock, sans backend) :</p>
+      <div class="login-demo-actions">
+        <button type="button" class="btn btn--ghost btn--sm" (click)="remplirDemo('proprietaire@lepalais.sn')">Propriétaire</button>
+        <button type="button" class="btn btn--ghost btn--sm" (click)="remplirDemo('serveur@lepalais.sn')">Serveur</button>
+      </div>
+    </div>
+  </div>
+</div>

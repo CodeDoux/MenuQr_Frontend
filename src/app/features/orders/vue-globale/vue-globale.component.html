@@ -1,0 +1,26 @@
+<div class="card">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Commande</th>
+        <th>Mode</th>
+        <th>Articles</th>
+        <th>Total</th>
+        <th>Statut</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (c of commandes(); track c.id) {
+        <tr>
+          <td class="table-strong">{{ numeroCourt(c.id) }} @if (c.tableId) { <span class="table-muted">· Table {{ c.tableId.split('-')[1] }}</span> }</td>
+          <td class="table-muted">{{ LABEL_MODE[c.mode] }}</td>
+          <td class="table-muted">{{ c.lignes.length }} article(s)</td>
+          <td class="table-strong">{{ c.total }} FCFA</td>
+          <td>
+            <app-badge [label]="LABEL_STATUT[c.statut]" [tone]="TONE_STATUT[c.statut]" />
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

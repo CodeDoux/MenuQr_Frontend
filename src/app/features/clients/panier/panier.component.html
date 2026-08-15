@@ -1,0 +1,95 @@
+<button type="button" class="pm-back-link" (click)="retourMenu()">← Continuer mes achats</button>
+
+<h1 class="pm-page-titre">Mon panier</h1>
+
+<div class="pm-panier-list">
+  @for (item of items(); track item.id) {
+    <div class="pm-panier-item">
+      <div class="pm-panier-item-info">
+        <span class="pm-panier-item-nom">{{ item.produitNom }}</span>
+        <span class="pm-panier-item-prix">{{ item.sousTotal }} FCFA</span>
+      </div>
+      <div class="pm-panier-item-actions">
+        <button type="button" class="pm-stepper-btn" (click)="decrementer(item.id)">−</button>
+        <span class="pm-quantite-value">{{ item.quantite }}</span>
+        <button type="button" class="pm-stepper-btn" (click)="incrementer(item.id)">+</button>
+        <button type="button" class="pm-retirer-btn" (click)="retirer(item.id)">🗑</button>
+      </div>
+    </div>
+  }
+</div>
+
+<div class="pm-mode-section">
+  <h2 class="pm-section-titre">Mode de commande</h2>
+
+  @if (tableId()) {
+    <p class="pm-table-context">📍 Vous êtes à la table {{ numeroTable() }}</p>
+  }
+
+  <div class="pm-mode-options">
+    @if (tableId()) {
+      <button type="button" class="pm-mode-chip" [class.pm-mode-chip--active]="mode() === ModeCommande.SUR_PLACE" (click)="choisirMode(ModeCommande.SUR_PLACE)">
+        Sur place
+      </button>
+    }
+    <button type="button" class="pm-mode-chip" [class.pm-mode-chip--active]="mode() === ModeCommande.EMPORTER" (click)="choisirMode(ModeCommande.EMPORTER)">
+      À emporter
+    </button>
+    <button type="button" class="pm-mode-chip" [class.pm-mode-chip--active]="mode() === ModeCommande.LIVRAISON" (click)="choisirMode(ModeCommande.LIVRAISON)">
+      Livraison
+    </button>
+  </div>
+
+  @if (mode() === ModeCommande.EMPORTER && !tableId()) {
+    <div class="pm-form-block">
+      <label class="pm-field">
+        <span class="pm-field-label">Nom *</span>
+        <input type="text" class="pm-field-input" [ngModel]="infos().nom" (ngModelChange)="modifierInfos('nom', $event)" />
+      </label>
+      <label class="pm-field">
+        <span class="pm-field-label">Téléphone *</span>
+        <input type="tel" class="pm-field-input" [ngModel]="infos().telephone" (ngModelChange)="modifierInfos('telephone', $event)" />
+      </label>
+      <label class="pm-field">
+        <span class="pm-field-label">Heure de retrait souhaitée</span>
+        <input type="time" class="pm-field-input" [ngModel]="infos().heureRetrait" (ngModelChange)="modifierInfos('heureRetrait', $event)" />
+      </label>
+    </div>
+  }
+
+  @if (mode() === ModeCommande.LIVRAISON) {
+    <div class="pm-form-block">
+      <label class="pm-field">
+        <span class="pm-field-label">Adresse complète *</span>
+        <input type="text" class="pm-field-input" [ngModel]="adresse().adresseComplete" (ngModelChange)="modifierAdresse('adresseComplete', $event)" />
+      </label>
+      <label class="pm-field">
+        <span class="pm-field-label">Quartier</span>
+        <input type="text" class="pm-field-input" [ngModel]="adresse().quartier" (ngModelChange)="modifierAdresse('quartier', $event)" />
+      </label>
+      <label class="pm-field">
+        <span class="pm-field-label">Indications</span>
+        <input type="text" class="pm-field-input" placeholder="Optionnel" [ngModel]="adresse().indications" (ngModelChange)="modifierAdresse('indications', $event)" />
+      </label>
+      <p class="pm-field-hint">⚠️ Frais de livraison fixes pour l'instant (1000 FCFA) — les zones de livraison ne sont pas encore configurables.</p>
+    </div>
+  }
+
+  <label class="pm-field">
+    <span class="pm-field-label">Note pour le restaurant</span>
+    <textarea class="pm-field-input" rows="2" placeholder="Optionnel" [ngModel]="notes()" (ngModelChange)="notes.set($event)"></textarea>
+  </label>
+</div>
+
+@if (erreur()) {
+  <div class="pm-erreur">{{ erreur() }}</div>
+}
+
+<div class="pm-total-bar">
+  <span>Total</span>
+  <span class="pm-total-valeur">{{ total() }} FCFA</span>
+</div>
+
+<button type="button" class="pm-btn-ajouter pm-btn-commander" [disabled]="envoiEnCours()" (click)="validerCommande()">
+  {{ envoiEnCours() ? 'Envoi...' : 'Passer la commande' }}
+</button>

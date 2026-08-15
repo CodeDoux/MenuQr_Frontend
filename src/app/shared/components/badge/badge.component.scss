@@ -1,0 +1,59 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.badge--neutral {
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+}
+.badge--neutral .badge-dot {
+  background: var(--color-text-secondary);
+}
+
+.badge--success {
+  background: color-mix(in srgb, var(--color-success) 14%, white);
+  color: var(--color-success-strong);
+}
+.badge--success .badge-dot {
+  background: var(--color-success-strong);
+}
+
+.badge--warning {
+  background: color-mix(in srgb, var(--color-warning) 16%, white);
+  color: var(--color-warning-strong);
+}
+.badge--warning .badge-dot {
+  background: var(--color-warning-strong);
+}
+
+.badge--danger {
+  background: color-mix(in srgb, var(--color-danger) 12%, white);
+  color: var(--color-danger-strong);
+}
+.badge--danger .badge-dot {
+  background: var(--color-danger-strong);
+}
+
+.badge--info {
+  background: color-mix(in srgb, var(--color-accent) 12%, white);
+  color: var(--color-accent-strong);
+}
+.badge--info .badge-dot {
+  background: var(--color-accent-strong);
+}

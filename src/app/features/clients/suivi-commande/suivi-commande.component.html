@@ -1,0 +1,71 @@
+@if (commande(); as c) {
+  <div class="pm-suivi-header">
+    <h1 class="pm-page-titre">Commande #{{ c.id.slice(-4).toUpperCase() }}</h1>
+    <button type="button" class="pm-refresh-btn" (click)="actualiser()">↻ Actualiser</button>
+  </div>
+
+  @if (estAnnulee(c.statut)) {
+    <div class="pm-suivi-annulee">Cette commande a été annulée par le restaurant.</div>
+  } @else {
+    <div class="pm-progress">
+      @for (etape of ETAPES; track etape; let i = $index) {
+        <div class="pm-progress-step" [class.pm-progress-step--done]="indexEtape(c.statut) >= i">
+          <span class="pm-progress-dot"></span>
+          <span class="pm-progress-label">{{ LABEL_STATUT[etape] }}</span>
+        </div>
+      }
+    </div>
+    @if (['SERVIE','REMISE','LIVREE'].includes(c.statut)) {
+      <div class="pm-suivi-terminee">✓ {{ LABEL_STATUT[c.statut] }}</div>
+    }
+  }
+
+  <div class="pm-suivi-recap">
+    <h2 class="pm-section-titre">Récapitulatif</h2>
+    @for (l of c.lignes; track l.id) {
+      <div class="pm-recap-ligne">
+        <span>{{ l.quantite }}× {{ l.produitNom }}</span>
+        <span>{{ l.sousTotal }} FCFA</span>
+      </div>
+    }
+    <div class="pm-total-bar">
+      <span>Total</span>
+      <span class="pm-total-valeur">{{ c.total }} FCFA</span>
+    </div>
+  </div>
+
+  @if (autresCommandesVisite() && autresCommandesVisite().length > 1) {
+    <div class="pm-suivi-recap">
+      <h2 class="pm-section-titre">Autres commandes de votre visite</h2>
+      @for (autre of autresCommandesVisite(); track autre.id) {
+        @if (autre.id !== c.id) {
+          <div class="pm-recap-ligne">
+            <span>#{{ autre.id.slice(-4).toUpperCase() }} — {{ LABEL_STATUT[autre.statut] }}</span>
+            <span>{{ autre.total }} FCFA</span>
+          </div>
+        }
+      }
+    </div>
+  }
+
+  @if (peutPayerEnLigne()) {
+    <div class="pm-suivi-recap">
+      <h2 class="pm-section-titre">Paiement</h2>
+      <p class="pm-field-hint">Payez en ligne dès maintenant, ou réglez à la remise/livraison.</p>
+      <div class="pm-paiement-options">
+        @for (m of moyensPaiementEnLigne(); track m.id) {
+          <button type="button" class="pm-mode-chip" (click)="payerEnLigne(m.methode)">
+            Payer par {{ LIBELLE_METHODE[m.methode] }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+  @if (paiementConfirme) {
+    <div class="pm-suivi-terminee">✓ Paiement confirmé</div>
+  }
+
+  <button type="button" class="pm-back-link" (click)="retourMenu()">← Retour au menu</button>
+} @else {
+  <p class="pm-field-hint">Commande introuvable.</p>
+}

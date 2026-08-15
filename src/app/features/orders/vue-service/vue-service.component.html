@@ -1,0 +1,23 @@
+@if (commandesAServir().length === 0) {
+  <div class="card empty-state">
+    <div class="empty-state-title">Aucune commande prête à servir</div>
+    <p>Les commandes marquées "Prête" en cuisine apparaîtront ici.</p>
+  </div>
+} @else {
+  <div class="tables-grid">
+    @for (c of commandesAServir(); track c.id) {
+      <div class="card table-chip service-card">
+        <div class="table-chip-top">
+          <span class="table-chip-numero">Table {{ numeroTable(c.tableId) }}</span>
+          <span class="table-muted">{{ numeroCourt(c.id) }}</span>
+        </div>
+        <ul class="kanban-card-lignes">
+          @for (l of c.lignes; track l.id) {
+            <li>{{ l.quantite }}× {{ l.produitNom }}</li>
+          }
+        </ul>
+        <button type="button" class="btn btn--primary btn--sm" (click)="servir(c)">Marquer servie</button>
+      </div>
+    }
+  </div>
+}

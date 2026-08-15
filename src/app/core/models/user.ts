@@ -1,0 +1,10 @@
+export class User {
+    id!: number;
+    email! : string;
+    password! : string;
+    nomComplet! : string;
+    role? : string;
+}
+export interface Adresse{
+    
+}

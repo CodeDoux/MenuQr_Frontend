@@ -1,0 +1,30 @@
+<app-modal [ouvert]="ouvert" [titre]="titre" (fermer)="fermer.emit()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+    <label class="field">
+      <span class="field-label">Nom de la salle *</span>
+      <input type="text" formControlName="description" placeholder="Ex. Salle intérieure, Terrasse..." class="field-input" />
+      @if (form.get('description')?.touched && form.get('description')?.invalid) {
+        <span class="field-error">Le nom de la salle est requis.</span>
+      }
+    </label>
+
+    <div class="field-row">
+      <label class="field">
+        <span class="field-label">Ordre d'affichage</span>
+        <input type="number" formControlName="ordre" min="1" class="field-input" />
+      </label>
+      <label class="field">
+        <span class="field-label">Statut</span>
+        <select formControlName="statut" class="field-input">
+          <option [value]="StatutSalle.ACTIVE">Active</option>
+          <option [value]="StatutSalle.INACTIVE">Inactive</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn--ghost" (click)="fermer.emit()">Annuler</button>
+      <button type="submit" class="btn btn--primary">Enregistrer</button>
+    </div>
+  </form>
+</app-modal>

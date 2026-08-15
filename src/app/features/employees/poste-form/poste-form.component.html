@@ -1,0 +1,21 @@
+<app-modal [ouvert]="ouvert" [titre]="titre" (fermer)="fermer.emit()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+    <label class="field">
+      <span class="field-label">Nom du poste *</span>
+      <input type="text" formControlName="nom" placeholder="Ex. Serveur, Chef cuisinier..." class="field-input" />
+      @if (form.get('nom')?.touched && form.get('nom')?.invalid) {
+        <span class="field-error">Le nom du poste est requis.</span>
+      }
+    </label>
+
+    <label class="field">
+      <span class="field-label">Description</span>
+      <textarea formControlName="description" rows="2" class="field-input" placeholder="Optionnel"></textarea>
+    </label>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn--ghost" (click)="fermer.emit()">Annuler</button>
+      <button type="submit" class="btn btn--primary">Enregistrer</button>
+    </div>
+  </form>
+</app-modal>

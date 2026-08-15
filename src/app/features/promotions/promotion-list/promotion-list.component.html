@@ -1,0 +1,61 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Promotions</h1>
+    <p class="page-subtitle">Créez des réductions sur vos produits ou sur la commande entière.</p>
+  </div>
+  <button type="button" class="btn btn--primary" (click)="ouvrirCreation()">+ Nouvelle promotion</button>
+</div>
+
+@if (promotions().length === 0) {
+  <div class="card empty-state">
+    <div class="empty-state-title">Aucune promotion pour le moment</div>
+    <p>Créez votre première promotion pour attirer plus de clients.</p>
+    <button type="button" class="btn btn--primary" (click)="ouvrirCreation()">+ Créer une promotion</button>
+  </div>
+} @else {
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Promotion</th>
+          <th>Réduction</th>
+          <th>Cible</th>
+          <th>Code</th>
+          <th>Statut</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (p of promotions(); track p.id) {
+          <tr>
+            <td class="table-strong">{{ p.nom }}</td>
+            <td class="table-strong">{{ libelleReduction(p) }}</td>
+            <td class="table-muted">{{ libelleCible(p) }}</td>
+            <td>
+              @if (p.code) {
+                <app-badge [label]="p.code" tone="info" />
+              } @else {
+                <span class="table-muted">Automatique</span>
+              }
+            </td>
+            <td>
+              <app-badge [label]="p.estActive ? 'Active' : 'Inactive'" [tone]="toneActive(p)" />
+            </td>
+            <td class="table-actions">
+              <button type="button" class="btn btn--icon" title="Modifier" (click)="ouvrirEdition(p)">✎</button>
+              <button type="button" class="btn btn--icon" title="Supprimer" (click)="supprimer(p)">🗑</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+<app-promotion-form
+  [ouvert]="formOuvert()"
+  [promotionAEditer]="promotionEnEdition()"
+  [produitsDisponibles]="produits()"
+  (fermer)="formOuvert.set(false)"
+  (valider)="valider($event)"
+/>

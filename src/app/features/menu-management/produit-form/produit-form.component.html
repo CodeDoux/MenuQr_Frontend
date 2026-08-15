@@ -1,0 +1,117 @@
+<app-modal [ouvert]="ouvert" [titre]="titre" (fermer)="fermer.emit()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+    <label class="field">
+      <span class="field-label">Nom du produit *</span>
+      <input type="text" formControlName="nom" placeholder="Ex. Yassa Poulet" class="field-input" />
+      @if (form.get('nom')?.touched && form.get('nom')?.invalid) {
+        <span class="field-error">Le nom du produit est requis.</span>
+      }
+    </label>
+
+    <label class="field">
+      <span class="field-label">Description</span>
+      <textarea formControlName="description" rows="2" class="field-input" placeholder="Optionnel"></textarea>
+    </label>
+
+    <div class="field-row">
+      <label class="field">
+        <span class="field-label">Prix de base (F CFA) *</span>
+        <input type="number" formControlName="prix" min="0" class="field-input" />
+      </label>
+      <label class="field">
+        <span class="field-label">Temps de préparation (min)</span>
+        <input type="number" formControlName="tempsPreparation" min="0" class="field-input" placeholder="Optionnel" />
+      </label>
+    </div>
+
+    <div class="field">
+      <span class="field-label">Catégories *</span>
+      <div class="chip-select">
+        @for (cat of categoriesDisponibles; track cat.id) {
+          <label class="chip" [class.chip--active]="estCategorieCochee(cat.id)">
+            <input
+              type="checkbox"
+              [checked]="estCategorieCochee(cat.id)"
+              (change)="toggleCategorie(cat.id, $any($event.target).checked)"
+              hidden
+            />
+            {{ cat.nom }}
+          </label>
+        }
+      </div>
+      @if (form.get('categorieIds')?.touched && form.get('categorieIds')?.invalid) {
+        <span class="field-error">Sélectionnez au moins une catégorie.</span>
+      }
+    </div>
+
+    <div class="field-row">
+      <label class="field field--switch">
+        <span class="field-label">Disponible</span>
+        <input type="checkbox" formControlName="estDisponible" class="field-switch" />
+      </label>
+      <label class="field field--switch">
+        <span class="field-label">Visible sur le menu</span>
+        <input type="checkbox" formControlName="estVisible" class="field-switch" />
+      </label>
+      <label class="field field--switch">
+        <span class="field-label">Populaire</span>
+        <input type="checkbox" formControlName="estPopulaire" class="field-switch" />
+      </label>
+    </div>
+
+    <div class="variantes-block">
+      <div class="variantes-header">
+        <span class="field-label">Images du produit</span>
+        <button type="button" class="btn btn--ghost btn--sm" (click)="ajouterImage()">+ Ajouter une image</button>
+      </div>
+
+      @if (images.length === 0) {
+        <p class="variantes-empty">Aucune image — le produit affichera un visuel par défaut sur le menu.</p>
+      }
+
+      @for (ligne of images.controls; track $index) {
+        <div class="image-row" [formGroup]="$any(ligne)">
+          <input type="text" formControlName="url" placeholder="URL de l'image" class="field-input" />
+          <label class="variante-dispo">
+            <input
+              type="radio"
+              name="image-principale"
+              [checked]="ligne.get('estPrincipale')?.value"
+              (change)="definirImagePrincipale($index)"
+            />
+            Principale
+          </label>
+          <button type="button" class="btn btn--icon" title="Supprimer" (click)="supprimerImage($index)">🗑</button>
+        </div>
+      }
+    </div>
+
+    <div class="variantes-block">
+      <div class="variantes-header">
+        <span class="field-label">Variantes (optionnel)</span>
+        <button type="button" class="btn btn--ghost btn--sm" (click)="ajouterVariante()">+ Ajouter une variante</button>
+      </div>
+
+      @if (variantes.length === 0) {
+        <p class="variantes-empty">Aucune variante — le produit sera vendu à son prix de base uniquement.</p>
+      }
+
+      @for (ligne of variantes.controls; track $index) {
+        <div class="variante-row" [formGroup]="$any(ligne)">
+          <input type="text" formControlName="nom" placeholder="Ex. Grande" class="field-input" />
+          <input type="number" formControlName="prix" placeholder="Prix" min="0" class="field-input" />
+          <label class="variante-dispo">
+            <input type="checkbox" formControlName="estDisponible" class="field-switch" />
+            Dispo
+          </label>
+          <button type="button" class="btn btn--icon" title="Supprimer" (click)="supprimerVariante($index)">🗑</button>
+        </div>
+      }
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn--ghost" (click)="fermer.emit()">Annuler</button>
+      <button type="submit" class="btn btn--primary">Enregistrer</button>
+    </div>
+  </form>
+</app-modal>
