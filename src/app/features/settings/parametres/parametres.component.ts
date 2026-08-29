@@ -8,7 +8,7 @@ import { ZoneFormPayload, ZoneLivraison } from '../../../core/models/livraison';
 import { DeliveryService } from '../../../core/services/livraison.service';
 import { Horaire, MoyenPaiement } from '../../../core/models/settings';
 
-const LIBELLE_JOUR: Record<JourSemaine, string> = {
+const LIBELLE_JOUR: Record<string, string> = {
   [JourSemaine.LUNDI]: 'Lundi',
   [JourSemaine.MARDI]: 'Mardi',
   [JourSemaine.MERCREDI]: 'Mercredi',

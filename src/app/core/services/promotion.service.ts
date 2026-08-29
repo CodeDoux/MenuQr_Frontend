@@ -1,56 +1,60 @@
 import { Injectable, signal } from '@angular/core';
-import { CiblePromotion, TypeReduction } from '../../core/enums/enums';
-import { Promotion, PromotionFormPayload } from '../models/promotion';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
-/** ⚠️ MOCK DATA — même principe que les autres services du projet. */
-
-const RESTAURANT_ID_COURANT = 'rest-001';
-
-function uid(prefix: string): string {
-  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
-}
-
-function nowIso(): string {
-  return new Date().toISOString();
-}
+const API = environment.apiUrl;
 
 @Injectable({ providedIn: 'root' })
 export class PromotionsService {
-  private readonly _promotions = signal<Promotion[]>(this.seed());
-
+  private readonly _promotions = signal<any[]>([]);
   readonly promotions = this._promotions.asReadonly();
 
-  creerPromotion(payload: PromotionFormPayload): Promotion {
-    const nouvelle: Promotion = {
-      id: uid('promo'),
-      restaurantId: RESTAURANT_ID_COURANT,
-      ...payload,
-      nombreUtilisations: 0,
-      createdAt: nowIso(),
-    };
-    this._promotions.update((liste) => [...liste, nouvelle]);
+  constructor(private readonly http: HttpClient) {
+    this.charger();
+  }
+
+  private async charger(): Promise<void> {
+    const rep = await firstValueFrom(this.http.get<{ data: any[] }>(`${API}/promotions`));
+    this._promotions.set(rep.data.map((p) => this.mapPromotion(p)));
+  }
+
+  async creerPromotion(payload: any): Promise<any> {
+    const rep = await firstValueFrom(this.http.post<{ data: any }>(`${API}/promotions`, this.payloadVersApi(payload)));
+    const nouvelle = this.mapPromotion(rep.data);
+    this._promotions.update((liste) => [nouvelle, ...liste]);
     return nouvelle;
   }
 
-  modifierPromotion(id: string, payload: PromotionFormPayload): void {
-    this._promotions.update((liste) =>
-      liste.map((p) => (p.id === id ? { ...p, ...payload } : p))
-    );
+  async modifierPromotion(id: string, payload: any): Promise<void> {
+    const rep = await firstValueFrom(this.http.put<{ data: any }>(`${API}/promotions/${id}`, this.payloadVersApi(payload)));
+    const maj = this.mapPromotion(rep.data);
+    this._promotions.update((liste) => liste.map((p) => (p.id === id ? maj : p)));
   }
 
-  supprimerPromotion(id: string): void {
+  async supprimerPromotion(id: string): Promise<void> {
+    await firstValueFrom(this.http.delete(`${API}/promotions/${id}`));
     this._promotions.update((liste) => liste.filter((p) => p.id !== id));
   }
 
-  private seed(): Promotion[] {
-    return [
-      {
-        id: 'promo-weekend', restaurantId: RESTAURANT_ID_COURANT, nom: 'Weekend Pizza',
-        code: null, typeReduction: TypeReduction.POURCENTAGE, valeur: 20,
-        cible: CiblePromotion.PRODUIT, produitIds: ['prod-pizza'],
-        dateDebut: nowIso(), dateFin: null, limiteUtilisation: null, nombreUtilisations: 0,
-        estActive: true, createdAt: nowIso(),
-      },
-    ];
+  private mapPromotion(api: any) {
+    return {
+      id: api.id, nom: api.nom, code: api.code,
+      typeReduction: api.type_reduction, valeur: Number(api.valeur), cible: api.cible,
+      produitIds: api.produit_ids ?? [],
+      dateDebut: api.date_debut, dateFin: api.date_fin,
+      limiteUtilisation: api.limite_utilisation, nombreUtilisations: api.nombre_utilisations,
+      estActive: api.est_active, createdAt: api.created_at,
+    };
+  }
+
+  private payloadVersApi(payload: any) {
+    return {
+      nom: payload.nom, code: payload.code || null,
+      type_reduction: payload.typeReduction, valeur: payload.valeur, cible: payload.cible,
+      produit_ids: payload.cible === 'PRODUIT' ? payload.produitIds : [],
+      date_debut: payload.dateDebut, date_fin: payload.dateFin || null,
+      limite_utilisation: payload.limiteUtilisation || null, est_active: payload.estActive,
+    };
   }
 }
