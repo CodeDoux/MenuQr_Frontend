@@ -5,10 +5,10 @@ import { BadgeComponent, BadgeTone } from '../../../shared/components/badge/badg
 import { PlatformAdminService } from '../../../core/services/admin.service';
 import { RestaurantSummary } from '../../../core/models/admin';
 
-const LABEL_STATUT: Record<StatutRestaurant, string> = {
+const LABEL_STATUT: Record<string, string> = {
   ACTIF: 'Actif', SUSPENDU: 'Suspendu', INACTIF: 'Inactif', FERME: 'Fermé',
 };
-const TONE_STATUT: Record<StatutRestaurant, BadgeTone> = {
+const TONE_STATUT: Record<string, BadgeTone> = {
   ACTIF: 'success', SUSPENDU: 'warning', INACTIF: 'neutral', FERME: 'danger',
 };
 

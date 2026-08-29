@@ -13,7 +13,7 @@
         <h3 class="abo-plan-nom">{{ offre.nom }}</h3>
         <app-badge [label]="offre.statut" [tone]="offre.statut === 'ACTIF' ? 'success' : 'neutral'" />
       </div>
-      <p class="abo-plan-prix">{{ offre.prixMensuel }} <span class="field-hint">FCFA/mois</span></p>
+      <p class="abo-plan-prix">{{ offre.prix_mensuel }} <span class="field-hint">FCFA/mois</span></p>
       <p class="field-hint">{{ offre.description }}</p>
       <ul class="abo-plan-features">
         @for (f of offre.fonctionnalites; track f) { <li>✓ {{ f }}</li> }

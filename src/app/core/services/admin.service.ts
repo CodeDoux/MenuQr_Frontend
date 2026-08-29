@@ -1,74 +1,57 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { StatutAbonnement, StatutRestaurant } from '../enums/enums';
-import { AdminCompte, AdminCompteFormPayload, RestaurantSummary } from '../models/admin';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
-function uid(prefix: string): string {
-  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
-}
+const API = environment.apiUrl;
 
-/**
- * ⚠️ MOCK DATA. Restaurants au-delà de 'rest-001' sont purement fictifs
- * (fiches d'info pour peupler la vue admin) — l'app étant mono-tenant,
- * ils n'ont pas de vraies données opérationnelles derrière (pas de menus,
- * commandes, etc. réellement liés).
- */
 @Injectable({ providedIn: 'root' })
 export class PlatformAdminService {
-  private readonly _restaurants = signal<RestaurantSummary[]>(this.seedRestaurants());
-  private readonly _comptesAdmin = signal<AdminCompte[]>(this.seedComptesAdmin());
+  private readonly _restaurants = signal<any[]>([]);
+  private readonly _comptesAdmin = signal<any[]>([]);
 
   readonly restaurants = this._restaurants.asReadonly();
   readonly comptesAdmin = this._comptesAdmin.asReadonly();
 
   readonly nbTotal = computed(() => this._restaurants().length);
-  readonly nbActifs = computed(() => this._restaurants().filter((r) => r.statut === StatutRestaurant.ACTIF).length);
-  readonly nbEnEssai = computed(() => this._restaurants().filter((r) => r.abonnementStatut === StatutAbonnement.ESSAI).length);
-  readonly nbSuspendus = computed(() => this._restaurants().filter((r) => r.statut === StatutRestaurant.SUSPENDU).length);
+  readonly nbActifs = computed(() => this._restaurants().filter((r) => r.statut === 'ACTIF').length);
+  readonly nbEnEssai = computed(() => this._restaurants().filter((r) => r.abonnement_statut === 'ESSAI').length);
+  readonly nbSuspendus = computed(() => this._restaurants().filter((r) => r.statut === 'SUSPENDU').length);
 
-  changerStatutRestaurant(id: string, statut: StatutRestaurant): void {
-    this._restaurants.update((liste) => liste.map((r) => (r.id === id ? { ...r, statut } : r)));
+  constructor(private readonly http: HttpClient) {
+    this.chargerRestaurants();
+    this.chargerComptesAdmin();
   }
 
-  creerCompteAdmin(payload: AdminCompteFormPayload): AdminCompte {
-    const nouveau: AdminCompte = { id: uid('admin'), ...payload, actif: true };
-    this._comptesAdmin.update((liste) => [...liste, nouveau]);
-    return nouveau;
+  private async chargerRestaurants(): Promise<void> {
+    const rep = await firstValueFrom(this.http.get<{ data: any[] }>(`${API}/admin/restaurants`));
+    this._restaurants.set(rep.data);
   }
 
-  basculerActifCompte(id: string): void {
-    this._comptesAdmin.update((liste) => liste.map((c) => (c.id === id ? { ...c, actif: !c.actif } : c)));
+  private async chargerComptesAdmin(): Promise<void> {
+    const rep = await firstValueFrom(this.http.get<{ data: any[] }>(`${API}/admin/administrateurs`));
+    this._comptesAdmin.set(rep.data);
   }
 
-  supprimerCompteAdmin(id: string): void {
+  async changerStatutRestaurant(id: string, statut: string): Promise<void> {
+    const rep = await firstValueFrom(this.http.patch<{ data: any }>(`${API}/admin/restaurants/${id}/statut`, { statut }));
+    this._restaurants.update((liste) => liste.map((r) => (r.id === id ? rep.data : r)));
+  }
+
+  async creerCompteAdmin(payload: { nomComplet: string; email: string }): Promise<void> {
+    const rep = await firstValueFrom(
+      this.http.post<{ data: any }>(`${API}/admin/administrateurs`, { nom_complet: payload.nomComplet, email: payload.email })
+    );
+    this._comptesAdmin.update((liste) => [...liste, rep.data]);
+  }
+
+  async basculerActifCompte(id: string): Promise<void> {
+    const rep = await firstValueFrom(this.http.patch<{ data: any }>(`${API}/admin/administrateurs/${id}/toggle-actif`, {}));
+    this._comptesAdmin.update((liste) => liste.map((c) => (c.id === id ? rep.data : c)));
+  }
+
+  async supprimerCompteAdmin(id: string): Promise<void> {
+    await firstValueFrom(this.http.delete(`${API}/admin/administrateurs/${id}`));
     this._comptesAdmin.update((liste) => liste.filter((c) => c.id !== id));
-  }
-
-  private seedRestaurants(): RestaurantSummary[] {
-    return [
-      {
-        id: 'rest-001', nom: 'Le Palais', email: 'proprietaire@lepalais.sn',
-        statut: StatutRestaurant.ACTIF, dateInscription: '2025-06-01T00:00:00.000Z',
-        offreNom: 'Starter', abonnementStatut: StatutAbonnement.ESSAI, dateFinAbonnement: '2026-08-30T00:00:00.000Z',
-      },
-      {
-        id: 'rest-002', nom: 'Chez Fatou', email: 'contact@chezfatou.sn',
-        statut: StatutRestaurant.ACTIF, dateInscription: '2025-03-15T00:00:00.000Z',
-        offreNom: 'Pro', abonnementStatut: StatutAbonnement.ACTIF, dateFinAbonnement: '2026-09-15T00:00:00.000Z',
-      },
-      {
-        id: 'rest-003', nom: 'Fast Burger Dakar', email: 'admin@fastburger.sn',
-        statut: StatutRestaurant.SUSPENDU, dateInscription: '2025-01-10T00:00:00.000Z',
-        offreNom: 'Starter', abonnementStatut: StatutAbonnement.EXPIRE, dateFinAbonnement: '2026-05-10T00:00:00.000Z',
-      },
-      {
-        id: 'rest-004', nom: 'Le Gourmet', email: 'contact@legourmet.sn',
-        statut: StatutRestaurant.ACTIF, dateInscription: '2025-11-02T00:00:00.000Z',
-        offreNom: 'Business', abonnementStatut: StatutAbonnement.ACTIF, dateFinAbonnement: '2026-12-02T00:00:00.000Z',
-      },
-    ];
-  }
-
-  private seedComptesAdmin(): AdminCompte[] {
-    return [{ id: 'admin-001', nomComplet: 'Équipe MenuQr', email: 'admin@menuqr.com', actif: true }];
   }
 }

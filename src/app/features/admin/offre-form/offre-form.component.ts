@@ -34,24 +34,28 @@ export class OffreFormComponent implements OnChanges {
   });
 
   ngOnChanges(): void {
-    if (this.offreAEditer) {
-      const o = this.offreAEditer;
-      this.form.patchValue({
-        nom: o.nom, description: o.description ?? '', prixMensuel: o.prixMensuel,
-        prixAnnuel: o.prixAnnuel ?? null, dureeEssai: o.dureeEssai ?? null,
-        statut: o.statut, ordreAffichage: o.ordreAffichage,
-        fonctionnalitesTexte: o.fonctionnalites.join('\n'),
-        limiteTables: o.limites.find((l) => l.nom === 'Tables')?.valeur ?? 10,
-        limiteEmployes: o.limites.find((l) => l.nom === 'Employés')?.valeur ?? 5,
-      });
-    } else {
-      this.form.reset({
-        nom: '', description: '', prixMensuel: 15000, prixAnnuel: null, dureeEssai: 14,
-        statut: StatutPlan.ACTIF, ordreAffichage: 1, fonctionnalitesTexte: '',
-        limiteTables: 10, limiteEmployes: 5,
-      });
-    }
+  if (this.offreAEditer) {
+    const o: any = this.offreAEditer;
+    this.form.patchValue({
+      nom: o.nom,
+      description: o.description ?? '',
+      prixMensuel: o.prix_mensuel,
+      prixAnnuel: o.prix_annuel ?? null,
+      dureeEssai: o.duree_essai ?? null,
+      statut: o.statut,
+      ordreAffichage: o.ordre_affichage,
+      fonctionnalitesTexte: (o.fonctionnalites ?? []).join('\n'),
+      limiteTables: o.limites?.find((l: any) => l.nom === 'Tables')?.valeur ?? 10,
+      limiteEmployes: o.limites?.find((l: any) => l.nom === 'Employés')?.valeur ?? 5,
+    });
+  } else {
+    this.form.reset({
+      nom: '', description: '', prixMensuel: 15000, prixAnnuel: null, dureeEssai: 14,
+      statut: this.StatutPlan.ACTIF, ordreAffichage: 1, fonctionnalitesTexte: '',
+      limiteTables: 10, limiteEmployes: 5,
+    });
   }
+}
 
   get titre(): string {
     return this.offreAEditer ? 'Modifier l\'offre' : 'Créer une offre';

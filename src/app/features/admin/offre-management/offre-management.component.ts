@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OffreFormComponent } from '../offre-form/offre-form.component';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
@@ -11,7 +11,7 @@ import { SubscriptionService } from '../../../core/services/subcription.service'
   imports: [CommonModule, OffreFormComponent, BadgeComponent],
   templateUrl: './offre-management.component.html',
 })
-export class OffreManagementComponent {
+export class OffreManagementComponent implements OnInit{
   readonly offres;
 
   formOuvert = signal(false);
@@ -19,6 +19,11 @@ export class OffreManagementComponent {
 
   constructor(private readonly service: SubscriptionService) {
     this.offres = this.service.offres;
+  }
+ ngOnInit(): void {
+    this.service.chargerOffresAdmin().catch(() => {
+      console.error('Impossible de charger les offres.');
+    });
   }
 
   ouvrirCreation(): void {

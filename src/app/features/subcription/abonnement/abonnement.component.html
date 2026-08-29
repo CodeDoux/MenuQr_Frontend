@@ -5,28 +5,32 @@
   </div>
 </div>
 
-<div class="card settings-section abo-current">
-  <div class="abo-current-top">
-    <div>
-      <p class="field-hint">Plan actuel</p>
-      <h2 class="settings-section-title">{{ offreActuelle()?.nom }}</h2>
+@if (abonnement(); as abo) {
+  <div class="card settings-section abo-current">
+    <div class="abo-current-top">
+      <div>
+        <p class="field-hint">Plan actuel</p>
+        <h2 class="settings-section-title">{{ offreActuelle()?.nom }}</h2>
+      </div>
+      <app-badge [label]="LABEL_STATUT_ABO[abo.statut]" [tone]="TONE_STATUT_ABO[abo.statut]" />
     </div>
-    <app-badge [label]="LABEL_STATUT_ABO[abonnement().statut]" [tone]="TONE_STATUT_ABO[abonnement().statut]" />
+
+    @if (joursRestantsEssai() !== null) {
+      <p class="abo-essai-info">⏳ {{ joursRestantsEssai() }} jour(s) restant(s) avant la fin de votre période d'essai.</p>
+    }
+
+    <p class="field-hint">{{ offreActuelle()?.prix_mensuel }} FCFA / mois</p>
   </div>
-
-  @if (joursRestantsEssai() !== null) {
-    <p class="abo-essai-info">⏳ {{ joursRestantsEssai() }} jour(s) restant(s) avant la fin de votre période d'essai.</p>
-  }
-
-  <p class="field-hint">{{ offreActuelle()?.prixMensuel }} FCFA / mois</p>
-</div>
+} @else {
+  <p class="table-muted">Chargement de l'abonnement...</p>
+}
 
 <h3 class="qr-generaux-title">Changer de plan</h3>
 <div class="abo-plans-grid">
   @for (offre of offres(); track offre.id) {
     <div class="card abo-plan-card" [class.abo-plan-card--active]="estOffreActuelle(offre)">
       <h3 class="abo-plan-nom">{{ offre.nom }}</h3>
-      <p class="abo-plan-prix">{{ offre.prixMensuel }} <span class="field-hint">FCFA/mois</span></p>
+      <p class="abo-plan-prix">{{ offre.prix_mensuel }} <span class="field-hint">FCFA/mois</span></p>
       <p class="field-hint">{{ offre.description }}</p>
 
       <ul class="abo-plan-features">
@@ -72,8 +76,8 @@
           <tr>
             <td class="table-strong">{{ f.numero }}</td>
             <td>{{ f.montant }} FCFA</td>
-            <td class="table-muted">{{ f.dateEmission | date: 'dd/MM/yyyy' }}</td>
-            <td class="table-muted">{{ f.dateEcheance | date: 'dd/MM/yyyy' }}</td>
+            <td class="table-muted">{{ f.date_emission | date: 'dd/MM/yyyy' }}</td>
+            <td class="table-muted">{{ f.date_echeance | date: 'dd/MM/yyyy' }}</td>
             <td><app-badge [label]="LABEL_STATUT_FACTURE[f.statut]" [tone]="TONE_STATUT_FACTURE[f.statut]" /></td>
           </tr>
         }

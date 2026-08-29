@@ -4,10 +4,10 @@ import { StatutAbonnement } from '../../../core/enums/enums';
 import { BadgeComponent, BadgeTone } from '../../../shared/components/badge/badge.component';
 import { PlatformAdminService } from '../../../core/services/admin.service';
 
-const LABEL_STATUT: Record<StatutAbonnement, string> = {
+const LABEL_STATUT: Record<string, string> = {
   ESSAI: 'Essai', ACTIF: 'Actif', EXPIRE: 'Expiré', SUSPENDU: 'Suspendu', ANNULE: 'Annulé',
 };
-const TONE_STATUT: Record<StatutAbonnement, BadgeTone> = {
+const TONE_STATUT: Record<string, BadgeTone> = {
   ESSAI: 'info', ACTIF: 'success', EXPIRE: 'danger', SUSPENDU: 'warning', ANNULE: 'neutral',
 };
 

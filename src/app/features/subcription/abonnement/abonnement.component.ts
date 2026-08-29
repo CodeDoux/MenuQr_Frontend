@@ -1,20 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StatutAbonnement, StatutFactureAbonnement } from '../../../core/enums/enums';
 import { BadgeComponent, BadgeTone } from '../../../shared/components/badge/badge.component';
 import { SubscriptionService } from '../../../core/services/subcription.service';
 import { Offre } from '../../../core/models/subcription';
 
-const LABEL_STATUT_ABO: Record<StatutAbonnement, string> = {
+const LABEL_STATUT_ABO: Record<string, string> = {
   ESSAI: 'Période d\'essai', ACTIF: 'Actif', EXPIRE: 'Expiré', SUSPENDU: 'Suspendu', ANNULE: 'Annulé',
 };
-const TONE_STATUT_ABO: Record<StatutAbonnement, BadgeTone> = {
+const TONE_STATUT_ABO: Record<string, BadgeTone> = {
   ESSAI: 'info', ACTIF: 'success', EXPIRE: 'danger', SUSPENDU: 'warning', ANNULE: 'neutral',
 };
-const LABEL_STATUT_FACTURE: Record<StatutFactureAbonnement, string> = {
+const LABEL_STATUT_FACTURE: Record<string, string> = {
   EN_ATTENTE: 'En attente', PAYEE: 'Payée', EN_RETARD: 'En retard', ANNULEE: 'Annulée',
 };
-const TONE_STATUT_FACTURE: Record<StatutFactureAbonnement, BadgeTone> = {
+const TONE_STATUT_FACTURE: Record<string, BadgeTone> = {
   EN_ATTENTE: 'warning', PAYEE: 'success', EN_RETARD: 'danger', ANNULEE: 'neutral',
 };
 
@@ -24,7 +24,7 @@ const TONE_STATUT_FACTURE: Record<StatutFactureAbonnement, BadgeTone> = {
   imports: [CommonModule, BadgeComponent],
   templateUrl: './abonnement.component.html',
 })
-export class AbonnementComponent {
+export class AbonnementComponent implements OnInit{
   readonly offres;
   readonly abonnement;
   readonly offreActuelle;
@@ -53,4 +53,9 @@ export class AbonnementComponent {
       this.service.changerOffre(offre.id);
     }
   }
+
+  ngOnInit(): void {
+  this.service.chargerAbonnement().catch(() => {});
+  this.service.chargerFactures().catch(() => {});
+}
 }

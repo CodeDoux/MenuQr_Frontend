@@ -1,21 +1,11 @@
 import { Injectable, computed, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { AdminLoginPayload, AdminUtilisateur } from '../models/auth-admin';
 
-/**
- * ⚠️ MOCK — Auth admin plateforme, volontairement séparée de AuthService
- * (comptes restaurant). Décision actée : login dédié, pas de rôle mêlé aux
- * comptes restaurant.
- */
-
-const STORAGE_KEY = 'menuqr_admin_auth_mock';
-
-const COMPTES_DEMO: Array<{ email: string; motDePasse: string; user: AdminUtilisateur }> = [
-  {
-    email: 'admin@menuqr.com',
-    motDePasse: 'admin123',
-    user: { id: 'admin-001', nomComplet: 'Équipe MenuQr', email: 'admin@menuqr.com' },
-  },
-];
+const TOKEN_STORAGE_KEY = 'menuqr_admin_api_token';
+const ADMIN_STORAGE_KEY = 'menuqr_admin_current';
 
 @Injectable({ providedIn: 'root' })
 export class AdminAuthService {
@@ -24,31 +14,40 @@ export class AdminAuthService {
   readonly currentAdmin = this._currentAdmin.asReadonly();
   readonly isAuthenticated = computed(() => this._currentAdmin() !== null);
 
-  login(payload: AdminLoginPayload): Promise<AdminUtilisateur> {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const compte = COMPTES_DEMO.find(
-          (c) => c.email.toLowerCase() === payload.email.trim().toLowerCase() && c.motDePasse === payload.motDePasse
-        );
-        if (!compte) {
-          reject(new Error('Email ou mot de passe incorrect.'));
-          return;
-        }
-        this._currentAdmin.set(compte.user);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(compte.user));
-        resolve(compte.user);
-      }, 500);
-    });
+  constructor(private readonly http: HttpClient) {}
+
+  async login(payload: AdminLoginPayload): Promise<AdminUtilisateur> {
+    const reponse = await firstValueFrom(
+      this.http.post<{ token: string; admin: { id: string; nom_complet: string; email: string } }>(
+        `${environment.apiUrl}/admin/login`,
+        { email: payload.email, password: payload.motDePasse }
+      )
+    );
+
+    const admin: AdminUtilisateur = {
+      id: reponse.admin.id, nomComplet: reponse.admin.nom_complet, email: reponse.admin.email,
+    };
+
+    localStorage.setItem(TOKEN_STORAGE_KEY, reponse.token);
+    localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(admin));
+    this._currentAdmin.set(admin);
+
+    return admin;
   }
 
-  logout(): void {
-    this._currentAdmin.set(null);
-    localStorage.removeItem(STORAGE_KEY);
+  async logout(): Promise<void> {
+    try {
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/admin/logout`, {}));
+    } finally {
+      this._currentAdmin.set(null);
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
+      localStorage.removeItem(ADMIN_STORAGE_KEY);
+    }
   }
 
   private chargerDepuisStockage(): AdminUtilisateur | null {
     try {
-      const brut = localStorage.getItem(STORAGE_KEY);
+      const brut = localStorage.getItem(ADMIN_STORAGE_KEY);
       return brut ? (JSON.parse(brut) as AdminUtilisateur) : null;
     } catch {
       return null;

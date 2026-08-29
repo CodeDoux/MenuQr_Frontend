@@ -1,115 +1,116 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { StatutAbonnement, StatutFactureAbonnement, StatutPlan } from '../../core/enums/enums';
-import { Abonnement, FactureAbonnement, Offre, OffreFormPayload } from '../models/subcription';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
-/** ⚠️ MOCK DATA — même principe que les autres services du projet. */
+const API = environment.apiUrl;
 
-const RESTAURANT_ID_COURANT = 'rest-001';
-
-function uid(prefix: string): string {
-  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
-}
-
-function nowIso(): string {
-  return new Date().toISOString();
-}
-
-function dansNJours(n: number): string {
-  return new Date(Date.now() + n * 86_400_000).toISOString();
-}
-
+/**
+ * ⚠️ offres et abonnement.offre viennent bruts de l'API (snake_case :
+ * prix_mensuel, duree_essai, etc.) — pas mappés en camelCase ici,
+ * contrairement aux autres modules. Adapte le template en conséquence.
+ */
 @Injectable({ providedIn: 'root' })
 export class SubscriptionService {
-  private readonly _offres = signal<Offre[]>(this.seedOffres());
-  private readonly _abonnement = signal<Abonnement>(this.seedAbonnement());
-  private readonly _factures = signal<FactureAbonnement[]>([]);
+  private readonly _offres = signal<any[]>([]);
+  private readonly _abonnement = signal<any | null>(null);
+  private readonly _factures = signal<any[]>([]);
 
   readonly offres = this._offres.asReadonly();
   readonly abonnement = this._abonnement.asReadonly();
   readonly factures = this._factures.asReadonly();
 
-  readonly offreActuelle = computed(() => this._offres().find((o) => o.id === this._abonnement().offreId));
-
   readonly joursRestantsEssai = computed(() => {
-    const a = this._abonnement();
-    if (a.statut !== StatutAbonnement.ESSAI) return null;
-    const diff = new Date(a.dateFin).getTime() - Date.now();
-    return Math.max(0, Math.ceil(diff / 86_400_000));
+    const abo = this._abonnement();
+    if (!abo?.dateFin) return 0;
+    const diffMs = new Date(abo.dateFin).getTime() - Date.now();
+    return Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
   });
 
+  readonly offreActuelle = computed(() => this._abonnement()?.offre ?? null);
+
   // ============================================================
-  // ADMIN — CRUD des offres (gestion plateforme)
+  // Module Admin MenuQR — vrai CRUD (auth admin séparée, cf. AdminAuthService)
   // ============================================================
 
-  creerOffre(payload: OffreFormPayload): Offre {
-    const nouvelle: Offre = { id: `offre-${Math.random().toString(36).slice(2, 10)}`, ...payload };
-    this._offres.update((liste) => [...liste, nouvelle]);
-    return nouvelle;
+  async creerOffre(payload: any): Promise<void> {
+    const rep = await firstValueFrom(this.http.post<{ data: any }>(`${API}/admin/offres`, this.offrePayloadVersApi(payload)));
+    this._offres.update((liste) => [...liste, rep.data]);
   }
 
-  modifierOffre(id: string, payload: OffreFormPayload): void {
-    this._offres.update((liste) => liste.map((o) => (o.id === id ? { ...o, ...payload } : o)));
+  async modifierOffre(id: string, payload: any): Promise<void> {
+    const rep = await firstValueFrom(this.http.put<{ data: any }>(`${API}/admin/offres/${id}`, this.offrePayloadVersApi(payload)));
+    this._offres.update((liste) => liste.map((o) => (o.id === id ? rep.data : o)));
   }
 
-  supprimerOffre(id: string): void {
+  async supprimerOffre(id: string): Promise<void> {
+    await firstValueFrom(this.http.delete(`${API}/admin/offres/${id}`));
     this._offres.update((liste) => liste.filter((o) => o.id !== id));
   }
 
-  changerOffre(offreId: string): void {
-    this._abonnement.update((a) => ({
-      ...a,
-      offreId,
-      statut: StatutAbonnement.ACTIF,
-      dateDebut: nowIso(),
-      dateFin: dansNJours(30),
-      dateProchainPaiement: dansNJours(30),
-    }));
-
-    const offre = this._offres().find((o) => o.id === offreId);
-    if (offre) {
-      this._factures.update((liste) => [
-        {
-          id: uid('fact'), abonnementId: this._abonnement().id,
-          numero: `INV-${Date.now().toString().slice(-6)}`,
-          montant: offre.prixMensuel, dateEmission: nowIso(), dateEcheance: dansNJours(15),
-          statut: StatutFactureAbonnement.EN_ATTENTE,
-        },
-        ...liste,
-      ]);
-    }
+  /** Liste complète (tous statuts) pour la page Admin — la liste publique
+   *  ne renvoie que les offres ACTIF, insuffisant pour la gestion. */
+  async chargerOffresAdmin(): Promise<void> {
+    const rep = await firstValueFrom(this.http.get<{ data: any[] }>(`${API}/admin/offres`));
+    this._offres.set(rep.data);
   }
 
-  private seedOffres(): Offre[] {
-    return [
-      {
-        id: 'offre-starter', nom: 'Starter', description: 'Pour démarrer sereinement',
-        prixMensuel: 15000, prixAnnuel: 150000, devise: 'FCFA', dureeEssai: 14,
-        statut: StatutPlan.ACTIF, ordreAffichage: 1,
-        fonctionnalites: ['1 menu', 'QR codes illimités', 'Support par email'],
-        limites: [{ nom: 'Tables', valeur: 5, unite: 'tables' }, { nom: 'Employés', valeur: 3, unite: 'employés' }],
-      },
-      {
-        id: 'offre-pro', nom: 'Pro', description: 'Pour les restaurants en croissance',
-        prixMensuel: 35000, prixAnnuel: 350000, devise: 'FCFA', dureeEssai: 14,
-        statut: StatutPlan.ACTIF, ordreAffichage: 2,
-        fonctionnalites: ['Menus illimités', 'QR codes illimités', 'Statistiques avancées', 'Support prioritaire'],
-        limites: [{ nom: 'Tables', valeur: 20, unite: 'tables' }, { nom: 'Employés', valeur: 10, unite: 'employés' }],
-      },
-      {
-        id: 'offre-business', nom: 'Business', description: 'Pour les grandes structures',
-        prixMensuel: 65000, prixAnnuel: 650000, devise: 'FCFA', dureeEssai: 14,
-        statut: StatutPlan.ACTIF, ordreAffichage: 3,
-        fonctionnalites: ['Tout Pro, en illimité', 'Multi-restaurants', 'Support dédié'],
-        limites: [{ nom: 'Tables', valeur: -1, unite: 'illimité' }, { nom: 'Employés', valeur: -1, unite: 'illimité' }],
-      },
-    ];
-  }
-
-  private seedAbonnement(): Abonnement {
+  private offrePayloadVersApi(payload: any) {
     return {
-      id: uid('abo'), restaurantId: RESTAURANT_ID_COURANT, offreId: 'offre-starter',
-      dateDebut: nowIso(), dateFin: dansNJours(12),
-      statut: StatutAbonnement.ESSAI, renouvellementAutomatique: false, dateProchainPaiement: null,
+      nom: payload.nom, description: payload.description,
+      prix_mensuel: payload.prixMensuel ?? payload.prix_mensuel,
+      prix_annuel: payload.prixAnnuel ?? payload.prix_annuel ?? null,
+      duree_essai: payload.dureeEssai ?? payload.duree_essai ?? null,
+      statut: payload.statut, ordre_affichage: payload.ordreAffichage ?? payload.ordre_affichage,
+      fonctionnalites: payload.fonctionnalites ?? [],
+      limites: payload.limites ?? [],
+    };
+  }
+
+  constructor(private readonly http: HttpClient) {
+    this.chargerOffres();
+    // ⚠️ abonnement/factures ne sont plus chargés automatiquement : ce
+    // service est partagé avec la page Admin (session admin, pas restaurant),
+    // ce qui provoquait un 401 systématique sur ces endpoints restaurant-
+    // authentifiés. La page Abonnement (restaurant) doit désormais appeler
+    // explicitement chargerAbonnement()/chargerFactures() dans son ngOnInit.
+  }
+
+  private async chargerOffres(): Promise<void> {
+    const rep = await firstValueFrom(this.http.get<{ data: any[] }>(`${API}/offres`));
+    this._offres.set(rep.data);
+  }
+
+  async chargerAbonnement(): Promise<void> {
+    const rep = await firstValueFrom(this.http.get<{ data: any }>(`${API}/abonnement`));
+    this._abonnement.set(this.mapAbonnement(rep.data));
+  }
+
+  async chargerFactures(): Promise<void> {
+    const rep = await firstValueFrom(this.http.get<{ data: any[] }>(`${API}/factures-abonnement`));
+    this._factures.set(rep.data);
+  }
+
+  async changerOffre(offreId: string): Promise<void> {
+    const rep = await firstValueFrom(this.http.put<{ data: any }>(`${API}/abonnement`, { offre_id: offreId }));
+    this._abonnement.set(this.mapAbonnement(rep.data));
+  }
+
+  async annulerAbonnement(): Promise<void> {
+    const rep = await firstValueFrom(this.http.patch<{ data: any }>(`${API}/abonnement/annuler`, {}));
+    this._abonnement.set(this.mapAbonnement(rep.data));
+  }
+
+  async reactiverAbonnement(): Promise<void> {
+    const rep = await firstValueFrom(this.http.patch<{ data: any }>(`${API}/abonnement/reactiver`, {}));
+    this._abonnement.set(this.mapAbonnement(rep.data));
+  }
+
+  private mapAbonnement(api: any) {
+    return {
+      id: api.id, offre: api.offre, dateDebut: api.date_debut, dateFin: api.date_fin,
+      statut: api.statut, renouvellementAutomatique: api.renouvellement_automatique,
+      dateProchainPaiement: api.date_prochain_paiement,
     };
   }
 }
