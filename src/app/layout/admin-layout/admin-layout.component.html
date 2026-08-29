@@ -1,0 +1,40 @@
+<div class="shell admin-shell">
+  <aside class="sidebar admin-sidebar">
+    <div class="brand">
+      <span class="brand-mark admin-brand-mark">MQ</span>
+      <span class="brand-name">MenuQr <span class="admin-tag">Admin</span></span>
+    </div>
+
+    <nav class="nav">
+      @for (item of navItems; track item.route) {
+        <a class="nav-link" [routerLink]="item.route" routerLinkActive="nav-link--active">
+          <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="restaurant-chip">
+        <span class="restaurant-avatar">👤</span>
+        <div>
+          <div class="restaurant-name">{{ currentAdmin()?.nomComplet }}</div>
+          <div class="restaurant-plan">Plateforme MenuQr</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <span class="admin-topbar-label">Espace Administration</span>
+      <div class="topbar-actions">
+        <button type="button" class="btn btn--icon" title="Se déconnecter" (click)="deconnexion()">⏻</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

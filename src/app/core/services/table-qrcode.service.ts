@@ -1,39 +1,17 @@
 import { Injectable, computed, signal } from '@angular/core';
-import * as QRCodeLib from 'qrcode';
-import { StatutSalle, StatutTable, TypeQRCode } from '../../core/enums/enums';
-import { QRCode, Salle, SalleFormPayload, TableFormPayload } from '../models/salle';
-import { TableRestaurant } from '../models/table';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { QRCode, Salle, SalleFormPayload } from '../models/salle';
+import { TableFormPayload, TableRestaurant } from '../models/table';
+import { TypeQRCode } from '../enums/enums';
 
-/**
- * ⚠️ MOCK DATA — Service temporaire en attendant l'API réelle.
- * Même principe que MenuManagementService : le contrat des méthodes publiques
- * est pensé pour rester stable une fois branché sur de vrais appels HTTP.
- *
- * La génération d'image QR est en revanche une opération 100% côté client
- * légitime (encodage réel de l'URL cible) — elle restera utile même avec un
- * vrai backend, à condition que ce dernier fournisse l'URL/le code à encoder.
- */
-
-const RESTAURANT_ID_COURANT = 'rest-001';
-// URL de base simulée — à remplacer par le domaine réel de la zone client une fois définie.
-const BASE_URL_CLIENT = 'https://menuqr.app/m';
-
-function uid(prefix: string): string {
-  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
-}
-
-function nowIso(): string {
-  return new Date().toISOString();
-}
-
-function genererCode(): string {
-  return Math.random().toString(36).slice(2, 10).toUpperCase();
-}
+const API = environment.apiUrl;
 
 @Injectable({ providedIn: 'root' })
 export class TablesQrcodesService {
-  private readonly _salles = signal<Salle[]>(this.seedSalles());
-  private readonly _tables = signal<TableRestaurant[]>(this.seedTables());
+  private readonly _salles = signal<Salle[]>([]);
+  private readonly _tables = signal<TableRestaurant[]>([]);
   private readonly _qrcodes = signal<QRCode[]>([]);
 
   readonly salles = this._salles.asReadonly();
@@ -41,6 +19,30 @@ export class TablesQrcodesService {
   readonly qrcodes = this._qrcodes.asReadonly();
 
   readonly sallesTriees = computed(() => [...this._salles()].sort((a, b) => a.ordre - b.ordre));
+
+  constructor(private readonly http: HttpClient) {
+    this.chargerTout();
+  }
+
+  private async chargerTout(): Promise<void> {
+    const repSalles = await firstValueFrom(this.http.get<{ data: any[] }>(`${API}/salles`));
+    const salles = repSalles.data.map((s) => this.mapSalle(s));
+    this._salles.set(salles);
+
+    const toutesTables: TableRestaurant[] = [];
+    for (const salle of salles) {
+      const rep = await firstValueFrom(this.http.get<{ data: any[] }>(`${API}/salles/${salle.id}/tables`));
+      toutesTables.push(...rep.data.map((t) => this.mapTable(t)));
+    }
+    this._tables.set(toutesTables);
+
+    await this.rechargerQrCodes();
+  }
+
+  private async rechargerQrCodes(): Promise<void> {
+    const rep = await firstValueFrom(this.http.get<{ data: any[] }>(`${API}/qrcodes`));
+    this._qrcodes.set(rep.data.map((q) => this.mapQrCode(q)));
+  }
 
   // ============================================================
   // SALLES
@@ -50,17 +52,25 @@ export class TablesQrcodesService {
     return computed(() => this._tables().filter((t) => t.salleId === salleId));
   }
 
-  creerSalle(payload: SalleFormPayload): Salle {
-    const nouvelle: Salle = { id: uid('salle'), restaurantId: RESTAURANT_ID_COURANT, ...payload };
+  async creerSalle(payload: SalleFormPayload): Promise<Salle> {
+    const rep = await firstValueFrom(
+      this.http.post<{ data: any }>(`${API}/salles`, this.sallePayloadVersApi(payload))
+    );
+    const nouvelle = this.mapSalle(rep.data);
     this._salles.update((liste) => [...liste, nouvelle]);
     return nouvelle;
   }
 
-  modifierSalle(id: string, payload: SalleFormPayload): void {
-    this._salles.update((liste) => liste.map((s) => (s.id === id ? { ...s, ...payload } : s)));
+  async modifierSalle(id: string, payload: SalleFormPayload): Promise<void> {
+    const rep = await firstValueFrom(
+      this.http.put<{ data: any }>(`${API}/salles/${id}`, this.sallePayloadVersApi(payload))
+    );
+    const maj = this.mapSalle(rep.data);
+    this._salles.update((liste) => liste.map((s) => (s.id === id ? maj : s)));
   }
 
-  supprimerSalle(id: string): void {
+  async supprimerSalle(id: string): Promise<void> {
+    await firstValueFrom(this.http.delete(`${API}/salles/${id}`));
     this._salles.update((liste) => liste.filter((s) => s.id !== id));
     this._tables.update((liste) => liste.filter((t) => t.salleId !== id));
   }
@@ -69,23 +79,33 @@ export class TablesQrcodesService {
   // TABLES
   // ============================================================
 
-  creerTable(payload: TableFormPayload): TableRestaurant {
-    const nouvelle: TableRestaurant = { id: uid('table'), ...payload };
+  async creerTable(payload: TableFormPayload): Promise<TableRestaurant> {
+    const rep = await firstValueFrom(
+      this.http.post<{ data: any }>(`${API}/salles/${payload.salleId}/tables`, this.tablePayloadVersApi(payload))
+    );
+    const nouvelle = this.mapTable(rep.data);
     this._tables.update((liste) => [...liste, nouvelle]);
     return nouvelle;
   }
 
-  modifierTable(id: string, payload: TableFormPayload): void {
-    this._tables.update((liste) => liste.map((t) => (t.id === id ? { ...t, ...payload } : t)));
+  async modifierTable(id: string, payload: TableFormPayload): Promise<void> {
+    const rep = await firstValueFrom(
+      this.http.put<{ data: any }>(
+        `${API}/salles/${payload.salleId}/tables/${id}`,
+        this.tablePayloadVersApi(payload)
+      )
+    );
+    const maj = this.mapTable(rep.data);
+    this._tables.update((liste) => liste.map((t) => (t.id === id ? maj : t)));
   }
 
-  supprimerTable(id: string): void {
+  async supprimerTable(id: string): Promise<void> {
+    const existante = this._tables().find((t) => t.id === id);
+    if (!existante) return;
+
+    await firstValueFrom(this.http.delete(`${API}/salles/${existante.salleId}/tables/${id}`));
     this._tables.update((liste) => liste.filter((t) => t.id !== id));
-    // Un QR de table devient orphelin si sa table est supprimée : on le désactive plutôt que de le supprimer,
-    // pour conserver un historique de scans cohérent (nombreScan n'est jamais remis à zéro silencieusement).
-    this._qrcodes.update((liste) =>
-      liste.map((q) => (q.tableId === id ? { ...q, estActif: false } : q))
-    );
+    await this.rechargerQrCodes(); // le QR de cette table a pu être désactivé côté serveur
   }
 
   // ============================================================
@@ -96,81 +116,60 @@ export class TablesQrcodesService {
     return computed(() => this._qrcodes().find((q) => q.tableId === tableId && q.estActif));
   }
 
-  readonly qrCodesGeneraux = computed(() =>
-    this._qrcodes().filter((q) => q.type !== TypeQRCode.TABLE)
-  );
+  readonly qrCodesGeneraux = computed(() => this._qrcodes().filter((q) => q.type !== TypeQRCode.TABLE));
 
-  /** Génère (ou régénère) le QR code d'une table donnée */
   async genererQrPourTable(table: TableRestaurant, salle: Salle): Promise<QRCode> {
-    const code = genererCode();
-    const url = `${BASE_URL_CLIENT}/${RESTAURANT_ID_COURANT}?code=${code}&table=${table.id}`;
-    const image = await QRCodeLib.toDataURL(url, { width: 320, margin: 1 });
-
-    const nouveau: QRCode = {
-      id: uid('qr'),
-      restaurantId: RESTAURANT_ID_COURANT,
-      tableId: table.id,
-      code,
-      url,
-      image,
-      type: TypeQRCode.TABLE,
-      dateExpiration: null,
-      nombreScan: 0,
-      estActif: true,
-      createdAt: nowIso(),
-    };
-
-    // Désactive l'éventuel ancien QR de cette table avant d'ajouter le nouveau
-    this._qrcodes.update((liste) => [
-      ...liste.map((q) => (q.tableId === table.id ? { ...q, estActif: false } : q)),
-      nouveau,
-    ]);
-    return nouveau;
+    const rep = await firstValueFrom(
+      this.http.post<{ data: any }>(`${API}/salles/${salle.id}/tables/${table.id}/qrcode`, {})
+    );
+    const qr = this.mapQrCode(rep.data);
+    await this.rechargerQrCodes();
+    return qr;
   }
 
-  /** Génère un QR générique (emporter ou livraison), non lié à une table */
   async genererQrGeneral(type: TypeQRCode.EMPORTER | TypeQRCode.LIVRAISON): Promise<QRCode> {
-    const code = genererCode();
-    const url = `${BASE_URL_CLIENT}/${RESTAURANT_ID_COURANT}?code=${code}&mode=${type}`;
-    const image = await QRCodeLib.toDataURL(url, { width: 320, margin: 1 });
+    const rep = await firstValueFrom(
+      this.http.post<{ data: any }>(`${API}/qrcodes/generales`, { type })
+    );
+    const qr = this.mapQrCode(rep.data);
+    await this.rechargerQrCodes();
+    return qr;
+  }
 
-    const nouveau: QRCode = {
-      id: uid('qr'),
-      restaurantId: RESTAURANT_ID_COURANT,
-      tableId: null,
-      code,
-      url,
-      image,
-      type,
-      dateExpiration: null,
-      nombreScan: 0,
-      estActif: true,
-      createdAt: nowIso(),
+  async desactiverQrCode(id: string): Promise<void> {
+    await firstValueFrom(this.http.patch(`${API}/qrcodes/${id}/desactiver`, {}));
+    await this.rechargerQrCodes();
+  }
+
+  // ============================================================
+  // Mappers API (snake_case) <-> Frontend (camelCase)
+  // ============================================================
+
+  private mapSalle(api: any): Salle {
+    return { id: api.id, restaurantId: '', description: api.description, ordre: api.ordre, statut: api.statut };
+  }
+
+  private sallePayloadVersApi(payload: SalleFormPayload) {
+    return { description: payload.description, ordre: payload.ordre, statut: payload.statut };
+  }
+
+  private mapTable(api: any): TableRestaurant {
+    return {
+      id: api.id, salleId: api.salle_id, numero: api.numero,
+      capacite: api.capacite, statut: api.statut, zone: api.zone,
     };
-    this._qrcodes.update((liste) => [...liste, nouveau]);
-    return nouveau;
   }
 
-  desactiverQrCode(id: string): void {
-    this._qrcodes.update((liste) => liste.map((q) => (q.id === id ? { ...q, estActif: false } : q)));
+  private tablePayloadVersApi(payload: TableFormPayload) {
+    return { numero: payload.numero, capacite: payload.capacite, statut: payload.statut, zone: payload.zone };
   }
 
-  // ============================================================
-  // Données de départ (mock)
-  // ============================================================
-
-  private seedSalles(): Salle[] {
-    return [
-      { id: 'salle-int', restaurantId: RESTAURANT_ID_COURANT, description: 'Salle intérieure', ordre: 1, statut: StatutSalle.ACTIVE },
-      { id: 'salle-terrasse', restaurantId: RESTAURANT_ID_COURANT, description: 'Terrasse', ordre: 2, statut: StatutSalle.ACTIVE },
-    ];
-  }
-
-  private seedTables(): TableRestaurant[] {
-    return [
-      { id: 'table-1', salleId: 'salle-int', numero: '1', capacite: 4, statut: StatutTable.LIBRE, zone: null },
-      { id: 'table-2', salleId: 'salle-int', numero: '2', capacite: 2, statut: StatutTable.LIBRE, zone: null },
-      { id: 'table-12', salleId: 'salle-terrasse', numero: '12', capacite: 6, statut: StatutTable.OCCUPEE, zone: null },
-    ];
+  private mapQrCode(api: any): QRCode {
+    return {
+      id: api.id, restaurantId: '', tableId: api.table_id, code: api.code,
+      url: api.url, image: api.image, type: api.type as TypeQRCode,
+      dateExpiration: api.date_expiration, nombreScan: api.nombre_scan,
+      estActif: api.est_actif, createdAt: api.created_at,
+    };
   }
 }

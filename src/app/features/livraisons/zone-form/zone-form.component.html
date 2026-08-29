@@ -1,0 +1,41 @@
+<app-modal [ouvert]="ouvert" [titre]="titre" (fermer)="fermer.emit()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+    <label class="field">
+      <span class="field-label">Nom de la zone *</span>
+      <input type="text" formControlName="nom" placeholder="Ex. Centre-ville" class="field-input" />
+      @if (form.get('nom')?.touched && form.get('nom')?.invalid) {
+        <span class="field-error">Le nom de la zone est requis.</span>
+      }
+    </label>
+
+    <div class="field-row">
+      <label class="field">
+        <span class="field-label">Frais de livraison (FCFA) *</span>
+        <input type="number" formControlName="frais" min="0" class="field-input" />
+      </label>
+      <label class="field">
+        <span class="field-label">Temps estimé (min)</span>
+        <input type="number" formControlName="tempsEstime" min="0" class="field-input" placeholder="Optionnel" />
+      </label>
+    </div>
+
+    <div class="field-row">
+      <label class="field">
+        <span class="field-label">Distance max (km)</span>
+        <input type="number" formControlName="distanceMax" min="0" class="field-input" placeholder="Optionnel" />
+      </label>
+      <label class="field">
+        <span class="field-label">Statut</span>
+        <select formControlName="statut" class="field-input">
+          <option [value]="StatutZone.ACTIVE">Active</option>
+          <option [value]="StatutZone.INACTIVE">Inactive</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn--ghost" (click)="fermer.emit()">Annuler</button>
+      <button type="submit" class="btn btn--primary">Enregistrer</button>
+    </div>
+  </form>
+</app-modal>

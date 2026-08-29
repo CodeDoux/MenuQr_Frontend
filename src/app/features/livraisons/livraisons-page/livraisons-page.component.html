@@ -1,0 +1,122 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Livraisons</h1>
+    <p class="page-subtitle">Assignez et suivez les livraisons, qu'elles soient internes ou externes.</p>
+  </div>
+</div>
+
+<div class="tabs">
+  <button type="button" class="tab" [class.tab--active]="onglet() === 'a-assigner'" (click)="onglet.set('a-assigner')">
+    À assigner ({{ aAssigner().length }})
+  </button>
+  <button type="button" class="tab" [class.tab--active]="onglet() === 'en-cours'" (click)="onglet.set('en-cours')">
+    En cours ({{ enCours().length }})
+  </button>
+  <button type="button" class="tab" [class.tab--active]="onglet() === 'terminees'" (click)="onglet.set('terminees')">
+    Terminées ({{ terminees().length }})
+  </button>
+</div>
+
+@if (onglet() === 'a-assigner') {
+  @if (aAssigner().length === 0) {
+    <div class="card empty-state">
+      <div class="empty-state-title">Aucune livraison à assigner</div>
+    </div>
+  } @else {
+    <div class="caisse-grid">
+      @for (l of aAssigner(); track l.id) {
+        <div class="card caisse-card">
+          <div class="caisse-card-header">
+            <span class="table-strong">{{ l.nomClient }}</span>
+            <span class="table-muted">{{ l.commandeTotal }} FCFA</span>
+          </div>
+          <p class="table-muted">{{ l.adresseComplete }} @if (l.quartier) { , {{ l.quartier }} }</p>
+          <p class="table-muted">📞 {{ l.telephoneClient }}</p>
+
+          @if (livraisonEnAffectation() === l.id) {
+            <div class="caisse-encaissement">
+              <select class="field-input" [ngModel]="typeAffectation()" (ngModelChange)="typeAffectation.set($event)">
+                <option [ngValue]="TypeLivreur.EMPLOYE_RESTAURANT">Livreur interne</option>
+                <option [ngValue]="TypeLivreur.PRESTATAIRE_EXTERNE">Prestataire externe</option>
+                <option [ngValue]="TypeLivreur.LIVREUR_CLIENT">Livreur envoyé par le client</option>
+              </select>
+
+              @if (typeAffectation() === TypeLivreur.EMPLOYE_RESTAURANT) {
+                @if (livreursInternes().length === 0) {
+                  <p class="field-hint">Aucun employé au poste "Livreur" — ajoutez-en un dans Employés, ou choisissez un prestataire externe.</p>
+                } @else {
+                  <select class="field-input" [ngModel]="employeChoisiId()" (ngModelChange)="employeChoisiId.set($event)">
+                    @for (emp of livreursInternes(); track emp.id) {
+                      <option [value]="emp.id">{{ emp.nomComplet }}</option>
+                    }
+                  </select>
+                }
+              } @else {
+                <input type="text" class="field-input" placeholder="Nom du livreur" [ngModel]="nomExterne()" (ngModelChange)="nomExterne.set($event)" />
+                <input type="tel" class="field-input" placeholder="Téléphone" [ngModel]="telephoneExterne()" (ngModelChange)="telephoneExterne.set($event)" />
+              }
+
+              <div class="form-actions">
+                <button type="button" class="btn btn--ghost btn--sm" (click)="fermerAffectation()">Annuler</button>
+                <button type="button" class="btn btn--primary btn--sm" (click)="confirmerAffectation()">Confirmer</button>
+              </div>
+            </div>
+          } @else {
+            <button type="button" class="btn btn--primary" (click)="ouvrirAffectation(l.id)">Assigner un livreur</button>
+          }
+        </div>
+      }
+    </div>
+  }
+}
+
+@if (onglet() === 'en-cours') {
+  @if (enCours().length === 0) {
+    <div class="card empty-state">
+      <div class="empty-state-title">Aucune livraison en cours</div>
+    </div>
+  } @else {
+    <div class="caisse-grid">
+      @for (l of enCours(); track l.id) {
+        <div class="card caisse-card">
+          <div class="caisse-card-header">
+            <span class="table-strong">{{ l.nomClient }}</span>
+            <span class="table-muted">{{ LABEL_STATUT[l.statut] }}</span>
+          </div>
+          <p class="table-muted">{{ l.adresseComplete }}</p>
+          <p class="table-muted">🛵 {{ nomLivreur(l) }}</p>
+          <div class="form-actions" style="border-top:none; padding-top:0;">
+            <button type="button" class="btn btn--ghost btn--sm" (click)="annuler(l)">Annuler</button>
+            <button type="button" class="btn btn--primary btn--sm" (click)="avancer(l)">{{ LABEL_ETAPE_SUIVANTE[l.statut] }}</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+}
+
+@if (onglet() === 'terminees') {
+  @if (terminees().length === 0) {
+    <div class="card empty-state">
+      <div class="empty-state-title">Aucune livraison terminée</div>
+    </div>
+  } @else {
+    <div class="card">
+      <table class="table">
+        <thead>
+          <tr><th>Client</th><th>Adresse</th><th>Livreur</th><th>Total</th></tr>
+        </thead>
+        <tbody>
+          @for (l of terminees(); track l.id) {
+            <tr>
+              <td class="table-strong">{{ l.nomClient }}</td>
+              <td class="table-muted">{{ l.adresseComplete }}</td>
+              <td class="table-muted">{{ nomLivreur(l) }}</td>
+              <td>{{ l.commandeTotal }} FCFA</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+}

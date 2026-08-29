@@ -19,7 +19,7 @@ export class ProduitListComponent {
   formOuvert = signal(false);
   produitEnEdition = signal<Produit | null>(null);
 
-  readonly categories;
+  readonly categories: Signal<any[]>;
   produits!: Signal<Produit[]>;
 
   constructor(private readonly menuService: MenuManagementService) {
@@ -33,6 +33,9 @@ export class ProduitListComponent {
     return this.categories().find((c) => c.id === id)?.nom ?? '';
   }
 
+  nomsCategories(p: Produit): string {
+  return p.categorieIds.map((id) => this.nomCategorie(id)).join(', ');
+}
   ouvrirCreation(): void {
     this.produitEnEdition.set(null);
     this.formOuvert.set(true);
@@ -49,21 +52,22 @@ export class ProduitListComponent {
 
   valider(payload: ProduitFormPayload): void {
     const enEdition = this.produitEnEdition();
-    if (enEdition) {
-      this.menuService.modifierProduit(enEdition.id, payload);
-    } else {
-      this.menuService.creerProduit(payload);
-    }
-    this.formOuvert.set(false);
+    const promesse = enEdition
+      ? this.menuService.modifierProduit(enEdition.id, payload)
+      : this.menuService.creerProduit(payload);
+
+    promesse
+      .then(() => this.formOuvert.set(false))
+      .catch(() => alert('Une erreur est survenue lors de l\'enregistrement du produit.'));
   }
 
   archiver(p: Produit): void {
     if (confirm(`Archiver "${p.nom}" ? Il n'apparaîtra plus sur le menu, mais reste visible dans l'historique des commandes.`)) {
-      this.menuService.archiverProduit(p.id);
+      this.menuService.archiverProduit(p.id).catch(() => alert('Une erreur est survenue lors de l\'archivage.'));
     }
   }
 
   basculerDisponibilite(p: Produit): void {
-    this.menuService.basculerDisponibilite(p.id);
+    this.menuService.basculerDisponibilite(p.id).catch(() => alert('Une erreur est survenue.'));
   }
 }

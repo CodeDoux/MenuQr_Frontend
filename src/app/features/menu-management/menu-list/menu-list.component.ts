@@ -43,12 +43,13 @@ export class MenuListComponent {
 
   valider(payload: MenuFormPayload): void {
     const enEdition = this.menuEnEdition();
-    if (enEdition) {
-      this.menuService.modifierMenu(enEdition.id, payload);
-    } else {
-      this.menuService.creerMenu(payload);
-    }
-    this.formOuvert.set(false);
+    const promesse = enEdition
+      ? this.menuService.modifierMenu(enEdition.id, payload)
+      : this.menuService.creerMenu(payload);
+
+    promesse
+      .then(() => this.formOuvert.set(false))
+      .catch(() => alert('Une erreur est survenue lors de l\'enregistrement du menu.'));
   }
 
   supprimer(menu: Menu, evt: Event): void {
@@ -56,7 +57,7 @@ export class MenuListComponent {
     evt.preventDefault();
     const confirmation = confirm(`Supprimer le menu "${menu.nom}" et toutes ses catégories ?`);
     if (confirmation) {
-      this.menuService.supprimerMenu(menu.id);
+      this.menuService.supprimerMenu(menu.id).catch(() => alert('Une erreur est survenue lors de la suppression.'));
     }
   }
 }

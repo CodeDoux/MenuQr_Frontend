@@ -12,7 +12,7 @@
     <tbody>
       @for (c of commandes(); track c.id) {
         <tr>
-          <td class="table-strong">{{ numeroCourt(c.id) }} @if (c.tableId) { <span class="table-muted">· Table {{ c.tableId.split('-')[1] }}</span> }</td>
+          <td class="table-strong">{{ numeroCourt(c.id) }} @if (c.tableId) { <span class="table-muted">· Table {{  c.tableNumero }}</span> }</td>
           <td class="table-muted">{{ LABEL_MODE[c.mode] }}</td>
           <td class="table-muted">{{ c.lignes.length }} article(s)</td>
           <td class="table-strong">{{ c.total }} FCFA</td>

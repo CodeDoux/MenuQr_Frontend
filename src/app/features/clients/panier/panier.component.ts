@@ -1,11 +1,12 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { OrdersService } from '../../orders/services/orders.service';
 import { ModeCommande } from '../../../core/enums/enums';
-import { AdresseLivraisonForm, InfosEmporter } from '../models/public-menu';
-import { CartService } from '../services/cart.service';
+import { AdresseLivraisonForm, InfosEmporter } from '../../../core/models/panier';
+import { PublicOrderService } from '../../../core/services/public-order.service';
+import { CartService } from '../../../core/services/cart.service';
+import { lireParamAncetre } from '../../../core/utils/route.utils';
 
 @Component({
   selector: 'app-panier',
@@ -14,50 +15,43 @@ import { CartService } from '../services/cart.service';
   templateUrl: './panier.component.html',
 })
 export class PanierComponent implements OnInit {
-
-   private readonly cart = inject(CartService);
-  private readonly ordersService = inject(OrdersService);
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   readonly ModeCommande = ModeCommande;
-  readonly items = this.cart.items;
-  readonly total = this.cart.total;
-  readonly mode = this.cart.mode;
-  readonly tableId = this.cart.tableId;
+  readonly items;
+  readonly total;
+  readonly mode;
+  readonly tableId;
+  readonly zonesLivraison;
 
   infos = signal<InfosEmporter>({ nom: '', telephone: '', heureRetrait: null });
   adresse = signal<AdresseLivraisonForm>({ adresseComplete: '', quartier: '', ville: '', indications: '' });
   notes = signal('');
+  zoneChoisieId = signal<string | null>(null);
 
   erreur = signal<string | null>(null);
   envoiEnCours = signal(false);
 
   restaurantId = '';
+  code = '';
 
-  ngOnInit(): void {
-    this.restaurantId = this.route.snapshot.paramMap.get('restaurantId') ?? '';
-    if (this.cart.estVide()) {
-      this.router.navigate(['/m', this.restaurantId]);
-    }
+  constructor(
+    private readonly cart: CartService,
+    private readonly publicOrderService: PublicOrderService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router
+  ) {
+    this.items = this.cart.items;
+    this.total = this.cart.total;
+    this.mode = this.cart.mode;
+    this.tableId = this.cart.tableId;
+    this.zonesLivraison = this.cart.zonesLivraison;
   }
 
-  modifierInfos(champ: keyof InfosEmporter, valeur: string | null): void {
-  this.infos.update((infos) => ({
-    ...infos,
-    [champ]: valeur
-  }));
-}
-
-  modifierAdresse(champ: keyof AdresseLivraisonForm, valeur: string): void {
-  this.adresse.update((adresse) => ({
-    ...adresse,
-    [champ]: valeur
-  }));
-}
-
-  numeroTable(): string {
-    const id = this.tableId();
-    return id ? id.split('-')[1] : '';
+  ngOnInit(): void {
+    this.restaurantId = lireParamAncetre(this.route, 'restaurantId') ?? '';
+    this.code = this.route.snapshot.queryParamMap.get('code') ?? '';
+    if (this.cart.estVide()) {
+      this.router.navigate(['/m', this.restaurantId], { queryParams: { code: this.code } });
+    }
   }
 
   choisirMode(m: ModeCommande): void {
@@ -65,57 +59,76 @@ export class PanierComponent implements OnInit {
     this.erreur.set(null);
   }
 
-  incrementer(itemId: string): void {
-    this.cart.modifierQuantite(itemId, 1);
-  }
-  decrementer(itemId: string): void {
-    this.cart.modifierQuantite(itemId, -1);
-  }
-  retirer(itemId: string): void {
-    this.cart.retirer(itemId);
-  }
+  incrementer(itemId: string): void { this.cart.modifierQuantite(itemId, 1); }
+  decrementer(itemId: string): void { this.cart.modifierQuantite(itemId, -1); }
+  retirer(itemId: string): void { this.cart.retirer(itemId); }
+
+  majNom(v: string): void { this.infos.set({ ...this.infos(), nom: v }); }
+  majTelephone(v: string): void { this.infos.set({ ...this.infos(), telephone: v }); }
+  majAdresseComplete(v: string): void { this.adresse.set({ ...this.adresse(), adresseComplete: v }); }
+  majQuartier(v: string): void { this.adresse.set({ ...this.adresse(), quartier: v }); }
+  majIndications(v: string): void { this.adresse.set({ ...this.adresse(), indications: v }); }
 
   retourMenu(): void {
-    this.router.navigate(['/m', this.restaurantId]);
+    this.router.navigate(['/m', this.restaurantId], { queryParams: { code: this.code } });
   }
 
-  validerCommande(): void {
+  async validerCommande(): Promise<void> {
     const mode = this.mode();
     if (!mode) {
       this.erreur.set('Choisissez un mode de commande.');
       return;
     }
-    if (mode === ModeCommande.EMPORTER && !this.tableId()) {
-      if (!this.infos().nom || !this.infos().telephone) {
-        this.erreur.set('Renseignez votre nom et votre téléphone pour le retrait.');
-        return;
-      }
+    if (mode === ModeCommande.EMPORTER && !this.tableId() && (!this.infos().nom || !this.infos().telephone)) {
+      this.erreur.set('Renseignez votre nom et votre téléphone pour le retrait.');
+      return;
     }
+
+    let infosLivraison = null;
     if (mode === ModeCommande.LIVRAISON) {
-      if (!this.adresse().adresseComplete) {
-        this.erreur.set('Renseignez votre adresse de livraison.');
+      if (!this.adresse().adresseComplete || !this.infos().nom || !this.infos().telephone) {
+        this.erreur.set('Renseignez votre nom, téléphone et adresse de livraison.');
         return;
       }
+      if (!this.zoneChoisieId()) {
+        this.erreur.set('Choisissez votre zone de livraison.');
+        return;
+      }
+      infosLivraison = {
+        nomClient: this.infos().nom, telephoneClient: this.infos().telephone,
+        adresseComplete: this.adresse().adresseComplete, quartier: this.adresse().quartier,
+        indications: this.adresse().indications, zoneLivraisonId: this.zoneChoisieId()!,
+      };
     }
 
     this.erreur.set(null);
     this.envoiEnCours.set(true);
 
-    const fraisLivraison = mode === ModeCommande.LIVRAISON ? 1000 : 0; // ⚠️ frais fixe simplifié — ZoneLivraison non encore branché
+    try {
+      const commande = await this.publicOrderService.creerCommande(
+        this.code, mode,
+        this.items().map((i) => ({
+          produitId: i.produitId, varianteId: i.varianteId ?? null,
+          quantite: i.quantite, notes: i.notes ?? null,
+        })),
+        this.notes() || null,
+        infosLivraison
+      );
 
-    const commande = this.ordersService.creerCommandeClient({
-      tableId: this.tableId(),
-      mode,
-      items: this.items().map((i) => ({
-        produitId: i.produitId, produitNom: i.produitNom,
-        prixUnitaire: i.prixUnitaire, quantite: i.quantite,
-      })),
-      fraisLivraison,
-      notes: this.notes() || null,
-    });
-
-    this.cart.vider();
-    this.envoiEnCours.set(false);
-    this.router.navigate(['/m', this.restaurantId, 'suivi', commande.id]);
+      this.cart.vider();
+      this.router.navigate(['/m', this.restaurantId, 'suivi', commande.id], { queryParams: { code: this.code } });
+    } catch {
+      this.erreur.set('Une erreur est survenue lors de l\'envoi de la commande.');
+    } finally {
+      this.envoiEnCours.set(false);
+    }
   }
+
+  numeroTable(): string {
+  return this.tableId() ? 'table' : '';
+}
+
+majHeureRetrait(v: string): void {
+  this.infos.set({ ...this.infos(), heureRetrait: v });
+}
 }

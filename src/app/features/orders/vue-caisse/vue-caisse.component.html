@@ -7,7 +7,7 @@
     @for (item of additionsOuvertes(); track item.addition.id) {
       <div class="card caisse-card">
         <div class="caisse-card-header">
-          <span class="table-strong">Table {{ numeroTable(item.visite?.tableId) }}</span>
+          <span class="table-strong">Table {{ item.addition.tableNumero ?? '—' }}</span>
           <span class="table-muted">{{ item.commandes.length }} commande(s)</span>
         </div>
 
@@ -16,7 +16,7 @@
             <div class="table-muted caisse-commande-titre">{{ numeroCourt(c.id) }} · {{ LABEL_MODE[c.mode] }}</div>
             <ul class="kanban-card-lignes">
               @for (l of c.lignes; track l.id) {
-                <li>{{ l.quantite }}× {{ l.produitNom }} — {{ l.sousTotal }} FCFA</li>
+                <li>{{ l.quantite }}× {{ l.produitNom }} — {{ l.sousTotal }} FCFA @if (l.notes) { <span class="kanban-note">📝 {{ l.notes }}</span> }</li>
               }
             </ul>
           </div>
@@ -61,7 +61,7 @@
         </div>
         <ul class="kanban-card-lignes">
           @for (l of c.lignes; track l.id) {
-            <li>{{ l.quantite }}× {{ l.produitNom }} — {{ l.sousTotal }} FCFA</li>
+            <li>{{ l.quantite }}× {{ l.produitNom }} — {{ l.sousTotal }} FCFA @if (l.notes) { <span class="kanban-note">📝 {{ l.notes }}</span> }</li>
           }
         </ul>
         <div class="caisse-total">
@@ -88,3 +88,4 @@
     }
   </div>
 }
+

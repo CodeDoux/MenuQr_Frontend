@@ -1,10 +1,14 @@
+@if (chargementInitial()) {
+  <div class="pm-restaurant-header"><p class="login-subtitle">Chargement du menu...</p></div>
+} @else {
+
 <div class="pm-restaurant-header">
-  <h1 class="pm-restaurant-name">Le Palais</h1>
+  <h1 class="pm-restaurant-name">Menu</h1>
   <p class="pm-restaurant-sub">Menu numérique</p>
 </div>
 
 <div class="pm-categories-nav">
-  @for (cat of categories(); track cat.id) {
+  @for (cat of toutesCategories(); track cat.id) {
     <button
       type="button"
       class="pm-cat-chip"
@@ -17,12 +21,12 @@
   }
 </div>
 
-@for (cat of categories(); track cat.id) {
+@for (cat of toutesCategories(); track cat.id) {
   @if (categorieActive() === cat.id) {
     <div class="pm-produits-list">
       @for (produit of produitsDeLaCategorie(cat.id); track produit.id) {
-        <button type="button" class="pm-produit-card" (click)="ouvrirProduit(produit)" [disabled]="!produit.estDisponible">
-          @if (produit.images.length > 0) {
+        <button type="button" class="pm-produit-card" (click)="ouvrirProduit(produit)" [disabled]="!produit.est_disponible">
+          @if (produit.images?.length > 0) {
             <img [src]="produit.images[0].url" alt="" class="pm-produit-img" />
           } @else {
             <div class="pm-produit-img pm-produit-img--empty">{{ produit.nom.charAt(0) }}</div>
@@ -30,15 +34,15 @@
           <div class="pm-produit-info">
             <div class="pm-produit-top">
               <span class="pm-produit-nom">{{ produit.nom }}</span>
-              @if (produit.estPopulaire) { <span class="pm-produit-star">★</span> }
+              @if (produit.est_populaire) { <span class="pm-produit-star">★</span> }
             </div>
             @if (produit.description) {
               <p class="pm-produit-desc">{{ produit.description }}</p>
             }
             <div class="pm-produit-bottom">
-              @if (!produit.estDisponible) {
+              @if (!produit.est_disponible) {
                 <span class="pm-produit-rupture">Indisponible</span>
-              } @else if (produit.variantes.length > 0) {
+              } @else if (produit.variantes?.length > 0) {
                 <span class="pm-produit-prix">Dès {{ produit.prix }} FCFA</span>
               } @else {
                 <span class="pm-produit-prix">{{ produit.prix }} FCFA</span>
@@ -56,7 +60,7 @@
     <div class="pm-sheet" (click)="$event.stopPropagation()">
       <button type="button" class="pm-sheet-close" (click)="fermerProduit()" aria-label="Fermer">✕</button>
 
-      @if (p.images.length > 0) {
+      @if (p.images?.length > 0) {
         <img [src]="p.images[0].url" alt="" class="pm-sheet-img" />
       }
 
@@ -64,7 +68,7 @@
         <h2 class="pm-sheet-titre">{{ p.nom }}</h2>
         @if (p.description) { <p class="pm-sheet-desc">{{ p.description }}</p> }
 
-        @if (p.variantes.length > 0) {
+        @if (p.variantes?.length > 0) {
           <div class="pm-variantes">
             @for (v of p.variantes; track v.id) {
               <button
@@ -72,7 +76,7 @@
                 class="pm-variante-chip"
                 [class.pm-variante-chip--active]="varianteChoisie()?.id === v.id"
                 (click)="varianteChoisie.set(v)"
-                [disabled]="!v.estDisponible"
+                [disabled]="!v.est_disponible"
               >
                 {{ v.nom }} — {{ v.prix }} FCFA
               </button>
@@ -89,6 +93,12 @@
           </div>
         </div>
 
+        <label class="pm-field pm-note-field">
+          <span class="pm-field-label">Une note pour la cuisine ? (optionnel)</span>
+          <textarea class="pm-field-input" rows="2" placeholder="Ex. Peu de piment..."
+            [ngModel]="noteChoisie()" (ngModelChange)="noteChoisie.set($event)"></textarea>
+        </label>
+
         <button type="button" class="pm-btn-ajouter" (click)="ajouterAuPanier()">
           Ajouter — {{ prixAffiche(p) * quantiteChoisie() }} FCFA
         </button>
@@ -102,4 +112,6 @@
     <span class="pm-cart-bar-count">{{ nombreArticles() }} article(s)</span>
     <span class="pm-cart-bar-action">Voir mon panier · {{ total() }} FCFA</span>
   </button>
+}
+
 }

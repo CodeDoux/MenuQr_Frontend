@@ -1,0 +1,56 @@
+<div class="login-shell">
+  <div class="login-card">
+    <div class="login-brand">
+      <span class="brand-mark">MQ</span>
+      <span class="login-brand-name">MenuQr</span>
+    </div>
+    <h1 class="login-title">Créer votre restaurant</h1>
+    <p class="login-subtitle">Inscription gratuite — 14 jours d'essai, sans carte bancaire.</p>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+      <label class="field">
+        <span class="field-label">Nom du restaurant</span>
+        <input type="text" formControlName="restaurantNom" class="field-input" placeholder="Ex. Le Palais" />
+        @if (form.get('restaurantNom')?.touched && form.get('restaurantNom')?.invalid) {
+          <span class="field-error">Nom du restaurant requis.</span>
+        }
+      </label>
+
+      <label class="field">
+        <span class="field-label">Votre nom complet</span>
+        <input type="text" formControlName="nomComplet" class="field-input" />
+        @if (form.get('nomComplet')?.touched && form.get('nomComplet')?.invalid) {
+          <span class="field-error">Nom requis.</span>
+        }
+      </label>
+
+      <label class="field">
+        <span class="field-label">Email</span>
+        <input type="email" formControlName="email" class="field-input" autocomplete="username" />
+        @if (form.get('email')?.touched && form.get('email')?.invalid) {
+          <span class="field-error">Email valide requis.</span>
+        }
+      </label>
+
+      <label class="field">
+        <span class="field-label">Mot de passe</span>
+        <input type="password" formControlName="motDePasse" class="field-input" autocomplete="new-password" />
+        @if (form.get('motDePasse')?.touched && form.get('motDePasse')?.invalid) {
+          <span class="field-error">8 caractères minimum.</span>
+        }
+      </label>
+
+      @if (erreur()) {
+        <div class="login-error">{{ erreur() }}</div>
+      }
+
+      <button type="submit" class="btn btn--primary login-submit" [disabled]="enCours()">
+        {{ enCours() ? 'Création...' : 'Créer mon compte' }}
+      </button>
+    </form>
+
+    <div class="login-demo">
+      <a routerLink="/login" class="field-hint">Déjà un compte ? Se connecter</a>
+    </div>
+  </div>
+</div>

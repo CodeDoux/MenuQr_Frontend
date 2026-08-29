@@ -1,0 +1,64 @@
+@if (chargement) {
+  <p class="table-muted">Chargement...</p>
+} @else if (facture) {
+  <div class="invoice-actions no-print">
+    <button type="button" class="btn btn--primary" (click)="imprimer()">🖨 Imprimer / Télécharger en PDF</button>
+  </div>
+
+  <div class="invoice-sheet">
+    <div class="invoice-header">
+      <div>
+        <h1 class="invoice-restaurant-nom">{{ restaurantInfos().nom }}</h1>
+        <p class="invoice-restaurant-detail">{{ restaurantInfos().adresse }}</p>
+        <p class="invoice-restaurant-detail">{{ restaurantInfos().telephone }}</p>
+      </div>
+      <div class="invoice-meta">
+        <h2 class="invoice-titre">FACTURE</h2>
+        <p class="invoice-numero">{{ facture.numero }}</p>
+        <p class="invoice-restaurant-detail">{{ facture.date_emission | date: 'dd/MM/yyyy HH:mm' }}</p>
+      </div>
+    </div>
+
+    <p class="invoice-client"><strong>Facturé à :</strong> {{ clientLabel() }}</p>
+
+    <table class="invoice-table">
+      <thead>
+        <tr>
+          <th>Article</th>
+          <th>Qté</th>
+          <th>Prix unitaire</th>
+          <th>Sous-total</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (l of facture.lignes; track l.id) {
+          <tr>
+            <td>{{ l.produit_nom }}</td>
+            <td>{{ l.quantite }}</td>
+            <td>{{ l.prix_unitaire }} FCFA</td>
+            <td>{{ l.sous_total }} FCFA</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="invoice-totaux">
+      <div class="invoice-total-row">
+        <span>Montant HT</span>
+        <span>{{ facture.montant_ht }} FCFA</span>
+      </div>
+      <div class="invoice-total-row">
+        <span>Taxe</span>
+        <span>{{ facture.taxe }} FCFA</span>
+      </div>
+      <div class="invoice-total-row invoice-total-row--final">
+        <span>Total TTC</span>
+        <span>{{ facture.montant_ttc }} FCFA</span>
+      </div>
+    </div>
+
+    <p class="invoice-footer">Merci de votre confiance — {{ restaurantInfos().nom }}</p>
+  </div>
+} @else {
+  <p class="table-muted">Facture introuvable.</p>
+}

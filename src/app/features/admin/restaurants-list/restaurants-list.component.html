@@ -1,0 +1,44 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Restaurants</h1>
+    <p class="page-subtitle">Gérez les restaurants inscrits sur la plateforme.</p>
+  </div>
+</div>
+
+<div class="card">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Restaurant</th>
+        <th>Inscrit le</th>
+        <th>Offre</th>
+        <th>Statut</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (r of restaurants(); track r.id) {
+        <tr>
+          <td>
+            <div class="table-strong">{{ r.nom }}</div>
+            <div class="table-muted">{{ r.email }}</div>
+          </td>
+          <td class="table-muted">{{ r.dateInscription | date: 'dd/MM/yyyy' }}</td>
+          <td class="table-muted">{{ r.offreNom }}</td>
+          <td><app-badge [label]="LABEL_STATUT[r.statut]" [tone]="TONE_STATUT[r.statut]" /></td>
+          <td class="table-actions">
+            @if (r.statut !== StatutRestaurant.ACTIF) {
+              <button type="button" class="btn btn--sm btn--ghost" (click)="changerStatut(r, StatutRestaurant.ACTIF)">Activer</button>
+            }
+            @if (r.statut === StatutRestaurant.ACTIF) {
+              <button type="button" class="btn btn--sm btn--ghost" (click)="changerStatut(r, StatutRestaurant.SUSPENDU)">Suspendre</button>
+            }
+            @if (r.statut !== StatutRestaurant.FERME) {
+              <button type="button" class="btn btn--sm btn--ghost" (click)="changerStatut(r, StatutRestaurant.FERME)">Fermer</button>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,42 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Journal d'activités</h1>
+    <p class="page-subtitle">Historique des actions clés : statuts de commande, paiements, remboursements, employés.</p>
+  </div>
+</div>
+
+@if (entries().length === 0) {
+  <div class="card empty-state">
+    <div class="empty-state-title">Aucune activité pour le moment</div>
+    <p>Les actions clés effectuées dans l'application apparaîtront ici.</p>
+  </div>
+} @else {
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Utilisateur</th>
+          <th>Action</th>
+          <th>Cible</th>
+          <th>Détail</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (e of entries(); track e.id) {
+          <tr>
+            <td class="table-muted">{{ e.date | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td class="table-strong">{{ e.utilisateurNom }}</td>
+            <td>{{ e.action }}</td>
+            <td class="table-muted">{{ e.tableCible }} @if (e.idCible) { #{{ e.idCible.slice(-4).toUpperCase() }} }</td>
+            <td class="table-muted">
+              @if (e.ancienneValeur || e.nouvelleValeur) {
+                {{ e.ancienneValeur }} → {{ e.nouvelleValeur }}
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

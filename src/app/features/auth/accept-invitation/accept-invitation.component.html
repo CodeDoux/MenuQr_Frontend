@@ -1,0 +1,42 @@
+<div class="login-shell">
+  <div class="login-card">
+    <div class="login-brand">
+      <span class="brand-mark">MQ</span>
+      <span class="login-brand-name">MenuQr</span>
+    </div>
+
+    @if (chargementInitial()) {
+      <p class="login-subtitle">Vérification de l'invitation...</p>
+    } @else if (!invitationValide()) {
+      <h1 class="login-title">Invitation invalide</h1>
+      <p class="login-subtitle">Ce lien d'invitation n'est plus valide ou a déjà été utilisé.</p>
+    } @else {
+      <h1 class="login-title">Bienvenue {{ invitation()?.nomComplet }}</h1>
+      <p class="login-subtitle">
+        Rejoignez {{ invitation()?.restaurantNom }} en tant que {{ invitation()?.role }}. Choisissez un mot de passe pour activer votre accès.
+      </p>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+        <label class="field">
+          <span class="field-label">Mot de passe</span>
+          <input type="password" formControlName="motDePasse" class="field-input" autocomplete="new-password" />
+          @if (form.get('motDePasse')?.touched && form.get('motDePasse')?.invalid) {
+            <span class="field-error">8 caractères minimum.</span>
+          }
+        </label>
+        <label class="field">
+          <span class="field-label">Confirmation</span>
+          <input type="password" formControlName="confirmation" class="field-input" />
+        </label>
+
+        @if (erreur()) {
+          <div class="login-error">{{ erreur() }}</div>
+        }
+
+        <button type="submit" class="btn btn--primary login-submit" [disabled]="enCours()">
+          {{ enCours() ? 'Activation...' : 'Activer mon compte' }}
+        </button>
+      </form>
+    }
+  </div>
+</div>

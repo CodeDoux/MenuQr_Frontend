@@ -1,0 +1,43 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Paiements</h1>
+    <p class="page-subtitle">Historique de tous les paiements encaissés, avec possibilité de remboursement.</p>
+  </div>
+</div>
+
+@if (paiements().length === 0) {
+  <div class="card empty-state">
+    <div class="empty-state-title">Aucun paiement pour le moment</div>
+  </div>
+} @else {
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Contexte</th>
+          <th>Méthode</th>
+          <th>Montant</th>
+          <th>Statut</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (p of paiements(); track p.id) {
+          <tr>
+            <td class="table-muted">{{ p.datePaiement | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td class="table-strong">{{ contexte(p) }}</td>
+            <td class="table-muted">{{ p.methode }}</td>
+            <td>{{ p.montant }} FCFA</td>
+            <td><app-badge [label]="LABEL_STATUT[p.statut]" [tone]="TONE_STATUT[p.statut]" /></td>
+            <td class="table-actions">
+              @if (peutRembourser(p)) {
+                <button type="button" class="btn btn--sm btn--ghost" (click)="rembourser(p)">Rembourser</button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

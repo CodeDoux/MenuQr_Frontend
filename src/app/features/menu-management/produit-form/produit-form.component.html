@@ -59,10 +59,25 @@
       </label>
     </div>
 
+    <!-- Bloc images : sélecteur de fichier réel -->
     <div class="variantes-block">
       <div class="variantes-header">
         <span class="field-label">Images du produit</span>
-        <button type="button" class="btn btn--ghost btn--sm" (click)="ajouterImage()">+ Ajouter une image</button>
+        <input
+          type="file"
+          #inputFichier
+          accept="image/png,image/jpeg,image/webp"
+          hidden
+          (change)="onFichierChoisi($event)"
+        />
+        <button
+          type="button"
+          class="btn btn--ghost btn--sm"
+          [disabled]="uploadEnCours()"
+          (click)="declencherSelectionFichier(inputFichier)"
+        >
+          {{ uploadEnCours() ? 'Téléversement...' : '+ Ajouter une image' }}
+        </button>
       </div>
 
       @if (images.length === 0) {
@@ -71,7 +86,7 @@
 
       @for (ligne of images.controls; track $index) {
         <div class="image-row" [formGroup]="$any(ligne)">
-          <input type="text" formControlName="url" placeholder="URL de l'image" class="field-input" />
+          <img [src]="ligne.get('url')?.value" alt="" class="image-row-thumb" />
           <label class="variante-dispo">
             <input
               type="radio"

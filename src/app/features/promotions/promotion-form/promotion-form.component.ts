@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { CiblePromotion, TypeReduction } from '../../../core/enums/enums';
-import { Promotion, PromotionFormPayload } from '../../models/promotion.model';
 import { Produit } from '../../../core/models/produit';
+import { Promotion, PromotionFormPayload } from '../../../core/models/promotion';
 
 @Component({
   selector: 'app-promotion-form',

@@ -48,17 +48,18 @@ export class CategorieListComponent implements OnInit {
 
   valider(payload: CategorieFormPayload): void {
     const enEdition = this.categorieEnEdition();
-    if (enEdition) {
-      this.menuService.modifierCategorie(enEdition.id, payload);
-    } else {
-      this.menuService.creerCategorie(payload);
-    }
-    this.formOuvert.set(false);
+    const promesse = enEdition
+      ? this.menuService.modifierCategorie(enEdition.id, payload)
+      : this.menuService.creerCategorie(payload);
+
+    promesse
+      .then(() => this.formOuvert.set(false))
+      .catch(() => alert('Une erreur est survenue lors de l\'enregistrement de la catégorie.'));
   }
 
   supprimer(cat: Categorie): void {
     if (confirm(`Supprimer la catégorie "${cat.nom}" ? Les produits associés ne seront pas supprimés.`)) {
-      this.menuService.supprimerCategorie(cat.id);
+      this.menuService.supprimerCategorie(cat.id).catch(() => alert('Une erreur est survenue lors de la suppression.'));
     }
   }
 }

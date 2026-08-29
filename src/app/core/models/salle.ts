@@ -2,7 +2,9 @@
  * Modèles TypeScript — Domaine Salle / TableRestaurant / QRCode.
  * Dérivés strictement du diagramme de classes MenuQr V1 corrigé.
  */
-import { StatutSalle, StatutTable, TypeQRCode } from '../../../core/enums/enums';
+
+import { StatutSalle, TypeQRCode } from "../enums/enums";
+import { TableRestaurant } from "./table";
 
 export interface Salle {
   id: string;

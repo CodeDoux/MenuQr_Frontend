@@ -1,16 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MethodePaiement, ModeCommande, StatutCommande } from '../../../core/enums/enums';
-import { LIBELLE_METHODE, SettingsService } from '../../settings/services/settings.service';
-import { OrdersService } from '../../orders/services/orders.service';
+import { StatutCommande } from '../../../core/enums/enums';
+import { PublicOrderService } from '../../../core/services/public-order.service';
+import { lireParamAncetre } from '../../../core/utils/route.utils';
 
-const LABEL_STATUT: Record<StatutCommande, string> = {
+const LABEL_STATUT: Record<string, string> = {
   EN_ATTENTE: 'En attente de confirmation', CONFIRMEE: 'Confirmée', EN_PREPARATION: 'En préparation',
   PRETE: 'Prête', SERVIE: 'Servie', REMISE: 'Remise', LIVREE: 'Livrée', ANNULEE: 'Annulée',
 };
-
 const ETAPES = [StatutCommande.EN_ATTENTE, StatutCommande.CONFIRMEE, StatutCommande.EN_PREPARATION, StatutCommande.PRETE];
+
+// ⚠️ Simplification temporaire : liste fixe des méthodes de paiement en ligne
+// proposées au client. Idéalement, ça devrait venir des MoyenPaiement actifs
+// du restaurant (endpoint public dédié à créer plus tard) plutôt que d'être
+// figé ici — à revoir quand ce module sera branché.
+const METHODES_PAIEMENT_EN_LIGNE = [
+  { code: 'WAVE', libelle: 'Wave' },
+  { code: 'ORANGE_MONEY', libelle: 'Orange Money' },
+  { code: 'CARTE', libelle: 'Carte bancaire' },
+];
 
 @Component({
   selector: 'app-suivi-commande',
@@ -21,64 +30,81 @@ const ETAPES = [StatutCommande.EN_ATTENTE, StatutCommande.CONFIRMEE, StatutComma
 export class SuiviCommandeComponent implements OnInit {
   readonly LABEL_STATUT = LABEL_STATUT;
   readonly ETAPES = ETAPES;
-  readonly LIBELLE_METHODE = LIBELLE_METHODE;
+  readonly methodesPaiementEnLigne = METHODES_PAIEMENT_EN_LIGNE;
 
   commandeId = '';
   restaurantId = '';
-  commande;
-  autresCommandesVisite;
-  moyensPaiementEnLigne;
-  paiementConfirme = false;
+  code = '';
+  commande = signal<any | null>(null);
+  autresCommandesVisite = signal<any[]>([]);
+  paiementConfirme = signal(false);
+  chargement = signal(true);
 
   constructor(
-    private readonly ordersService: OrdersService,
-    private readonly settingsService: SettingsService,
+    private readonly publicOrderService: PublicOrderService,
     private readonly route: ActivatedRoute,
     private readonly router: Router
-  ) {
-    this.commande = this.ordersService.commandeParId('');
-    this.autresCommandesVisite = this.ordersService.commandesDeLaVisite('');
-    this.moyensPaiementEnLigne = () =>
-      this.settingsService.moyensPaiement().filter((m) => m.estActif && m.methode !== MethodePaiement.ESPECES);
+  ) {}
+
+  async ngOnInit(): Promise<void> {
+    this.commandeId = this.route.snapshot.paramMap.get('commandeId') ?? '';
+    this.restaurantId = lireParamAncetre(this.route, 'restaurantId') ?? '';
+    this.code = this.route.snapshot.queryParamMap.get('code') ?? '';
+    await this.actualiser();
   }
 
-  ngOnInit(): void {
-    this.commandeId = this.route.snapshot.paramMap.get('commandeId') ?? '';
-    this.restaurantId = this.route.snapshot.paramMap.get('restaurantId') ?? '';
-    this.commande = this.ordersService.commandeParId(this.commandeId);
-
-    const c = this.commande();
-    if (c?.visiteId) {
-      this.autresCommandesVisite = this.ordersService.commandesDeLaVisite(c.visiteId);
+  async actualiser(): Promise<void> {
+    this.chargement.set(true);
+    try {
+      const c = await this.publicOrderService.chargerCommande(this.commandeId);
+      this.commande.set(c);
+      if (c.visite_id) {
+        const autres = await this.publicOrderService.chargerCommandesDeLaVisite(this.commandeId);
+        this.autresCommandesVisite.set(autres);
+      }
+    } finally {
+      this.chargement.set(false);
     }
   }
 
-  indexEtape(statut: StatutCommande): number {
-    return ETAPES.indexOf(statut);
+  aUneCommande(): boolean {
+  return this.commande() !== null;
+}
+
+  indexEtape(statut: string): number {
+    return ETAPES.indexOf(statut as StatutCommande);
   }
 
-  estAnnulee(statut: StatutCommande): boolean {
-    return statut === StatutCommande.ANNULEE;
+  estAnnulee(statut: string): boolean {
+    return statut === 'ANNULEE';
   }
 
-  peutPayerEnLigne(): boolean {
+  /** Si la commande fait partie d'une visite, le montant à payer couvre
+   *  l'ensemble des commandes de cette visite (addition), pas juste celle-ci. */
+  montantAPayer(): number {
     const c = this.commande();
-    return !!c && !c.visiteId && c.mode !== ModeCommande.SUR_PLACE && !this.paiementConfirme;
+    if (!c) return 0;
+    if (c.visite_id && this.autresCommandesVisite().length > 0) {
+      return this.autresCommandesVisite()
+        .filter((cmd: any) => cmd.statut !== 'ANNULEE')
+        .reduce((acc: number, cmd: any) => acc + Number(cmd.total), 0);
+    }
+    return Number(c.total);
   }
 
-  payerEnLigne(methode: string): void {
+  peutPayer(): boolean {
+    const c = this.commande();
+    return !!c && !this.paiementConfirme() && c.statut !== 'ANNULEE';
+  }
+
+  async payerEnLigne(methode: string): Promise<void> {
     const c = this.commande();
     if (!c) return;
-    this.ordersService.encaisserCommandeDirecte(c.id, methode);
-    this.paiementConfirme = true;
-  }
-
-  actualiser(): void {
-    // Rafraîchissement manuel (décision V1 : pas de temps réel) — force la re-lecture du signal
-    this.commande = this.ordersService.commandeParId(this.commandeId);
+    await this.publicOrderService.payer(c.id, methode);
+    this.paiementConfirme.set(true);
   }
 
   retourMenu(): void {
-    this.router.navigate(['/m', this.restaurantId]);
+    this.router.navigate(['/m', this.restaurantId], { queryParams: { code: this.code } });
   }
 }

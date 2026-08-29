@@ -1,0 +1,23 @@
+.admin-sidebar {
+  background: #14181F;
+}
+
+.admin-brand-mark {
+  background: #4C6EF5;
+}
+
+.admin-tag {
+  font-size: 0.65rem;
+  background: #4C6EF5;
+  color: white;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  vertical-align: middle;
+  margin-left: 0.2rem;
+}
+
+.admin-topbar-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}

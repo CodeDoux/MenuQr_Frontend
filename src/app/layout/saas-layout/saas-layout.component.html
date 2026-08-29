@@ -34,8 +34,10 @@
       <div></div>
       <div class="topbar-actions">
         <app-notification-bell />
-        <span class="user-name">{{ currentUser()?.nomComplet }}</span>
-        <span class="user-avatar">{{ initiales() }}</span>
+        <a routerLink="/profil" class="user-name-link">
+          <span class="user-name">{{ currentUser()?.nomComplet }}</span>
+          <span class="user-avatar">{{ initiales() }}</span>
+        </a>
         <button type="button" class="btn btn--icon" title="Se déconnecter" (click)="deconnexion()">⏻</button>
       </div>
     </header>

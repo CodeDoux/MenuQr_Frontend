@@ -1,0 +1,65 @@
+<app-modal [ouvert]="ouvert" [titre]="titre" (fermer)="fermer.emit()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+    <label class="field">
+      <span class="field-label">Nom de l'offre *</span>
+      <input type="text" formControlName="nom" class="field-input" placeholder="Ex. Pro" />
+      @if (form.get('nom')?.touched && form.get('nom')?.invalid) {
+        <span class="field-error">Le nom est requis.</span>
+      }
+    </label>
+
+    <label class="field">
+      <span class="field-label">Description</span>
+      <textarea formControlName="description" rows="2" class="field-input" placeholder="Optionnel"></textarea>
+    </label>
+
+    <div class="field-row">
+      <label class="field">
+        <span class="field-label">Prix mensuel (FCFA) *</span>
+        <input type="number" formControlName="prixMensuel" min="0" class="field-input" />
+      </label>
+      <label class="field">
+        <span class="field-label">Prix annuel (FCFA)</span>
+        <input type="number" formControlName="prixAnnuel" min="0" class="field-input" placeholder="Optionnel" />
+      </label>
+    </div>
+
+    <div class="field-row">
+      <label class="field">
+        <span class="field-label">Durée d'essai (jours)</span>
+        <input type="number" formControlName="dureeEssai" min="0" class="field-input" />
+      </label>
+      <label class="field">
+        <span class="field-label">Statut</span>
+        <select formControlName="statut" class="field-input">
+          <option [value]="StatutPlan.ACTIF">Actif</option>
+          <option [value]="StatutPlan.INACTIF">Inactif</option>
+          <option [value]="StatutPlan.ARCHIVE">Archivé</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="field-row">
+      <label class="field">
+        <span class="field-label">Limite tables</span>
+        <input type="number" formControlName="limiteTables" min="-1" class="field-input" />
+        <span class="field-hint">-1 = illimité</span>
+      </label>
+      <label class="field">
+        <span class="field-label">Limite employés</span>
+        <input type="number" formControlName="limiteEmployes" min="-1" class="field-input" />
+        <span class="field-hint">-1 = illimité</span>
+      </label>
+    </div>
+
+    <label class="field">
+      <span class="field-label">Fonctionnalités (une par ligne)</span>
+      <textarea formControlName="fonctionnalitesTexte" rows="4" class="field-input" placeholder="Menus illimités&#10;QR codes illimités&#10;Support prioritaire"></textarea>
+    </label>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn--ghost" (click)="fermer.emit()">Annuler</button>
+      <button type="submit" class="btn btn--primary">Enregistrer</button>
+    </div>
+  </form>
+</app-modal>

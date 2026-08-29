@@ -9,6 +9,7 @@ export interface CartItem {
   prixUnitaire: number;
   quantite: number;
   sousTotal: number;
+  notes?: string | null;
 }
 
 export interface InfosEmporter {

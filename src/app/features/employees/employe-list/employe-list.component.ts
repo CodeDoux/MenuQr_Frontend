@@ -1,11 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { PosteFormComponent } from '../poste-form/poste-form.component';
 import { EmployeFormComponent } from '../employe-form/employe-form.component';
 import { BadgeComponent, BadgeTone } from '../../../shared/components/badge/badge.component';
-import { AccesPlateforme, Employe, EmployeFormPayload, Poste, PosteFormPayload } from '../models/employees.models';
-import { EmployeesService } from '../services/employees.service';
 import { StatutAcces, StatutEmploye } from '../../../core/enums/enums';
-import { PosteFormComponent } from '../poste-form/poste-form.component';
+import { AccesPlateforme, Employe, EmployeFormPayload, Poste, PosteFormPayload } from '../../../core/models/employe';
+import { EmployeesService } from '../../../core/services/employees.service';
 
 @Component({
   selector: 'app-employee-list',
@@ -55,7 +55,13 @@ export class EmployeeListComponent {
     return { INVITE: 'Invité', ACTIF: 'Accès actif', SUSPENDU: 'Accès suspendu', REVOQUE: 'Accès révoqué' }[statut];
   }
 
-  // --- Postes ---
+  
+
+ 
+
+  // ⚠️ Remplace uniquement ces méthodes dans employee-list.component.ts
+// (le reste du fichier ne change pas).
+
   ouvrirCreationPoste(): void {
     this.posteEnEdition.set(null);
     this.posteFormOuvert.set(true);
@@ -66,17 +72,17 @@ export class EmployeeListComponent {
   }
   validerPoste(payload: PosteFormPayload): void {
     const enEdition = this.posteEnEdition();
-    if (enEdition) this.service.modifierPoste(enEdition.id, payload);
-    else this.service.creerPoste(payload);
-    this.posteFormOuvert.set(false);
+    const promesse = enEdition
+      ? this.service.modifierPoste(enEdition.id, payload)
+      : this.service.creerPoste(payload);
+
+    promesse
+      .then(() => this.posteFormOuvert.set(false))
+      .catch(() => alert('Une erreur est survenue lors de l\'enregistrement du poste.'));
   }
   supprimerPoste(poste: Poste): void {
-    try {
-      if (confirm(`Supprimer le poste "${poste.nom}" ?`)) {
-        this.service.supprimerPoste(poste.id);
-      }
-    } catch (e) {
-      alert((e as Error).message);
+    if (confirm(`Supprimer le poste "${poste.nom}" ?`)) {
+      this.service.supprimerPoste(poste.id).catch((e: Error) => alert(e.message));
     }
   }
 
@@ -93,17 +99,27 @@ export class EmployeeListComponent {
   }
   validerEmploye(payload: EmployeFormPayload): void {
     const enEdition = this.employeEnEdition();
-    if (enEdition) this.service.modifierEmploye(enEdition.id, payload);
-    else this.service.creerEmploye(payload);
-    this.employeFormOuvert.set(false);
+    const promesse = enEdition
+      ? this.service.modifierEmploye(enEdition.id, payload)
+      : this.service.creerEmploye(payload);
+
+    promesse
+      .then(() => this.employeFormOuvert.set(false))
+      .catch(() => alert('Une erreur est survenue lors de l\'enregistrement de l\'employé.'));
   }
   terminerEmploye(employe: Employe): void {
     if (confirm(`Marquer "${employe.nomComplet}" comme employé terminé ? Son accès plateforme sera révoqué.`)) {
-      this.service.terminerEmploye(employe.id);
+      this.service.terminerEmploye(employe.id).catch(() => alert('Une erreur est survenue.'));
     }
   }
-  renvoyerInvitation(acces: AccesPlateforme): void {
-    this.service.renvoyerInvitation(acces.id);
-    alert(`Invitation renvoyée (simulation — aucun email réel envoyé sans backend).`);
+  renvoyerInvitation(employe: Employe): void {
+    this.service.renvoyerInvitation(employe.id)
+      .then(() => alert('Invitation renvoyée (simulation — aucun email réel envoyé pour l\'instant).'))
+      .catch(() => alert('Une erreur est survenue.'));
+  }
+  copierLienInvitation(employe: Employe): void {
+    const lien = `${window.location.origin}/invitation/${employe.id}`;
+    navigator.clipboard?.writeText(lien).catch(() => {});
+    alert(`Lien d'invitation (copié si possible) :\n${lien}`);
   }
 }

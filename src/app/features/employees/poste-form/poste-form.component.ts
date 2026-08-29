@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
-import { Poste, PosteFormPayload } from '../models/employees.models';
+import { Poste, PosteFormPayload } from '../../../core/models/employe';
 
 @Component({
   selector: 'app-poste-form',

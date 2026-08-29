@@ -1,0 +1,40 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Factures</h1>
+    <p class="page-subtitle">Générées automatiquement à chaque paiement confirmé.</p>
+  </div>
+</div>
+
+@if (factures().length === 0) {
+  <div class="card empty-state">
+    <div class="empty-state-title">Aucune facture pour le moment</div>
+    <p>Une facture est créée automatiquement dès qu'un paiement est encaissé.</p>
+  </div>
+} @else {
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Numéro</th>
+          <th>Émise le</th>
+          <th>Montant TTC</th>
+          <th>Statut</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (f of factures(); track f.id) {
+          <tr>
+            <td class="table-strong">{{ f.numero }}</td>
+            <td class="table-muted">{{ f.date_emission  | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ f.montant_ttc  }} FCFA</td>
+            <td><app-badge [label]="f.statut" [tone]="TONE_STATUT[f.statut]" /></td>
+            <td class="table-actions">
+              <a [routerLink]="['/factures', f.id, 'imprimer']" class="btn btn--sm btn--ghost" style="text-decoration:none;">Voir / Imprimer</a>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

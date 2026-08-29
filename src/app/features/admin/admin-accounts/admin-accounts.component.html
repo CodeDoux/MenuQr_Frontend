@@ -1,0 +1,52 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Administrateurs</h1>
+    <p class="page-subtitle">Comptes ayant accès à l'espace d'administration MenuQr.</p>
+  </div>
+  <button type="button" class="btn btn--primary" (click)="ouvrirCreation()">+ Nouvel administrateur</button>
+</div>
+
+<div class="card">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Statut</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (c of comptes(); track c.id) {
+        <tr>
+          <td class="table-strong">{{ c.nomComplet }}</td>
+          <td class="table-muted">{{ c.email }}</td>
+          <td><app-badge [label]="c.actif ? 'Actif' : 'Désactivé'" [tone]="c.actif ? 'success' : 'neutral'" /></td>
+          <td class="table-actions">
+            <button type="button" class="btn btn--sm btn--ghost" (click)="basculerActif(c.id)">
+              {{ c.actif ? 'Désactiver' : 'Réactiver' }}
+            </button>
+            <button type="button" class="btn btn--icon" title="Supprimer" (click)="supprimer(c.id, c.nomComplet)">🗑</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<app-modal [ouvert]="formOuvert()" titre="Nouvel administrateur" (fermer)="formOuvert.set(false)">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+    <label class="field">
+      <span class="field-label">Nom complet *</span>
+      <input type="text" formControlName="nomComplet" class="field-input" />
+    </label>
+    <label class="field">
+      <span class="field-label">Email *</span>
+      <input type="email" formControlName="email" class="field-input" />
+    </label>
+    <div class="form-actions">
+      <button type="button" class="btn btn--ghost" (click)="formOuvert.set(false)">Annuler</button>
+      <button type="submit" class="btn btn--primary">Créer</button>
+    </div>
+  </form>
+</app-modal>

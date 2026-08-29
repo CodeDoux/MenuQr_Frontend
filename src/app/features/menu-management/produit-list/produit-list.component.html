@@ -72,7 +72,7 @@
               </div>
             </td>
             <td class="table-muted">
-              {{ p.categorieIds.map(this.nomCategorie).join(', ') }}
+              {{ nomsCategories(p) }}
             </td>
             <td class="table-strong">
               @if (p.variantes.length > 0) {

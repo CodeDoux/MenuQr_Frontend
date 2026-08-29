@@ -43,12 +43,12 @@ export class VueCuisineComponent {
   }
 
   avancer(c: Commande): void {
-    this.service.avancerStatutCuisine(c.id);
+    this.service.avancerStatutCuisine(c.id).catch(() => alert('Une erreur est survenue.'));
   }
 
   annuler(c: Commande): void {
     if (confirm(`Annuler la commande ${this.numeroCourt(c.id)} ?`)) {
-      this.service.annulerCommande(c.id);
+      this.service.annulerCommande(c.id).catch(() => alert('Une erreur est survenue.'));
     }
   }
 }

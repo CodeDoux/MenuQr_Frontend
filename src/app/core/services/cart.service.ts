@@ -1,8 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
+import { ModeCommande } from '../../core/enums/enums';
 import { AdresseLivraisonForm, CartItem, InfosEmporter } from '../models/panier';
-import { ModeCommande } from '../enums/enums';
 import { Produit, Variante } from '../models/produit';
-
 
 function uid(): string {
   return Math.random().toString(36).slice(2, 10);
@@ -32,6 +31,10 @@ export class CartService {
   readonly nombreArticles = computed(() => this._items().reduce((acc, i) => acc + i.quantite, 0));
   readonly total = computed(() => this._items().reduce((acc, i) => acc + i.sousTotal, 0));
   readonly estVide = computed(() => this._items().length === 0);
+  
+   private readonly _zonesLivraison = signal<any[]>([]);
+  readonly zonesLivraison = this._zonesLivraison.asReadonly();
+
 
   initialiserContexte(tableId: string | null, mode: ModeCommande | null): void {
     this._tableId.set(tableId);
@@ -54,12 +57,18 @@ export class CartService {
     this._adresseLivraison.set(adresse);
   }
 
-  ajouter(produit: Produit, variante: Variante | null, quantite: number): void {
+  ajouter(produit: any, variante: any | null, quantite: number, notes: string | null = null): void {
     const prixUnitaire = variante ? variante.prix : produit.prix;
     const nomComplet = variante ? `${produit.nom} (${variante.nom})` : produit.nom;
+    const notesNormalisees = notes?.trim() || null;
 
     this._items.update((liste) => {
-      const existant = liste.find((i) => i.produitId === produit.id && i.varianteId === (variante?.id ?? null));
+      const existant = liste.find(
+        (i) =>
+          i.produitId === produit.id &&
+          i.varianteId === (variante?.id ?? null) &&
+          (i.notes ?? null) === notesNormalisees
+      );
       if (existant) {
         return liste.map((i) =>
           i.id === existant.id
@@ -71,10 +80,14 @@ export class CartService {
         id: uid(), produitId: produit.id, produitNom: nomComplet,
         varianteId: variante?.id ?? null, varianteNom: variante?.nom ?? null,
         prixUnitaire, quantite, sousTotal: prixUnitaire * quantite,
+        notes: notesNormalisees,
       };
       return [...liste, nouveauItem];
     });
   }
+
+
+  
 
   modifierQuantite(itemId: string, delta: number): void {
     this._items.update((liste) =>
@@ -91,5 +104,9 @@ export class CartService {
   vider(): void {
     this._items.set([]);
     this._notes.set('');
+  }
+
+  definirZonesLivraison(zones: any[]): void {
+    this._zonesLivraison.set(zones);
   }
 }

@@ -37,7 +37,8 @@
           </td>
           <td class="table-actions">
             @if (item.acces?.statut === 'INVITE') {
-              <button type="button" class="btn btn--sm btn--ghost" (click)="renvoyerInvitation(item.acces!)">Renvoyer l'invitation</button>
+              <button type="button" class="btn btn--sm btn--ghost" (click)="renvoyerInvitation(item.employe)">Renvoyer l'invitation</button>
+              <button type="button" class="btn btn--sm btn--ghost" (click)="copierLienInvitation(item.employe)">Copier le lien</button>
             }
             <button type="button" class="btn btn--icon" title="Modifier" (click)="ouvrirEditionEmploye(item.employe, item.acces)">✎</button>
             <button type="button" class="btn btn--icon" title="Terminer" (click)="terminerEmploye(item.employe)">🗑</button>

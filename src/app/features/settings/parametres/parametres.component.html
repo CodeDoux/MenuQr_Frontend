@@ -1,8 +1,40 @@
 <div class="page-header">
   <div>
     <h1 class="page-title">Paramètres</h1>
-    <p class="page-subtitle">Horaires d'ouverture et moyens de paiement acceptés.</p>
+    <p class="page-subtitle">Infos générales, horaires d'ouverture et moyens de paiement acceptés.</p>
   </div>
+</div>
+
+<div class="card settings-section">
+  <h3 class="settings-section-title">Informations générales</h3>
+  <form [formGroup]="formRestaurant" (ngSubmit)="enregistrerRestaurant()" class="form">
+    <label class="field">
+      <span class="field-label">Nom du restaurant *</span>
+      <input type="text" formControlName="nom" class="field-input" />
+    </label>
+    <div class="field-row">
+      <label class="field">
+        <span class="field-label">Téléphone *</span>
+        <input type="tel" formControlName="telephone" class="field-input" />
+      </label>
+      <label class="field">
+        <span class="field-label">Email</span>
+        <input type="email" formControlName="email" class="field-input" placeholder="Optionnel" />
+      </label>
+    </div>
+    <label class="field">
+      <span class="field-label">Adresse *</span>
+      <input type="text" formControlName="adresse" class="field-input" />
+    </label>
+    <label class="field">
+      <span class="field-label">Description</span>
+      <textarea formControlName="description" rows="2" class="field-input" placeholder="Optionnel"></textarea>
+    </label>
+    <div class="form-actions" style="justify-content: space-between; border-top: none; padding-top: 0;">
+      @if (restaurantEnregistre) { <span class="pm-suivi-terminee" style="margin:0;padding:0.4rem 0.8rem;">✓ Enregistré</span> } @else { <span></span> }
+      <button type="submit" class="btn btn--primary">Enregistrer</button>
+    </div>
+  </form>
 </div>
 
 <div class="card settings-section">
@@ -59,6 +91,46 @@
 </div>
 
 <div class="card settings-section">
+  <div class="postes-header">
+    <div>
+      <h3 class="settings-section-title">Zones de livraison</h3>
+      <p class="field-hint settings-hint">Définissez les frais et délais selon la zone du client.</p>
+    </div>
+    <button type="button" class="btn btn--ghost btn--sm" (click)="ouvrirCreationZone()">+ Nouvelle zone</button>
+  </div>
+
+  @if (zones().length === 0) {
+    <p class="table-muted">Aucune zone configurée — les livraisons ne pourront pas être proposées aux clients.</p>
+  } @else {
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Zone</th>
+          <th>Frais</th>
+          <th>Temps estimé</th>
+          <th>Statut</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (zone of zones(); track zone.id) {
+          <tr>
+            <td class="table-strong">{{ zone.nom }}</td>
+            <td>{{ zone.frais }} FCFA</td>
+            <td class="table-muted">{{ zone.tempsEstime ? zone.tempsEstime + ' min' : '—' }}</td>
+            <td class="table-muted">{{ zone.statut === 'ACTIVE' ? 'Active' : 'Inactive' }}</td>
+            <td class="table-actions">
+              <button type="button" class="btn btn--icon" title="Modifier" (click)="ouvrirEditionZone(zone)">✎</button>
+              <button type="button" class="btn btn--icon" title="Supprimer" (click)="supprimerZone(zone)">🗑</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+
+<div class="card settings-section">
   <h3 class="settings-section-title">Moyens de paiement acceptés</h3>
   <p class="field-hint settings-hint">Activez les méthodes que vos clients peuvent utiliser pour payer en ligne.</p>
 
@@ -82,3 +154,10 @@
     }
   </div>
 </div>
+
+<app-zone-form
+  [ouvert]="zoneFormOuvert()"
+  [zoneAEditer]="zoneEnEdition()"
+  (fermer)="zoneFormOuvert.set(false)"
+  (valider)="validerZone($event)"
+/>

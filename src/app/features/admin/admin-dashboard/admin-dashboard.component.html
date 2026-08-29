@@ -1,0 +1,25 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Dashboard plateforme</h1>
+    <p class="page-subtitle">Vue d'ensemble de tous les restaurants inscrits sur MenuQr.</p>
+  </div>
+</div>
+
+<div class="stats-cards">
+  <div class="card stats-card">
+    <p class="field-hint">Restaurants inscrits</p>
+    <p class="stats-value">{{ nbTotal() }}</p>
+  </div>
+  <div class="card stats-card">
+    <p class="field-hint">Actifs</p>
+    <p class="stats-value">{{ nbActifs() }}</p>
+  </div>
+  <div class="card stats-card">
+    <p class="field-hint">En période d'essai</p>
+    <p class="stats-value">{{ nbEnEssai() }}</p>
+  </div>
+  <div class="card stats-card">
+    <p class="field-hint">Suspendus</p>
+    <p class="stats-value">{{ nbSuspendus() }}</p>
+  </div>
+</div>

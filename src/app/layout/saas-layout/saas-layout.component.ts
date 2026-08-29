@@ -20,8 +20,14 @@ export class SaasLayoutComponent {
     { label: 'Produits', icon: '◈', route: '/produits' },
     { label: 'Tables & QR', icon: '▦', route: '/tables' },
     { label: 'Commandes', icon: '▤', route: '/commandes' },
+    { label: 'Livraisons', icon: '🛵', route: '/livraisons' },
+    { label: 'Paiements', icon: '◈', route: '/paiements' },
+    { label: 'Factures', icon: '▧', route: '/factures' },
     { label: 'Employés', icon: '◉', route: '/employes' },
     { label: 'Promotions', icon: '★', route: '/promotions' },
+    { label: 'Statistiques', icon: '◧', route: '/statistiques' },
+    { label: 'Abonnement', icon: '◆', route: '/abonnement' },
+    { label: 'Journal d\'activité', icon: '☰', route: '/journal' },
     { label: 'Paramètres', icon: '⚙', route: '/parametres' },
   ];
 

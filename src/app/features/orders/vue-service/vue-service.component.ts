@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrdersService } from '../../../core/services/orders.service';
-import { Commande } from '../../../core/models/commande';
+import { Commande } from '../../../core/models/orders';
 
 @Component({
   selector: 'app-vue-service',
@@ -20,11 +20,11 @@ export class VueServiceComponent {
     return '#' + id.slice(-4).toUpperCase();
   }
 
-  numeroTable(tableId: string | null | undefined): string {
-    return tableId ? tableId.split('-')[1] : '—';
+   numeroTable(c: Commande): string {
+    return c.tableNumero ?? '—';
   }
 
   servir(c: Commande): void {
-    this.service.terminerCommande(c.id);
+    this.service.terminerCommande(c.id).catch(() => alert('Une erreur est survenue.'));
   }
 }

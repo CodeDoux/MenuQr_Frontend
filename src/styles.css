@@ -491,12 +491,6 @@ button {
   font-size: 1.3rem;
 }
 
-.image-row {
-  display: grid;
-  grid-template-columns: 2fr auto auto;
-  gap: 0.5rem;
-  align-items: center;
-}
 
 /* ==========================================================
    Vignette produit (liste)
@@ -1711,4 +1705,515 @@ button {
 .pm-invalide-icon {
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
+}
+
+/* ==========================================================
+   Vue Abonnement
+   ========================================================== */
+
+.abo-current {
+  padding: 1.25rem;
+}
+
+.abo-current-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.abo-essai-info {
+  background: color-mix(in srgb, var(--color-warning) 12%, white);
+  color: var(--color-warning-strong);
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+
+.abo-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.abo-plan-card {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.abo-plan-card--active {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.abo-plan-nom {
+  font-size: 1.1rem;
+}
+
+.abo-plan-prix {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-accent-strong);
+}
+
+.abo-plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 1rem;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* ==========================================================
+   Vue Statistiques
+   ========================================================== */
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stats-card {
+  padding: 1.1rem 1.25rem;
+}
+
+.stats-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0.3rem 0 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.stats-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.stats-bar-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 40px;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+}
+
+.stats-bar-label {
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stats-bar-track {
+  height: 8px;
+  background: var(--color-surface-muted);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.stats-bar-fill {
+  height: 100%;
+  background: var(--color-warning);
+  border-radius: 999px;
+}
+
+.stats-bar-fill--accent {
+  background: var(--color-accent);
+}
+
+.stats-bar-value {
+  text-align: right;
+  font-weight: 600;
+}
+
+.user-name-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.login-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.9rem;
+}
+.login-links a {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+.login-links a:hover {
+  color: var(--color-accent-strong);
+}
+
+/* ==========================================================
+   Facture imprimable
+   ========================================================== */
+
+.invoice-actions {
+  margin-bottom: 1rem;
+}
+
+.invoice-sheet {
+  background: white;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--color-ink);
+}
+
+.invoice-restaurant-nom {
+  font-size: 1.3rem;
+}
+
+.invoice-restaurant-detail {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  margin: 0.15rem 0 0;
+}
+
+.invoice-meta {
+  text-align: right;
+}
+
+.invoice-titre {
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  color: var(--color-accent-strong);
+}
+
+.invoice-numero {
+  font-weight: 700;
+  margin: 0.2rem 0;
+}
+
+.invoice-client {
+  margin-bottom: 1.5rem;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+
+.invoice-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.invoice-table td {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.9rem;
+}
+
+.invoice-totaux {
+  margin-left: auto;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.invoice-total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.invoice-total-row--final {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  border-top: 1px solid var(--color-border);
+  padding-top: 0.5rem;
+  margin-top: 0.3rem;
+}
+
+.invoice-footer {
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  margin-top: 2.5rem;
+}
+
+@media print {
+  .sidebar, .topbar, .no-print {
+    display: none !important;
+  }
+  .content {
+    padding: 0 !important;
+    max-width: none !important;
+  }
+  .invoice-sheet {
+    border: none;
+    padding: 0;
+  }
+}
+
+.pm-panier-item-note {
+  font-size: 0.8rem;
+  color: var(--color-accent-strong);
+  font-style: italic;
+  margin: 0 0 0.5rem;
+}
+
+.pm-note-field {
+  margin-bottom: 1.25rem;
+}
+
+.pm-note-inline {
+  font-size: 0.8rem;
+  color: var(--color-accent-strong);
+  font-style: italic;
+}
+
+.kanban-note {
+  display: block;
+  font-style: italic;
+  color: var(--color-accent-strong);
+  font-size: 0.75rem;
+  margin-top: 0.1rem;
+}
+
+/* ==========================================================
+   LAYOUT PARTAGE (sidebar/topbar) - utilise par SaasLayout ET AdminLayout
+   Deplace depuis saas-layout.component.scss car les styles scoped a un
+   composant ne s'appliquent pas au template d'un autre composant.
+   ========================================================== */
+
+.shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--color-ink);
+  color: var(--color-text-inverse);
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 0.9rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 0.4rem 1.5rem;
+}
+
+.brand-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--color-accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.brand-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-sm);
+  color: rgba(242, 236, 228, 0.62);
+  text-decoration: none;
+  font-size: 0.98rem;
+  font-weight: 500;
+  border-left: 2px solid transparent;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.nav-link:hover {
+  background: rgba(242, 236, 228, 0.06);
+  color: var(--color-text-inverse);
+}
+.nav-link:hover .nav-icon {
+  color: var(--color-accent);
+}
+
+.nav-link--active {
+  background: rgba(232, 93, 43, 0.16);
+  color: var(--color-text-inverse);
+  border-left-color: var(--color-accent);
+}
+.nav-link--active .nav-icon {
+  color: var(--color-accent);
+}
+
+.nav-icon {
+  width: 24px;
+  text-align: center;
+  font-size: 1.2rem;
+  color: rgba(242, 236, 228, 0.55);
+  transition: color 0.15s ease;
+}
+
+.sidebar-footer {
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.restaurant-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.restaurant-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.restaurant-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.restaurant-plan {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.topbar {
+  height: 60px;
+  flex-shrink: 0;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.user-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.content {
+  flex: 1;
+  padding: 1.75rem;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+@media (max-width: 860px) {
+  .sidebar {
+    width: 72px;
+    padding: 1rem 0.5rem;
+  }
+  .brand-name,
+  .nav-link span:not(.nav-icon),
+  .sidebar-footer {
+    display: none;
+  }
+  .nav-link {
+    justify-content: center;
+  }
+}
+
+.image-row-thumb {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+.image-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.6rem;
+  align-items: center;
 }

@@ -9,7 +9,7 @@
         </div>
         <ul class="kanban-card-lignes">
           @for (l of c.lignes; track l.id) {
-            <li>{{ l.quantite }}× {{ l.produitNom }}</li>
+            <li>{{ l.quantite }}× {{ l.produitNom }} @if (l.notes) { <span class="kanban-note">📝 {{ l.notes }}</span> }</li>
           }
         </ul>
         <div class="kanban-card-actions">
@@ -30,7 +30,7 @@
         </div>
         <ul class="kanban-card-lignes">
           @for (l of c.lignes; track l.id) {
-            <li>{{ l.quantite }}× {{ l.produitNom }}</li>
+            <li>{{ l.quantite }}× {{ l.produitNom }} @if (l.notes) { <span class="kanban-note">📝 {{ l.notes }}</span> }</li>
           }
         </ul>
         <div class="kanban-card-actions">
@@ -50,7 +50,7 @@
         </div>
         <ul class="kanban-card-lignes">
           @for (l of c.lignes; track l.id) {
-            <li>{{ l.quantite }}× {{ l.produitNom }}</li>
+            <li>{{ l.quantite }}× {{ l.produitNom }} @if (l.notes) { <span class="kanban-note">📝 {{ l.notes }}</span> }</li>
           }
         </ul>
         <div class="kanban-card-actions">
@@ -70,7 +70,7 @@
         </div>
         <ul class="kanban-card-lignes">
           @for (l of c.lignes; track l.id) {
-            <li>{{ l.quantite }}× {{ l.produitNom }}</li>
+            <li>{{ l.quantite }}× {{ l.produitNom }} @if (l.notes) { <span class="kanban-note">📝 {{ l.notes }}</span> }</li>
           }
         </ul>
       </div>

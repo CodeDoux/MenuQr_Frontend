@@ -2,8 +2,8 @@ import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
-import { AccesPlateforme, Employe, EmployeFormPayload, Poste } from '../models/employees.models';
 import { RoleCode, StatutEmploye } from '../../../core/enums/enums';
+import { AccesPlateforme, Employe, EmployeFormPayload, Poste } from '../../../core/models/employe';
 
 @Component({
   selector: 'app-employe-form',

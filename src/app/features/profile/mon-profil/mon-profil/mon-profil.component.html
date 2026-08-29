@@ -1,0 +1,52 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Mon profil</h1>
+    <p class="page-subtitle">Gérez vos informations personnelles et votre mot de passe.</p>
+  </div>
+</div>
+
+<div class="card settings-section">
+  <h3 class="settings-section-title">Informations personnelles</h3>
+  <form [formGroup]="formProfil" (ngSubmit)="enregistrerProfil()" class="form">
+    <label class="field">
+      <span class="field-label">Nom complet</span>
+      <input type="text" formControlName="nomComplet" class="field-input" />
+    </label>
+    <label class="field">
+      <span class="field-label">Email</span>
+      <input type="email" formControlName="email" class="field-input" />
+    </label>
+    <div class="form-actions" style="justify-content: space-between; border-top: none; padding-top: 0;">
+      @if (profilEnregistre()) { <span class="pm-suivi-terminee" style="margin:0;padding:0.4rem 0.8rem;">✓ Enregistré</span> } @else { <span></span> }
+      <button type="submit" class="btn btn--primary">Enregistrer</button>
+    </div>
+  </form>
+</div>
+
+<div class="card settings-section">
+  <h3 class="settings-section-title">Changer le mot de passe</h3>
+  <form [formGroup]="formMotDePasse" (ngSubmit)="changerMotDePasse()" class="form">
+    <label class="field">
+      <span class="field-label">Mot de passe actuel</span>
+      <input type="password" formControlName="ancienMotDePasse" class="field-input" />
+    </label>
+    <div class="field-row">
+      <label class="field">
+        <span class="field-label">Nouveau mot de passe</span>
+        <input type="password" formControlName="nouveauMotDePasse" class="field-input" />
+      </label>
+      <label class="field">
+        <span class="field-label">Confirmation</span>
+        <input type="password" formControlName="confirmation" class="field-input" />
+      </label>
+    </div>
+    @if (motDePasseMessage()) {
+      <p class="field-hint">{{ motDePasseMessage() }}</p>
+    }
+    <div class="form-actions" style="border-top: none; padding-top: 0;">
+      <button type="submit" class="btn btn--primary" [disabled]="motDePasseEnCours()">
+        {{ motDePasseEnCours() ? 'Mise à jour...' : 'Changer le mot de passe' }}
+      </button>
+    </div>
+  </form>
+</div>

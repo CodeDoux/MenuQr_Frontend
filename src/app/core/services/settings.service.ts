@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
-import { JourSemaine, MethodePaiement } from '../../core/enums/enums';
-import { Horaire, HoraireFormPayload, MoyenPaiement } from '../models/settings';
+import { JourSemaine, MethodePaiement } from '../enums/enums';
+import { Horaire, HoraireFormPayload, MoyenPaiement, RestaurantInfos } from '../models/settings';
 
 /** ⚠️ MOCK DATA — même principe que les autres services du projet. */
 
@@ -24,9 +24,18 @@ export { LIBELLE_METHODE };
 export class SettingsService {
   private readonly _horaires = signal<Horaire[]>(this.seedHoraires());
   private readonly _moyensPaiement = signal<MoyenPaiement[]>(this.seedMoyensPaiement());
+  private readonly _restaurantInfos = signal<RestaurantInfos>({
+    nom: 'Le Palais', logo: null, adresse: 'Avenue Cheikh Anta Diop, Dakar',
+    telephone: '+221 77 000 00 00', email: 'contact@lepalais.sn', description: 'Cuisine sénégalaise traditionnelle.',
+  });
 
   readonly horaires = this._horaires.asReadonly();
   readonly moyensPaiement = this._moyensPaiement.asReadonly();
+  readonly restaurantInfos = this._restaurantInfos.asReadonly();
+
+  modifierRestaurantInfos(payload: RestaurantInfos): void {
+    this._restaurantInfos.set(payload);
+  }
 
   modifierHoraire(id: string, payload: HoraireFormPayload): void {
     this._horaires.update((liste) => liste.map((h) => (h.id === id ? { ...h, ...payload } : h)));

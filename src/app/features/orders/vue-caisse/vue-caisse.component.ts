@@ -38,10 +38,6 @@ export class VueCaisseComponent {
     return '#' + id.slice(-4).toUpperCase();
   }
 
-  numeroTable(tableId: string | null | undefined): string {
-    return tableId ? tableId.split('-')[1] : '—';
-  }
-
   ouvrirEncaissementAddition(additionId: string): void {
     this.additionEnEncaissement.set(additionId);
     this.commandeEnEncaissement.set(null);
@@ -63,11 +59,14 @@ export class VueCaisseComponent {
     const methode = this.methodeChoisie();
     if (!methode) return;
 
-    if (this.additionEnEncaissement()) {
-      this.service.encaisserAddition(this.additionEnEncaissement()!, methode);
-    } else if (this.commandeEnEncaissement()) {
-      this.service.encaisserCommandeDirecte(this.commandeEnEncaissement()!, methode);
-    }
-    this.fermerEncaissement();
+    const promesse = this.additionEnEncaissement()
+      ? this.service.encaisserAddition(this.additionEnEncaissement()!, methode)
+      : this.commandeEnEncaissement()
+        ? this.service.encaisserCommandeDirecte(this.commandeEnEncaissement()!, methode)
+        : Promise.resolve();
+
+    promesse
+      .then(() => this.fermerEncaissement())
+      .catch(() => alert('Une erreur est survenue lors de l\'encaissement.'));
   }
 }

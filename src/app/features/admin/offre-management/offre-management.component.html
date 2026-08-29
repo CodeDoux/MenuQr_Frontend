@@ -1,0 +1,37 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Offres & Plans</h1>
+    <p class="page-subtitle">Gérez les offres d'abonnement proposées aux restaurants.</p>
+  </div>
+  <button type="button" class="btn btn--primary" (click)="ouvrirCreation()">+ Nouvelle offre</button>
+</div>
+
+<div class="abo-plans-grid">
+  @for (offre of offres(); track offre.id) {
+    <div class="card abo-plan-card">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <h3 class="abo-plan-nom">{{ offre.nom }}</h3>
+        <app-badge [label]="offre.statut" [tone]="offre.statut === 'ACTIF' ? 'success' : 'neutral'" />
+      </div>
+      <p class="abo-plan-prix">{{ offre.prixMensuel }} <span class="field-hint">FCFA/mois</span></p>
+      <p class="field-hint">{{ offre.description }}</p>
+      <ul class="abo-plan-features">
+        @for (f of offre.fonctionnalites; track f) { <li>✓ {{ f }}</li> }
+        @for (l of offre.limites; track l.nom) {
+          <li>✓ {{ l.valeur === -1 ? 'Illimité' : l.valeur }} {{ l.nom }}</li>
+        }
+      </ul>
+      <div class="form-actions" style="border-top:none; padding-top:0;">
+        <button type="button" class="btn btn--sm btn--ghost" (click)="supprimer(offre)">Supprimer</button>
+        <button type="button" class="btn btn--sm btn--primary" (click)="ouvrirEdition(offre)">Modifier</button>
+      </div>
+    </div>
+  }
+</div>
+
+<app-offer-form
+  [ouvert]="formOuvert()"
+  [offreAEditer]="offreEnEdition()"
+  (fermer)="formOuvert.set(false)"
+  (valider)="valider($event)"
+/>

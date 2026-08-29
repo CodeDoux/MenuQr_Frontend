@@ -9,6 +9,9 @@
         <span class="pm-panier-item-nom">{{ item.produitNom }}</span>
         <span class="pm-panier-item-prix">{{ item.sousTotal }} FCFA</span>
       </div>
+      @if (item.notes) {
+        <p class="pm-panier-item-note">📝 {{ item.notes }}</p>
+      }
       <div class="pm-panier-item-actions">
         <button type="button" class="pm-stepper-btn" (click)="decrementer(item.id)">−</button>
         <span class="pm-quantite-value">{{ item.quantite }}</span>
@@ -44,15 +47,15 @@
     <div class="pm-form-block">
       <label class="pm-field">
         <span class="pm-field-label">Nom *</span>
-        <input type="text" class="pm-field-input" [ngModel]="infos().nom" (ngModelChange)="modifierInfos('nom', $event)" />
+        <input type="text" class="pm-field-input" [ngModel]="infos().nom" (ngModelChange)="majNom($event)" />
       </label>
       <label class="pm-field">
         <span class="pm-field-label">Téléphone *</span>
-        <input type="tel" class="pm-field-input" [ngModel]="infos().telephone" (ngModelChange)="modifierInfos('telephone', $event)" />
+        <input type="tel" class="pm-field-input" [ngModel]="infos().telephone" (ngModelChange)="majTelephone($event)" />
       </label>
       <label class="pm-field">
         <span class="pm-field-label">Heure de retrait souhaitée</span>
-        <input type="time" class="pm-field-input" [ngModel]="infos().heureRetrait" (ngModelChange)="modifierInfos('heureRetrait', $event)" />
+        <input type="time" class="pm-field-input" [ngModel]="infos().heureRetrait" (ngModelChange)="majHeureRetrait($event)" />
       </label>
     </div>
   }
@@ -60,18 +63,34 @@
   @if (mode() === ModeCommande.LIVRAISON) {
     <div class="pm-form-block">
       <label class="pm-field">
+        <span class="pm-field-label">Nom *</span>
+        <input type="text" class="pm-field-input" [ngModel]="infos().nom" (ngModelChange)="majNom($event)" />
+      </label>
+      <label class="pm-field">
+        <span class="pm-field-label">Téléphone *</span>
+        <input type="tel" class="pm-field-input" [ngModel]="infos().telephone" (ngModelChange)="majTelephone($event)" />
+      </label>
+      <label class="pm-field">
         <span class="pm-field-label">Adresse complète *</span>
-        <input type="text" class="pm-field-input" [ngModel]="adresse().adresseComplete" (ngModelChange)="modifierAdresse('adresseComplete', $event)" />
+        <input type="text" class="pm-field-input" [ngModel]="adresse().adresseComplete" (ngModelChange)="majAdresseComplete($event)" />
       </label>
       <label class="pm-field">
         <span class="pm-field-label">Quartier</span>
-        <input type="text" class="pm-field-input" [ngModel]="adresse().quartier" (ngModelChange)="modifierAdresse('quartier', $event)" />
+        <input type="text" class="pm-field-input" [ngModel]="adresse().quartier" (ngModelChange)="majQuartier($event)" />
       </label>
       <label class="pm-field">
         <span class="pm-field-label">Indications</span>
-        <input type="text" class="pm-field-input" placeholder="Optionnel" [ngModel]="adresse().indications" (ngModelChange)="modifierAdresse('indications', $event)" />
+        <input type="text" class="pm-field-input" placeholder="Optionnel" [ngModel]="adresse().indications" (ngModelChange)="majIndications($event)" />
       </label>
-      <p class="pm-field-hint">⚠️ Frais de livraison fixes pour l'instant (1000 FCFA) — les zones de livraison ne sont pas encore configurables.</p>
+      <label class="pm-field">
+        <span class="pm-field-label">Zone de livraison *</span>
+        <select class="pm-field-input" [ngModel]="zoneChoisieId()" (ngModelChange)="zoneChoisieId.set($event)">
+          <option [ngValue]="null" disabled>Choisir votre zone</option>
+          @for (zone of zonesLivraison(); track zone.id) {
+            <option [ngValue]="zone.id">{{ zone.nom }} — {{ zone.frais }} FCFA</option>
+          }
+        </select>
+      </label>
     </div>
   }
 

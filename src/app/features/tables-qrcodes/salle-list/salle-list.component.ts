@@ -8,7 +8,7 @@ import { Salle, SalleFormPayload } from '../../../core/models/salle';
 import { TableFormPayload, TableRestaurant } from '../../../core/models/table';
 import { QRCode } from '../../../core/models/qrcode';
 import { BadgeComponent, BadgeTone } from '../../../shared/components/badge/badge.component';
-import { TablesQrcodesService } from '../services/tables-qrcodes.service';
+import { TablesQrcodesService } from '../../../core/services/table-qrcode.service';
 
 @Component({
   selector: 'app-salle-list',
@@ -67,17 +67,7 @@ export class SalleListComponent {
     this.salleEnEdition.set(salle);
     this.salleFormOuvert.set(true);
   }
-  validerSalle(payload: SalleFormPayload): void {
-    const enEdition = this.salleEnEdition();
-    if (enEdition) this.service.modifierSalle(enEdition.id, payload);
-    else this.service.creerSalle(payload);
-    this.salleFormOuvert.set(false);
-  }
-  supprimerSalle(salle: Salle): void {
-    if (confirm(`Supprimer la salle "${salle.description}" et toutes ses tables ?`)) {
-      this.service.supprimerSalle(salle.id);
-    }
-  }
+  
 
   // --- Tables ---
   ouvrirCreationTable(salleId: string): void {
@@ -90,17 +80,7 @@ export class SalleListComponent {
     this.tableEnEdition.set(table);
     this.tableFormOuvert.set(true);
   }
-  validerTable(payload: TableFormPayload): void {
-    const enEdition = this.tableEnEdition();
-    if (enEdition) this.service.modifierTable(enEdition.id, payload);
-    else this.service.creerTable(payload);
-    this.tableFormOuvert.set(false);
-  }
-  supprimerTable(table: TableRestaurant): void {
-    if (confirm(`Supprimer la table ${table.numero} ? Son QR code sera désactivé.`)) {
-      this.service.supprimerTable(table.id);
-    }
-  }
+  
 
   // --- QR Codes ---
   async ouvrirQrTable(table: TableRestaurant, salle: Salle): Promise<void> {
@@ -143,5 +123,43 @@ export class SalleListComponent {
     if (!ctx) return 'QR Code';
     if (ctx.type === 'table') return `QR Code — Table ${ctx.table.numero}`;
     return ctx.typeQr === TypeQRCode.EMPORTER ? 'QR Code — À emporter' : 'QR Code — Livraison';
+  }
+
+  // ⚠️ Remplace uniquement ces 4 méthodes dans salle-list.component.ts
+// (le reste du fichier, y compris genererOuRegenerer/ouvrirQr*, ne change pas —
+// elles étaient déjà asynchrones).
+
+  validerSalle(payload: SalleFormPayload): void {
+    const enEdition = this.salleEnEdition();
+    const promesse = enEdition
+      ? this.service.modifierSalle(enEdition.id, payload)
+      : this.service.creerSalle(payload);
+
+    promesse
+      .then(() => this.salleFormOuvert.set(false))
+      .catch(() => alert('Une erreur est survenue lors de l\'enregistrement de la salle.'));
+  }
+
+  supprimerSalle(salle: Salle): void {
+    if (confirm(`Supprimer la salle "${salle.description}" et toutes ses tables ?`)) {
+      this.service.supprimerSalle(salle.id).catch(() => alert('Une erreur est survenue lors de la suppression.'));
+    }
+  }
+
+  validerTable(payload: TableFormPayload): void {
+    const enEdition = this.tableEnEdition();
+    const promesse = enEdition
+      ? this.service.modifierTable(enEdition.id, payload)
+      : this.service.creerTable(payload);
+
+    promesse
+      .then(() => this.tableFormOuvert.set(false))
+      .catch(() => alert('Une erreur est survenue lors de l\'enregistrement de la table.'));
+  }
+
+  supprimerTable(table: TableRestaurant): void {
+    if (confirm(`Supprimer la table ${table.numero} ? Son QR code sera désactivé.`)) {
+      this.service.supprimerTable(table.id).catch(() => alert('Une erreur est survenue lors de la suppression.'));
+    }
   }
 }

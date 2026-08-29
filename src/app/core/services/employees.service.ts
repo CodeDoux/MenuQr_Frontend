@@ -1,24 +1,17 @@
 import { Injectable, computed, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { AccesPlateforme, Employe, EmployeFormPayload, Poste, PosteFormPayload } from '../models/employe';
-import { StatutAcces, StatutEmploye } from '../enums/enums';
+import { RoleCode, StatutAcces } from '../enums/enums';
 
-/** ⚠️ MOCK DATA — même principe que les autres services du projet. */
-
-const RESTAURANT_ID_COURANT = 'rest-001';
-
-function uid(prefix: string): string {
-  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
-}
-
-function nowIso(): string {
-  return new Date().toISOString();
-}
+const API = environment.apiUrl;
 
 @Injectable({ providedIn: 'root' })
 export class EmployeesService {
-  private readonly _postes = signal<Poste[]>(this.seedPostes());
+  private readonly _postes = signal<Poste[]>([]);
+  private readonly _employes = signal<Employe[]>([]);
   private readonly _acces = signal<AccesPlateforme[]>([]);
-  private readonly _employes = signal<Employe[]>(this.seedEmployes());
 
   readonly postes = this._postes.asReadonly();
   readonly employes = this._employes.asReadonly();
@@ -31,151 +24,122 @@ export class EmployeesService {
     }))
   );
 
+  constructor(private readonly http: HttpClient) {
+    this.chargerTout();
+  }
+
+  private async chargerTout(): Promise<void> {
+    const repPostes = await firstValueFrom(this.http.get<{ data: any[] }>(`${API}/postes`));
+    this._postes.set(repPostes.data.map((p) => this.mapPoste(p)));
+
+    await this.chargerEmployes();
+  }
+
+  private async chargerEmployes(): Promise<void> {
+    const rep = await firstValueFrom(this.http.get<{ data: any[] }>(`${API}/employes`));
+    const employes: Employe[] = [];
+    const acces: AccesPlateforme[] = [];
+
+    for (const item of rep.data) {
+      employes.push(this.mapEmploye(item));
+      if (item.acces) {
+        acces.push(this.mapAcces(item.acces));
+      }
+    }
+
+    this._employes.set(employes);
+    this._acces.set(acces);
+  }
+
   // ============================================================
   // POSTES
   // ============================================================
 
-  creerPoste(payload: PosteFormPayload): Poste {
-    const nouveau: Poste = { id: uid('poste'), restaurantId: RESTAURANT_ID_COURANT, ...payload };
+  async creerPoste(payload: PosteFormPayload): Promise<Poste> {
+    const rep = await firstValueFrom(this.http.post<{ data: any }>(`${API}/postes`, payload));
+    const nouveau = this.mapPoste(rep.data);
     this._postes.update((liste) => [...liste, nouveau]);
     return nouveau;
   }
 
-  modifierPoste(id: string, payload: PosteFormPayload): void {
-    this._postes.update((liste) => liste.map((p) => (p.id === id ? { ...p, ...payload } : p)));
+  async modifierPoste(id: string, payload: PosteFormPayload): Promise<void> {
+    const rep = await firstValueFrom(this.http.put<{ data: any }>(`${API}/postes/${id}`, payload));
+    const maj = this.mapPoste(rep.data);
+    this._postes.update((liste) => liste.map((p) => (p.id === id ? maj : p)));
   }
 
-  supprimerPoste(id: string): void {
-    const utilise = this._employes().some((e) => e.posteId === id);
-    if (utilise) {
-      throw new Error('Ce poste est encore assigné à au moins un employé.');
+  async supprimerPoste(id: string): Promise<void> {
+    try {
+      await firstValueFrom(this.http.delete(`${API}/postes/${id}`));
+      this._postes.update((liste) => liste.filter((p) => p.id !== id));
+    } catch (e: any) {
+      throw new Error(e?.error?.message ?? 'Ce poste est encore assigné à au moins un employé.');
     }
-    this._postes.update((liste) => liste.filter((p) => p.id !== id));
   }
 
   // ============================================================
   // EMPLOYÉS
   // ============================================================
 
-  creerEmploye(payload: EmployeFormPayload): Employe {
-    let accesId: string | null = null;
+  async creerEmploye(payload: EmployeFormPayload): Promise<Employe> {
+    const rep = await firstValueFrom(
+      this.http.post<{ data: any }>(`${API}/employes`, this.employePayloadVersApi(payload))
+    );
+    await this.chargerEmployes();
+    return this.mapEmploye(rep.data);
+  }
 
-    if (payload.accorderAcces && payload.role) {
-      const acces: AccesPlateforme = {
-        id: uid('acces'),
-        restaurantId: RESTAURANT_ID_COURANT,
-        role: payload.role,
-        statut: StatutAcces.INVITE,
-        dateInvitation: nowIso(),
-        dateAcceptation: null,
-      };
-      this._acces.update((liste) => [...liste, acces]);
-      accesId = acces.id;
-    }
+  async modifierEmploye(id: string, payload: EmployeFormPayload): Promise<void> {
+    await firstValueFrom(
+      this.http.put<{ data: any }>(`${API}/employes/${id}`, this.employePayloadVersApi(payload))
+    );
+    await this.chargerEmployes();
+  }
 
-    const nouveau: Employe = {
-      id: uid('emp'),
-      restaurantId: RESTAURANT_ID_COURANT,
-      nomComplet: payload.nomComplet,
+  async terminerEmploye(id: string): Promise<void> {
+    await firstValueFrom(this.http.patch(`${API}/employes/${id}/terminer`, {}));
+    await this.chargerEmployes();
+  }
+
+  async renvoyerInvitation(employeId: string): Promise<void> {
+    await firstValueFrom(this.http.post(`${API}/employes/${employeId}/renvoyer-invitation`, {}));
+  }
+
+  private mapPoste(api: any): Poste {
+    return { id: api.id, restaurantId: '', nom: api.nom, description: api.description, niveau: api.niveau };
+  }
+
+  private mapEmploye(api: any): Employe {
+    return {
+      id: api.id, restaurantId: '', nomComplet: api.nom_complet, email: api.email,
+      posteId: api.poste_id, accesPlateformeId: api.acces?.id ?? null,
+      matricule: api.matricule, dateEmbauche: api.date_embauche, dateFin: api.date_fin,
+      statut: api.statut, notes: api.notes,
+    };
+  }
+
+  private mapAcces(api: any): AccesPlateforme {
+    return {
+      id: api.id, restaurantId: '', role: api.role as RoleCode, statut: api.statut as StatutAcces,
+      dateInvitation: api.date_invitation, dateAcceptation: api.date_acceptation,
+    };
+  }
+
+  private employePayloadVersApi(payload: EmployeFormPayload) {
+    return {
+      nom_complet: payload.nomComplet,
       email: payload.email,
-      posteId: payload.posteId,
-      accesPlateformeId: accesId,
+      poste_id: payload.posteId,
       matricule: payload.matricule,
-      dateEmbauche: payload.dateEmbauche,
-      dateFin: null,
+      date_embauche: payload.dateEmbauche,
       statut: payload.statut,
       notes: payload.notes,
+      accorder_acces: payload.accorderAcces,
+      role: payload.accorderAcces ? payload.role : null,
     };
-    this._employes.update((liste) => [...liste, nouveau]);
-    return nouveau;
   }
 
-  modifierEmploye(id: string, payload: EmployeFormPayload): void {
-    const employe = this._employes().find((e) => e.id === id);
-    if (!employe) return;
-
-    let accesId = employe.accesPlateformeId ?? null;
-
-    if (payload.accorderAcces && payload.role) {
-      if (accesId) {
-        // Accès existant : on met juste à jour le rôle
-        this._acces.update((liste) => liste.map((a) => (a.id === accesId ? { ...a, role: payload.role! } : a)));
-      } else {
-        // Nouvel octroi d'accès sur un employé qui n'en avait pas
-        const acces: AccesPlateforme = {
-          id: uid('acces'),
-          restaurantId: RESTAURANT_ID_COURANT,
-          role: payload.role,
-          statut: StatutAcces.INVITE,
-          dateInvitation: nowIso(),
-          dateAcceptation: null,
-        };
-        this._acces.update((liste) => [...liste, acces]);
-        accesId = acces.id;
-      }
-    } else if (!payload.accorderAcces && accesId) {
-      // Retrait de l'accès
-      this._acces.update((liste) => liste.map((a) => (a.id === accesId ? { ...a, statut: StatutAcces.REVOQUE } : a)));
-    }
-
-    this._employes.update((liste) =>
-      liste.map((e) =>
-        e.id === id
-          ? {
-              ...e,
-              nomComplet: payload.nomComplet,
-              email: payload.email,
-              posteId: payload.posteId,
-              accesPlateformeId: accesId,
-              matricule: payload.matricule,
-              dateEmbauche: payload.dateEmbauche,
-              statut: payload.statut,
-              notes: payload.notes,
-            }
-          : e
-      )
-    );
-  }
-
-  terminerEmploye(id: string): void {
-    this._employes.update((liste) =>
-      liste.map((e) => (e.id === id ? { ...e, statut: StatutEmploye.TERMINE, dateFin: nowIso() } : e))
-    );
-    const employe = this._employes().find((e) => e.id === id);
-    if (employe?.accesPlateformeId) {
-      this._acces.update((liste) =>
-        liste.map((a) => (a.id === employe.accesPlateformeId ? { ...a, statut: StatutAcces.REVOQUE } : a))
-      );
-    }
-  }
-
-  renvoyerInvitation(accesId: string): void {
-    this._acces.update((liste) =>
-      liste.map((a) => (a.id === accesId ? { ...a, dateInvitation: nowIso() } : a))
-    );
-  }
-
-  // ============================================================
-  // Données de départ (mock)
-  // ============================================================
-
-  private seedPostes(): Poste[] {
-    return [
-      { id: 'poste-serveur', restaurantId: RESTAURANT_ID_COURANT, nom: 'Serveur', description: null, niveau: 1 },
-      { id: 'poste-cuisinier', restaurantId: RESTAURANT_ID_COURANT, nom: 'Chef cuisinier', description: null, niveau: 2 },
-      { id: 'poste-caissier', restaurantId: RESTAURANT_ID_COURANT, nom: 'Caissier', description: null, niveau: 1 },
-      { id: 'poste-livreur', restaurantId: RESTAURANT_ID_COURANT, nom: 'Livreur', description: null, niveau: 1 },
-    ];
-  }
-
-  private seedEmployes(): Employe[] {
-    return [
-      {
-        id: 'emp-fatou', restaurantId: RESTAURANT_ID_COURANT, nomComplet: 'Fatou Ndiaye',
-        email: 'serveur@lepalais.sn', posteId: 'poste-serveur', accesPlateformeId: null,
-        matricule: 'EMP-001', dateEmbauche: '2025-01-10', dateFin: null,
-        statut: StatutEmploye.ACTIF, notes: null,
-      },
-    ];
-  }
+  employeParId(id: string): Employe | undefined {
+  return this._employes().find((e) => e.id === id);
+}
 }

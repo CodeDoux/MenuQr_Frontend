@@ -1,0 +1,83 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Abonnement</h1>
+    <p class="page-subtitle">Gérez votre plan MenuQr et consultez votre historique de facturation.</p>
+  </div>
+</div>
+
+<div class="card settings-section abo-current">
+  <div class="abo-current-top">
+    <div>
+      <p class="field-hint">Plan actuel</p>
+      <h2 class="settings-section-title">{{ offreActuelle()?.nom }}</h2>
+    </div>
+    <app-badge [label]="LABEL_STATUT_ABO[abonnement().statut]" [tone]="TONE_STATUT_ABO[abonnement().statut]" />
+  </div>
+
+  @if (joursRestantsEssai() !== null) {
+    <p class="abo-essai-info">⏳ {{ joursRestantsEssai() }} jour(s) restant(s) avant la fin de votre période d'essai.</p>
+  }
+
+  <p class="field-hint">{{ offreActuelle()?.prixMensuel }} FCFA / mois</p>
+</div>
+
+<h3 class="qr-generaux-title">Changer de plan</h3>
+<div class="abo-plans-grid">
+  @for (offre of offres(); track offre.id) {
+    <div class="card abo-plan-card" [class.abo-plan-card--active]="estOffreActuelle(offre)">
+      <h3 class="abo-plan-nom">{{ offre.nom }}</h3>
+      <p class="abo-plan-prix">{{ offre.prixMensuel }} <span class="field-hint">FCFA/mois</span></p>
+      <p class="field-hint">{{ offre.description }}</p>
+
+      <ul class="abo-plan-features">
+        @for (f of offre.fonctionnalites; track f) {
+          <li>✓ {{ f }}</li>
+        }
+        @for (l of offre.limites; track l.nom) {
+          <li>✓ {{ l.valeur === -1 ? 'Illimité' : l.valeur }} {{ l.nom }}</li>
+        }
+      </ul>
+
+      <button
+        type="button"
+        class="btn"
+        [class.btn--ghost]="estOffreActuelle(offre)"
+        [class.btn--primary]="!estOffreActuelle(offre)"
+        [disabled]="estOffreActuelle(offre)"
+        (click)="choisirOffre(offre)"
+      >
+        {{ estOffreActuelle(offre) ? 'Plan actuel' : 'Choisir ce plan' }}
+      </button>
+    </div>
+  }
+</div>
+
+<h3 class="qr-generaux-title">Historique de facturation</h3>
+@if (factures().length === 0) {
+  <p class="table-muted">Aucune facture pour le moment — vous êtes en période d'essai.</p>
+} @else {
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Numéro</th>
+          <th>Montant</th>
+          <th>Émise le</th>
+          <th>Échéance</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (f of factures(); track f.id) {
+          <tr>
+            <td class="table-strong">{{ f.numero }}</td>
+            <td>{{ f.montant }} FCFA</td>
+            <td class="table-muted">{{ f.dateEmission | date: 'dd/MM/yyyy' }}</td>
+            <td class="table-muted">{{ f.dateEcheance | date: 'dd/MM/yyyy' }}</td>
+            <td><app-badge [label]="LABEL_STATUT_FACTURE[f.statut]" [tone]="TONE_STATUT_FACTURE[f.statut]" /></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

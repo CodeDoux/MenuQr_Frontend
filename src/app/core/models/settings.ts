@@ -1,5 +1,14 @@
 import { JourSemaine, MethodePaiement } from '../../core/enums/enums';
 
+export interface RestaurantInfos {
+  nom: string;
+  logo?: string | null;
+  adresse: string;
+  telephone: string;
+  email?: string | null;
+  description?: string | null;
+}
+
 export interface Horaire {
   id: string;
   restaurantId: string;

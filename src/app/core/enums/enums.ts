@@ -16,6 +16,52 @@ export enum StatutProduit {
   ARCHIVE = 'ARCHIVE',
 }
 
+export enum StatutPlan {
+  ACTIF = 'ACTIF',
+  INACTIF = 'INACTIF',
+  ARCHIVE = 'ARCHIVE',
+}
+ 
+export enum StatutAbonnement {
+  ESSAI = 'ESSAI',
+  ACTIF = 'ACTIF',
+  EXPIRE = 'EXPIRE',
+  SUSPENDU = 'SUSPENDU',
+  ANNULE = 'ANNULE',
+}
+ 
+export enum StatutFactureAbonnement {
+  EN_ATTENTE = 'EN_ATTENTE',
+  PAYEE = 'PAYEE',
+  EN_RETARD = 'EN_RETARD',
+  ANNULEE = 'ANNULEE',
+}
+
+export enum StatutZone {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+}
+ 
+export enum StatutFacture {
+  EMISE = 'EMISE',
+  PAYEE = 'PAYEE',
+  ANNULEE = 'ANNULEE',
+}
+export enum TypeLivreur {
+  EMPLOYE_RESTAURANT = 'EMPLOYE_RESTAURANT',
+  PRESTATAIRE_EXTERNE = 'PRESTATAIRE_EXTERNE',
+  LIVREUR_CLIENT = 'LIVREUR_CLIENT',
+}
+ 
+export enum StatutLivraison {
+  EN_ATTENTE_AFFECTATION = 'EN_ATTENTE_AFFECTATION',
+  AFFECTEE = 'AFFECTEE',
+  RECUPEREE = 'RECUPEREE',
+  EN_ROUTE = 'EN_ROUTE',
+  LIVREE = 'LIVREE',
+  ANNULEE = 'ANNULEE',
+}
+
 export enum StatutVisite {
   EN_COURS = 'EN_COURS',
   TERMINEE = 'TERMINEE',

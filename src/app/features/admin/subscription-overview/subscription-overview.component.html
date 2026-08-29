@@ -1,0 +1,29 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Abonnements</h1>
+    <p class="page-subtitle">Vue globale des abonnements de tous les restaurants.</p>
+  </div>
+</div>
+
+<div class="card">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Restaurant</th>
+        <th>Offre</th>
+        <th>Statut abonnement</th>
+        <th>Échéance</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (r of restaurants(); track r.id) {
+        <tr>
+          <td class="table-strong">{{ r.nom }}</td>
+          <td class="table-muted">{{ r.offreNom }}</td>
+          <td><app-badge [label]="LABEL_STATUT[r.abonnementStatut]" [tone]="TONE_STATUT[r.abonnementStatut]" /></td>
+          <td class="table-muted">{{ r.dateFinAbonnement | date: 'dd/MM/yyyy' }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

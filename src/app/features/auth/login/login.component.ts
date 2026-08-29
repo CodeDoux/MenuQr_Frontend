@@ -1,13 +1,13 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './login.component.html',
 })
 export class LoginComponent {
@@ -20,6 +20,7 @@ export class LoginComponent {
 
   enCours = signal(false);
   erreur = signal<string | null>(null);
+  restaurantsAChoisir = signal<{ id: string; nom: string }[] | null>(null);
 
   constructor(
     private readonly auth: AuthService,
@@ -34,19 +35,32 @@ export class LoginComponent {
     this.erreur.set(null);
     this.enCours.set(true);
     try {
-      await this.auth.login({
+      const resultat = await this.auth.login({
         email: this.form.value.email!,
         motDePasse: this.form.value.motDePasse!,
       });
-      this.router.navigate(['/dashboard']);
-    } catch (e) {
-      this.erreur.set((e as Error).message);
+
+      if ('choixRestaurant' in resultat) {
+        this.restaurantsAChoisir.set(resultat.choixRestaurant);
+      } else {
+        this.router.navigate(['/dashboard']);
+      }
+    } catch (e: any) {
+      this.erreur.set(e?.error?.message ?? 'Email ou mot de passe incorrect.');
     } finally {
       this.enCours.set(false);
     }
   }
 
-  remplirDemo(email: string): void {
-    this.form.patchValue({ email, motDePasse: 'password123' });
+  async choisirRestaurant(restaurantId: string): Promise<void> {
+    this.enCours.set(true);
+    try {
+      await this.auth.selectRestaurant(restaurantId);
+      this.router.navigate(['/dashboard']);
+    } catch (e: any) {
+      this.erreur.set('Impossible de sélectionner ce restaurant.');
+    } finally {
+      this.enCours.set(false);
+    }
   }
 }

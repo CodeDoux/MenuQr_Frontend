@@ -1,8 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { NotificationsService } from '../services/notifications.service';
-import { Notification } from '../models/notification.model';
+import { NotificationsService } from '../../../core/services/notifications.service';
+import { Notification } from '../../../core/models/notification';
 
 @Component({
   selector: 'app-notification-bell',
