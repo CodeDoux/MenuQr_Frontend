@@ -1,54 +1,51 @@
 <div class="page-header">
-  <div>
-    <h1 class="page-title">Promotions</h1>
-    <p class="page-subtitle">Créez des réductions sur vos produits ou sur la commande entière.</p>
+  <div class="pl-header-title">
+    <span class="pl-header-icon">🏷️</span>
+    <div>
+      <h1 class="page-title">Promotions</h1>
+      <p class="page-subtitle">Créez des réductions sur vos produits ou sur la commande entière.</p>
+    </div>
   </div>
-  <button type="button" class="btn btn--primary" (click)="ouvrirCreation()">+ Nouvelle promotion</button>
+  <button type="button" class="btn btn--primary" (click)="ouvrirCreation()">
+    <span class="mn-btn-icon">+</span> Nouvelle promotion
+  </button>
 </div>
 
 @if (promotions().length === 0) {
-  <div class="card empty-state">
+  <div class="card empty-state mn-empty">
+    <div class="mn-empty-icon">🏷️</div>
     <div class="empty-state-title">Aucune promotion pour le moment</div>
-    <p>Créez votre première promotion pour attirer plus de clients.</p>
+    <p class="mn-empty-desc">Créez votre première promotion pour attirer plus de clients.</p>
     <button type="button" class="btn btn--primary" (click)="ouvrirCreation()">+ Créer une promotion</button>
   </div>
 } @else {
-  <div class="card">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Promotion</th>
-          <th>Réduction</th>
-          <th>Cible</th>
-          <th>Code</th>
-          <th>Statut</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (p of promotions(); track p.id) {
-          <tr>
-            <td class="table-strong">{{ p.nom }}</td>
-            <td class="table-strong">{{ libelleReduction(p) }}</td>
-            <td class="table-muted">{{ libelleCible(p) }}</td>
-            <td>
-              @if (p.code) {
-                <app-badge [label]="p.code" tone="info" />
-              } @else {
-                <span class="table-muted">Automatique</span>
-              }
-            </td>
-            <td>
-              <app-badge [label]="p.estActive ? 'Active' : 'Inactive'" [tone]="toneActive(p)" />
-            </td>
-            <td class="table-actions">
-              <button type="button" class="btn btn--icon" title="Modifier" (click)="ouvrirEdition(p)">✎</button>
-              <button type="button" class="btn btn--icon" title="Supprimer" (click)="supprimer(p)">🗑</button>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+  <div class="promo-list">
+    @for (p of promotions(); track p.id) {
+      <div class="card promo-row" [class.promo-row--inactive]="!p.estActive">
+        <div class="promo-reduction">{{ libelleReduction(p) }}</div>
+
+        <div class="promo-info">
+          <div class="promo-top">
+            <span class="promo-nom">{{ p.nom }}</span>
+            <app-badge [label]="p.estActive ? 'Active' : 'Inactive'" [tone]="toneActive(p)" />
+          </div>
+          <p class="promo-cible">🎯 {{ libelleCible(p) }}</p>
+        </div>
+
+        <div class="promo-code-zone">
+          @if (p.code) {
+            <span class="promo-code">{{ p.code }}</span>
+          } @else {
+            <span class="promo-auto">⚡ Automatique</span>
+          }
+        </div>
+
+        <div class="promo-actions">
+          <button type="button" class="mn-action-btn mn-action-btn--edit" title="Modifier" (click)="ouvrirEdition(p)">✎</button>
+          <button type="button" class="mn-action-btn mn-action-btn--delete" title="Supprimer" (click)="supprimer(p)">🗑</button>
+        </div>
+      </div>
+    }
   </div>
 }
 

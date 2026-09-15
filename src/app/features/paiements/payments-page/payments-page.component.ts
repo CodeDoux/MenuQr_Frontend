@@ -10,25 +10,29 @@ const LABEL_STATUT: Record<string, string> = {
 const TONE_STATUT: Record<string, BadgeTone> = {
   EN_ATTENTE: 'warning', CONFIRME: 'success', ECHOUE: 'danger', REMBOURSE: 'neutral', ANNULE: 'neutral',
 };
+const ICONE_METHODE: Record<string, string> = {
+  ESPECES: '💵', WAVE: '🟦', ORANGE_MONEY: '🟧', CARTE: '💳', AUTRE: '➕',
+};
 
 @Component({
   selector: 'app-payments-page',
   standalone: true,
   imports: [CommonModule, BadgeComponent],
   templateUrl: './payments-page.component.html',
+  styleUrl: './payments-page.component.css',
 })
 export class PaymentsPageComponent {
   readonly paiements;
   readonly additions;
   readonly LABEL_STATUT = LABEL_STATUT;
   readonly TONE_STATUT = TONE_STATUT;
+  readonly ICONE_METHODE = ICONE_METHODE;
 
   constructor(private readonly ordersService: OrdersService) {
     this.paiements = this.ordersService.paiementsTries;
     this.additions = this.ordersService.additions;
   }
 
-  /** L'addition contient déjà tableNumero directement — plus besoin de remonter via une Visite séparée. */
   contexte(p: Paiement): string {
     if (p.commandeId) return `Commande #${p.commandeId.slice(-4).toUpperCase()}`;
     if (p.additionId) {
@@ -36,6 +40,13 @@ export class PaymentsPageComponent {
       return addition?.tableNumero ? `Table ${addition.tableNumero}` : 'Addition';
     }
     return '—';
+  }
+
+  /** Purement affichage — somme des paiements confirmés déjà présents dans la liste. */
+  totalEncaisse(): number {
+    return this.paiements()
+      .filter((p) => p.statut === 'CONFIRME')
+      .reduce((acc, p) => acc + p.montant, 0);
   }
 
   peutRembourser(p: Paiement): boolean {

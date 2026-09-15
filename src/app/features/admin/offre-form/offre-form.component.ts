@@ -10,6 +10,7 @@ import { StatutPlan } from '../../../core/enums/enums';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ModalComponent],
   templateUrl: './offre-form.component.html',
+  styleUrl: './offre-form.component.css'
 })
 export class OffreFormComponent implements OnChanges {
   @Input() ouvert = false;

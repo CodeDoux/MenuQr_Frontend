@@ -1,0 +1,27 @@
+.pp-methode {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.pp-montant {
+  font-weight: 800;
+  color: var(--color-accent-strong);
+}
+
+.pp-rembourser-btn {
+  border: 1px solid color-mix(in srgb, var(--color-danger) 35%, var(--color-border));
+  background: transparent;
+  color: var(--color-danger-strong);
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.pp-rembourser-btn:hover {
+  background: color-mix(in srgb, var(--color-danger) 10%, white);
+}

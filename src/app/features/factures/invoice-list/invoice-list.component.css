@@ -1,0 +1,23 @@
+.il-montant {
+  font-weight: 800;
+  color: var(--color-accent-strong);
+}
+
+.il-voir-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  text-decoration: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.il-voir-btn:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}

@@ -1,4 +1,4 @@
-<div class="shell admin-shell">
+<div class="shell admin-shell admin-scope">
   <aside class="sidebar admin-sidebar">
     <div class="brand">
       <span class="brand-mark admin-brand-mark">MQ</span>
@@ -16,10 +16,10 @@
 
     <div class="sidebar-footer">
       <div class="restaurant-chip">
-        <span class="restaurant-avatar">👤</span>
+        <span class="restaurant-avatar">🛡️</span>
         <div>
           <div class="restaurant-name">{{ currentAdmin()?.nomComplet }}</div>
-          <div class="restaurant-plan">Plateforme MenuQr</div>
+          <div class="restaurant-plan">Administrateur plateforme</div>
         </div>
       </div>
     </div>
@@ -27,7 +27,7 @@
 
   <div class="main">
     <header class="topbar">
-      <span class="admin-topbar-label">Espace Administration</span>
+      <span class="admin-topbar-label">🛡️ Espace Administration</span>
       <div class="topbar-actions">
         <button type="button" class="btn btn--icon" title="Se déconnecter" (click)="deconnexion()">⏻</button>
       </div>

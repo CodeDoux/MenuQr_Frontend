@@ -1,1 +1,120 @@
-<p>dashboard works!</p>
+<div class="dash-header">
+  <div class="dash-header-info">
+    <div class="dash-avatar">{{ initiales() }}</div>
+    <div>
+      <p class="dash-date">{{ dateAujourdhui() }}</p>
+      <h1 class="dash-titre">Bonjour {{ currentUser()?.nomComplet }} 👋</h1>
+      <p class="dash-sous-titre">Voici comment se porte {{ currentUser()?.restaurantNom }} aujourd'hui.</p>
+    </div>
+  </div>
+  <button
+    type="button"
+    class="dash-refresh"
+    [class.dash-refresh--spin]="chargement()"
+    (click)="actualiser()"
+    aria-label="Actualiser"
+  >
+    ↻
+  </button>
+</div>
+
+@if (chargement() && !stats()) {
+  <div class="dash-skeleton-grid">
+    @for (i of [1,2,3,4]; track i) {
+      <div class="dash-skeleton dash-skeleton--card"></div>
+    }
+  </div>
+  <div class="dash-skeleton dash-skeleton--block"></div>
+} @else {
+  @if (stats(); as s) {
+
+    <!-- KPI : le CA du jour est mis en avant, les autres en support -->
+    <div class="dash-kpi-grid">
+      <div class="dash-kpi dash-kpi--hero">
+        <span class="dash-kpi-icon">💰</span>
+        <p class="dash-kpi-label">Chiffre d'affaires aujourd'hui</p>
+        <p class="dash-kpi-value">{{ formatMontant(s.caJour) }} <span class="dash-kpi-unit">FCFA</span></p>
+      </div>
+
+      <div class="dash-kpi">
+        <span class="dash-kpi-icon">🧾</span>
+        <p class="dash-kpi-label">CA cette semaine</p>
+        <p class="dash-kpi-value dash-kpi-value--sm">{{ formatMontant(s.caSemaine) }} <span class="dash-kpi-unit">FCFA</span></p>
+      </div>
+
+      <div class="dash-kpi">
+        <span class="dash-kpi-icon">🍽️</span>
+        <p class="dash-kpi-label">Commandes aujourd'hui</p>
+        <p class="dash-kpi-value dash-kpi-value--sm">{{ s.nbCommandesJour }}</p>
+      </div>
+
+      <div class="dash-kpi">
+        <span class="dash-kpi-icon">📋</span>
+        <p class="dash-kpi-label">Commandes cette semaine</p>
+        <p class="dash-kpi-value dash-kpi-value--sm">{{ s.nbCommandesSemaine }}</p>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <!-- Répartition par mode : cartes iconographiques + anneau CSS -->
+      <section class="dash-section">
+        <div class="dash-section-head">
+          <h2 class="dash-section-titre">Répartition par mode</h2>
+          <span class="dash-section-sub">Cette semaine</span>
+        </div>
+
+        @if (totalCommandesSemaine() === 0) {
+          <p class="dash-empty">Pas encore de commande cette semaine.</p>
+        } @else {
+          <div class="dash-mode-grid">
+            @for (mode of Object.keys(s.repartitionMode); track mode) {
+              <div class="dash-mode-card">
+                <div class="dash-ring" [ngStyle]="anneauStyle(mode)">
+                  <div class="dash-ring-inner">
+                    <span class="dash-ring-icon">{{ ICONE_MODE[mode] }}</span>
+                  </div>
+                </div>
+                <p class="dash-mode-label">{{ LABEL_MODE[mode] }}</p>
+                <p class="dash-mode-value">
+                  {{ s.repartitionMode[mode] }} <span class="dash-mode-pct">({{ pourcentage(s.repartitionMode[mode]) }}%)</span>
+                </p>
+              </div>
+            }
+          </div>
+        }
+      </section>
+
+      <!-- Top produits : classement façon podium -->
+      <section class="dash-section">
+        <div class="dash-section-head">
+          <h2 class="dash-section-titre">Top des ventes</h2>
+          <span class="dash-section-sub">30 derniers jours</span>
+        </div>
+
+        @if (s.topProduits.length === 0) {
+          <p class="dash-empty">Pas encore assez de données pour établir un classement.</p>
+        } @else {
+          <div class="dash-ranking">
+            @for (p of s.topProduits; track p.produitNom; let i = $index) {
+              <div class="dash-rank-row">
+                <span class="dash-rank-medal" [class.dash-rank-medal--top]="i < 3">{{ medaille(i) }}</span>
+                <div class="dash-rank-body">
+                  <div class="dash-rank-top">
+                    <span class="dash-rank-nom">{{ p.produitNom }}</span>
+                    <span class="dash-rank-qte">{{ p.quantite }} vendu(s)</span>
+                  </div>
+                  <div class="dash-rank-track">
+                    <div class="dash-rank-fill" [style.width.%]="progressionProduit(p.quantite)"></div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    </div>
+
+  } @else {
+    <p class="dash-empty">Impossible de charger les statistiques pour le moment.</p>
+  }
+}

@@ -85,6 +85,17 @@ export class PanierComponent implements OnInit {
     }
 
     let infosLivraison = null;
+    let infosEmporter = null;
+
+    // ⚠️ Ces infos étaient saisies mais jamais transmises au backend — corrigé.
+    if (mode === ModeCommande.EMPORTER) {
+      infosEmporter = {
+        nomClient: this.infos().nom,
+        telephoneClient: this.infos().telephone,
+        heureRetraitSouhaitee: this.infos().heureRetrait || null,
+      };
+    }
+
     if (mode === ModeCommande.LIVRAISON) {
       if (!this.adresse().adresseComplete || !this.infos().nom || !this.infos().telephone) {
         this.erreur.set('Renseignez votre nom, téléphone et adresse de livraison.');
@@ -112,10 +123,12 @@ export class PanierComponent implements OnInit {
           quantite: i.quantite, notes: i.notes ?? null,
         })),
         this.notes() || null,
-        infosLivraison
+        infosLivraison,
+        infosEmporter
       );
 
       this.cart.vider();
+      this.cart.enregistrerDerniereCommande(commande.id);
       this.router.navigate(['/m', this.restaurantId, 'suivi', commande.id], { queryParams: { code: this.code } });
     } catch {
       this.erreur.set('Une erreur est survenue lors de l\'envoi de la commande.');
@@ -125,10 +138,10 @@ export class PanierComponent implements OnInit {
   }
 
   numeroTable(): string {
-  return this.tableId() ? 'table' : '';
-}
+    return this.tableId() ? 'table' : '';
+  }
 
-majHeureRetrait(v: string): void {
-  this.infos.set({ ...this.infos(), heureRetrait: v });
-}
+  majHeureRetrait(v: string): void {
+    this.infos.set({ ...this.infos(), heureRetrait: v });
+  }
 }

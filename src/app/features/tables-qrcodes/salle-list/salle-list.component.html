@@ -1,30 +1,39 @@
 <div class="page-header">
-  <div>
-    <h1 class="page-title">Salles, Tables & QR Codes</h1>
-    <p class="page-subtitle">Organisez votre espace physique et générez les QR codes associés.</p>
+  <div class="pl-header-title">
+    <span class="pl-header-icon">🪑</span>
+    <div>
+      <h1 class="page-title">Salles, Tables & QR Codes</h1>
+      <p class="page-subtitle">Organisez votre espace physique et générez les QR codes associés.</p>
+    </div>
   </div>
-  <button type="button" class="btn btn--primary" (click)="ouvrirCreationSalle()">+ Nouvelle salle</button>
+  <button type="button" class="btn btn--primary" (click)="ouvrirCreationSalle()">
+    <span class="mn-btn-icon">+</span> Nouvelle salle
+  </button>
 </div>
 
 @if (salles().length === 0) {
-  <div class="card empty-state">
+  <div class="card empty-state mn-empty">
+    <div class="mn-empty-icon">🏠</div>
     <div class="empty-state-title">Aucune salle pour le moment</div>
-    <p>Créez votre première salle (ex. Salle intérieure, Terrasse) pour commencer à ajouter des tables.</p>
+    <p class="mn-empty-desc">Créez votre première salle (ex. Salle intérieure, Terrasse) pour commencer à ajouter des tables.</p>
     <button type="button" class="btn btn--primary" (click)="ouvrirCreationSalle()">+ Créer une salle</button>
   </div>
 } @else {
   <div class="salles-stack">
     @for (salle of salles(); track salle.id) {
-      <div class="card salle-card">
-        <div class="salle-card-header">
-          <div class="salle-card-title-group">
-            <h3 class="salle-card-title">{{ salle.description }}</h3>
-            <app-badge [label]="salle.statut === 'ACTIVE' ? 'Active' : 'Inactive'" [tone]="salle.statut === 'ACTIVE' ? 'success' : 'neutral'" />
+      <div class="card tq-salle-card">
+        <div class="tq-salle-header">
+          <div class="tq-salle-title-group">
+            <span class="tq-salle-emblem">🏠</span>
+            <div>
+              <h3 class="salle-card-title">{{ salle.description }}</h3>
+              <app-badge [label]="salle.statut === 'ACTIVE' ? 'Active' : 'Inactive'" [tone]="salle.statut === 'ACTIVE' ? 'success' : 'neutral'" />
+            </div>
           </div>
           <div class="salle-card-actions">
             <button type="button" class="btn btn--sm btn--ghost" (click)="ouvrirCreationTable(salle.id)">+ Table</button>
-            <button type="button" class="btn btn--icon" title="Modifier" (click)="ouvrirEditionSalle(salle)">✎</button>
-            <button type="button" class="btn btn--icon" title="Supprimer" (click)="supprimerSalle(salle)">🗑</button>
+            <button type="button" class="mn-action-btn mn-action-btn--edit" title="Modifier" (click)="ouvrirEditionSalle(salle)">✎</button>
+            <button type="button" class="mn-action-btn mn-action-btn--delete" title="Supprimer" (click)="supprimerSalle(salle)">🗑</button>
           </div>
         </div>
 
@@ -33,18 +42,28 @@
         } @else {
           <div class="tables-grid">
             @for (table of tablesDeLaSalle(salle.id)(); track table.id) {
-              <div class="table-chip">
-                <div class="table-chip-top">
-                  <span class="table-chip-numero">Table {{ table.numero }}</span>
-                  <app-badge [label]="labelStatutTable(table.statut)" [tone]="toneStatutTable(table.statut)" />
-                </div>
-                <div class="table-chip-meta">{{ table.capacite }} pers. @if (table.zone) { · {{ table.zone }} }</div>
-                <div class="table-chip-actions">
-                  <button type="button" class="btn btn--sm btn--ghost" (click)="ouvrirQrTable(table, salle)">
-                    {{ qrDeLaTable(table.id) ? 'Voir QR' : 'Générer QR' }}
-                  </button>
-                  <button type="button" class="btn btn--icon" title="Modifier" (click)="ouvrirEditionTable(table)">✎</button>
-                  <button type="button" class="btn btn--icon" title="Supprimer" (click)="supprimerTable(table)">🗑</button>
+              <div class="tq-table-card">
+                <div class="tq-table-accent" [class]="'tq-table-accent--' + table.statut.toLowerCase()"></div>
+                <div class="tq-table-body">
+                  <div class="table-chip-top">
+                    <span class="table-chip-numero">Table {{ table.numero }}</span>
+                    <app-badge [label]="labelStatutTable(table.statut)" [tone]="toneStatutTable(table.statut)" />
+                  </div>
+                  <div class="tq-table-meta">
+                    <span>👥 {{ table.capacite }} pers.</span>
+                    @if (table.zone) { <span>📍 {{ table.zone }}</span> }
+                  </div>
+                  <div class="tq-table-actions">
+                    <button type="button" class="tq-qr-btn" (click)="ouvrirQrTable(table, salle)">
+                      <span class="tq-qr-icon">▦</span>
+                      {{ qrDeLaTable(table.id) ? 'Voir le QR' : 'Générer le QR' }}
+                    </button>
+                     @if (table.statut === 'OCCUPEE') {
+                      <button type="button" class="tq-liberer-btn" title="Libérer la table" (click)="libererTable(table)">🔓</button>
+                    }
+                    <button type="button" class="mn-action-btn mn-action-btn--edit" title="Modifier" (click)="ouvrirEditionTable(table)">✎</button>
+                    <button type="button" class="mn-action-btn mn-action-btn--delete" title="Supprimer" (click)="supprimerTable(table)">🗑</button>
+                  </div>
                 </div>
               </div>
             }
@@ -55,12 +74,23 @@
   </div>
 }
 
-<div class="card qr-generaux-card">
-  <h3 class="qr-generaux-title">QR Codes généraux</h3>
-  <p class="page-subtitle">Pour les clients qui commandent à emporter ou en livraison, sans passer par une table.</p>
-  <div class="qr-generaux-actions">
-    <button type="button" class="btn btn--ghost" (click)="ouvrirQrGeneral(TypeQRCode.EMPORTER)">📦 QR À emporter</button>
-    <button type="button" class="btn btn--ghost" (click)="ouvrirQrGeneral(TypeQRCode.LIVRAISON)">🛵 QR Livraison</button>
+<div class="card tq-generaux-card">
+  <div class="tq-generaux-header">
+    <span class="tq-generaux-icon">▦</span>
+    <div>
+      <h3 class="qr-generaux-title">QR Codes généraux</h3>
+      <p class="page-subtitle">Pour les clients qui commandent à emporter ou en livraison, sans passer par une table.</p>
+    </div>
+  </div>
+  <div class="tq-generaux-grid">
+    <button type="button" class="tq-generaux-option" (click)="ouvrirQrGeneral(TypeQRCode.EMPORTER)">
+      <span class="tq-generaux-option-icon">📦</span>
+      <span class="tq-generaux-option-label">À emporter</span>
+    </button>
+    <button type="button" class="tq-generaux-option" (click)="ouvrirQrGeneral(TypeQRCode.LIVRAISON)">
+      <span class="tq-generaux-option-icon">🛵</span>
+      <span class="tq-generaux-option-label">Livraison</span>
+    </button>
   </div>
 </div>
 

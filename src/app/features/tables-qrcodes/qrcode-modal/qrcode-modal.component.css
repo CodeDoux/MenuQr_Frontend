@@ -1,0 +1,51 @@
+.tq-qr-frame {
+  padding: 1.25rem;
+  background: white;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 14px rgba(28, 26, 23, 0.06);
+  display: inline-block;
+}
+
+.tq-qr-url {
+  font-size: 0.76rem;
+  color: var(--color-text-secondary);
+  word-break: break-all;
+  margin: 0.9rem 0 0;
+  font-family: 'Courier New', monospace;
+  background: var(--color-surface-muted);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+}
+
+.tq-qr-stats {
+  display: flex;
+  gap: 1.5rem;
+  margin: 1rem 0;
+}
+.tq-qr-stat { display: flex; flex-direction: column; align-items: center; }
+.tq-qr-stat-value { font-size: 1.1rem; font-weight: 800; color: var(--color-accent-strong); }
+.tq-qr-stat-label { font-size: 0.7rem; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.03em; }
+
+.tq-qr-loading, .tq-qr-empty {
+  padding: 2.5rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+.tq-qr-loading-icon, .tq-qr-empty-icon {
+  font-size: 2.2rem;
+  color: var(--color-accent);
+}
+.tq-qr-loading-icon { animation: tq-pulse 1.2s ease-in-out infinite; }
+@keyframes tq-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.95); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tq-qr-loading-icon { animation: none; }
+}

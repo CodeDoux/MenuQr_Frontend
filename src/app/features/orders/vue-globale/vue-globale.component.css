@@ -1,0 +1,60 @@
+.vg-table tbody tr { transition: background 0.1s ease; }
+
+.vg-table-tag {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 0.76rem;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-muted);
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+}
+
+.vg-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+.vg-mode-icon { font-size: 1rem; }
+
+.vg-total {
+  font-weight: 800;
+  color: var(--color-accent-strong);
+}
+
+.vg-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+}
+
+.vg-page-btn {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.vg-page-btn:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+.vg-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.vg-page-info {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+}

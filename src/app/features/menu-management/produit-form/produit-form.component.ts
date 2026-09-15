@@ -13,6 +13,7 @@ import { ModalComponent } from '../../../shared/components/modal/modal.component
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ModalComponent],
   templateUrl: './produit-form.component.html',
+  styleUrl: './produit-form.component.css',
 })
 export class ProduitFormComponent implements OnChanges {
   @Input() ouvert = false;

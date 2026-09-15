@@ -1,4 +1,4 @@
-<app-modal [ouvert]="ouvert" [titre]="titre" (fermer)="fermer.emit()">
+<app-modal [ouvert]="ouvert" [titre]="titre" icone="🏷️" (fermer)="fermer.emit()">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
     <label class="field">
       <span class="field-label">Nom de la promotion *</span>
@@ -8,79 +8,91 @@
       }
     </label>
 
-    <div class="field-row">
+    <div class="mf-section">
+      <span class="mf-section-title">Réduction</span>
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">Type de réduction</span>
+          <select formControlName="typeReduction" class="field-input">
+            <option [value]="TypeReduction.POURCENTAGE">Pourcentage (%)</option>
+            <option [value]="TypeReduction.MONTANT_FIXE">Montant fixe (F)</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="field-label">Valeur *</span>
+          <input type="number" formControlName="valeur" min="0" class="field-input" />
+        </label>
+      </div>
+    </div>
+
+    <div class="mf-section">
+      <span class="mf-section-title">🎯 Cible</span>
       <label class="field">
-        <span class="field-label">Type de réduction</span>
-        <select formControlName="typeReduction" class="field-input">
-          <option [value]="TypeReduction.POURCENTAGE">Pourcentage (%)</option>
-          <option [value]="TypeReduction.MONTANT_FIXE">Montant fixe (F)</option>
+        <span class="field-label">Cible de la promotion</span>
+        <select formControlName="cible" class="field-input">
+          <option [value]="CiblePromotion.PRODUIT">Un ou plusieurs produits</option>
+          <option [value]="CiblePromotion.COMMANDE_ENTIERE">Commande entière</option>
         </select>
       </label>
-      <label class="field">
-        <span class="field-label">Valeur *</span>
-        <input type="number" formControlName="valeur" min="0" class="field-input" />
-      </label>
-    </div>
 
-    <label class="field">
-      <span class="field-label">Cible de la promotion</span>
-      <select formControlName="cible" class="field-input">
-        <option [value]="CiblePromotion.PRODUIT">Un ou plusieurs produits</option>
-        <option [value]="CiblePromotion.COMMANDE_ENTIERE">Commande entière</option>
-      </select>
-    </label>
-
-    @if (form.get('cible')?.value === CiblePromotion.PRODUIT) {
-      <div class="field">
-        <span class="field-label">Produits concernés *</span>
-        <div class="chip-select">
-          @for (produit of produitsDisponibles; track produit.id) {
-            <label class="chip" [class.chip--active]="estProduitCoche(produit.id)">
-              <input
-                type="checkbox"
-                [checked]="estProduitCoche(produit.id)"
-                (change)="toggleProduit(produit.id, $any($event.target).checked)"
-                hidden
-              />
-              {{ produit.nom }}
-            </label>
-          }
+      @if (form.get('cible')?.value === CiblePromotion.PRODUIT) {
+        <div class="field">
+          <span class="field-label">Produits concernés *</span>
+          <div class="chip-select">
+            @for (produit of produitsDisponibles; track produit.id) {
+              <label class="chip" [class.chip--active]="estProduitCoche(produit.id)">
+                <input
+                  type="checkbox"
+                  [checked]="estProduitCoche(produit.id)"
+                  (change)="toggleProduit(produit.id, $any($event.target).checked)"
+                  hidden
+                />
+                {{ produit.nom }}
+              </label>
+            }
+          </div>
         </div>
+      }
+    </div>
+
+    <div class="mf-section">
+      <span class="mf-section-title">🎟️ Code promo</span>
+      <div class="field field--switch">
+        <span class="field-label">Nécessite un code promo</span>
+        <input type="checkbox" formControlName="utiliseCode" class="field-switch" />
       </div>
-    }
 
-    <div class="field field--switch">
-      <span class="field-label">Nécessite un code promo</span>
-      <input type="checkbox" formControlName="utiliseCode" class="field-switch" />
+      @if (form.get('utiliseCode')?.value) {
+        <label class="field">
+          <span class="field-label">Code promo *</span>
+          <input type="text" formControlName="code" placeholder="Ex. WEEKEND20" class="field-input" style="text-transform: uppercase;" />
+        </label>
+      }
     </div>
 
-    @if (form.get('utiliseCode')?.value) {
-      <label class="field">
-        <span class="field-label">Code promo *</span>
-        <input type="text" formControlName="code" placeholder="Ex. WEEKEND20" class="field-input" style="text-transform: uppercase;" />
-      </label>
-    }
+    <div class="mf-section">
+      <span class="mf-section-title">📅 Période & limites</span>
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">Date de début *</span>
+          <input type="date" formControlName="dateDebut" class="field-input" />
+        </label>
+        <label class="field">
+          <span class="field-label">Date de fin</span>
+          <input type="date" formControlName="dateFin" class="field-input" placeholder="Optionnel" />
+        </label>
+      </div>
 
-    <div class="field-row">
-      <label class="field">
-        <span class="field-label">Date de début *</span>
-        <input type="date" formControlName="dateDebut" class="field-input" />
-      </label>
-      <label class="field">
-        <span class="field-label">Date de fin</span>
-        <input type="date" formControlName="dateFin" class="field-input" placeholder="Optionnel" />
-      </label>
-    </div>
-
-    <div class="field-row">
-      <label class="field">
-        <span class="field-label">Limite d'utilisation (globale)</span>
-        <input type="number" formControlName="limiteUtilisation" min="1" class="field-input" placeholder="Illimitée si vide" />
-      </label>
-      <label class="field field--switch">
-        <span class="field-label">Promotion active</span>
-        <input type="checkbox" formControlName="estActive" class="field-switch" />
-      </label>
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">Limite d'utilisation (globale)</span>
+          <input type="number" formControlName="limiteUtilisation" min="1" class="field-input" placeholder="Illimitée si vide" />
+        </label>
+        <label class="field field--switch">
+          <span class="field-label">Promotion active</span>
+          <input type="checkbox" formControlName="estActive" class="field-switch" />
+        </label>
+      </div>
     </div>
 
     <div class="form-actions">

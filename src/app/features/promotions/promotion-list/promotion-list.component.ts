@@ -12,6 +12,7 @@ import { MenuManagementService } from '../../../core/services/menu-management.se
   standalone: true,
   imports: [CommonModule, PromotionFormComponent, BadgeComponent],
   templateUrl: './promotion-list.component.html',
+  styleUrl: './promotion-list.component.css',
 })
 export class PromotionListComponent {
   readonly promotions;
@@ -25,7 +26,8 @@ export class PromotionListComponent {
     private readonly menuService: MenuManagementService
   ) {
     this.promotions = this.service.promotions;
-    this.produits = this.menuService.produits;
+    this.produits = this.menuService.produitsTous;
+    this.menuService.chargerTousLesProduits();
   }
 
   libelleReduction(p: Promotion): string {

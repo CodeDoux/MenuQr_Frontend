@@ -1,11 +1,15 @@
-<div class="login-shell admin-login-shell">
+<div class="login-shell admin-login-shell admin-scope">
   <div class="login-card">
     <div class="login-brand">
       <span class="brand-mark admin-brand-mark">MQ</span>
       <span class="login-brand-name">MenuQr <span class="admin-tag">Admin</span></span>
     </div>
-    <h1 class="login-title">Espace Administration</h1>
+    <h1 class="login-title">🛡️ Espace Administration</h1>
     <p class="login-subtitle">Réservé à l'équipe MenuQr — gestion de la plateforme.</p>
+
+    @if (sessionExpiree) {
+  <div class="login-error">⏱️ Ta session a expiré. Reconnecte-toi pour continuer.</div>
+}
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
       <label class="field">

@@ -1,0 +1,24 @@
+.adm-offre-card { padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.adm-offre-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+.adm-offre-desc { min-height: 2.2rem; }
+
+.ab-features {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 1rem;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.ab-check { color: var(--color-success); font-weight: 800; margin-right: 0.2rem; }
+
+.adm-offre-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+}

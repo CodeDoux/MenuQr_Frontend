@@ -10,6 +10,7 @@ import { AccesPlateforme, Employe, EmployeFormPayload, Poste } from '../../../co
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ModalComponent],
   templateUrl: './employe-form.component.html',
+  styleUrl: './employe-form.component.css',
 })
 export class EmployeFormComponent implements OnChanges {
   @Input() ouvert = false;

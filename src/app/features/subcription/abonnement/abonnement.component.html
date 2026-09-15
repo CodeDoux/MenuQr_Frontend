@@ -1,44 +1,50 @@
 <div class="page-header">
-  <div>
-    <h1 class="page-title">Abonnement</h1>
-    <p class="page-subtitle">Gérez votre plan MenuQr et consultez votre historique de facturation.</p>
+  <div class="pl-header-title">
+    <span class="pl-header-icon">💳</span>
+    <div>
+      <h1 class="page-title">Abonnement</h1>
+      <p class="page-subtitle">Gérez votre plan MenuQr et consultez votre historique de facturation.</p>
+    </div>
   </div>
 </div>
 
 @if (abonnement(); as abo) {
-  <div class="card settings-section abo-current">
-    <div class="abo-current-top">
+  <div class="ab-hero">
+    <div class="ab-hero-top">
       <div>
-        <p class="field-hint">Plan actuel</p>
-        <h2 class="settings-section-title">{{ offreActuelle()?.nom }}</h2>
+        <p class="ab-hero-label">Plan actuel</p>
+        <h2 class="ab-hero-nom">{{ offreActuelle()?.nom }}</h2>
       </div>
       <app-badge [label]="LABEL_STATUT_ABO[abo.statut]" [tone]="TONE_STATUT_ABO[abo.statut]" />
     </div>
 
-    @if (joursRestantsEssai() !== null) {
-      <p class="abo-essai-info">⏳ {{ joursRestantsEssai() }} jour(s) restant(s) avant la fin de votre période d'essai.</p>
-    }
+    <p class="ab-hero-prix">{{ offreActuelle()?.prix_mensuel }} <span class="ab-hero-prix-unit">FCFA / mois</span></p>
 
-    <p class="field-hint">{{ offreActuelle()?.prix_mensuel }} FCFA / mois</p>
+    @if (joursRestantsEssai() !== null) {
+      <div class="ab-essai-banner">⏳ {{ joursRestantsEssai() }} jour(s) restant(s) avant la fin de votre période d'essai.</div>
+    }
   </div>
 } @else {
   <p class="table-muted">Chargement de l'abonnement...</p>
 }
 
-<h3 class="qr-generaux-title">Changer de plan</h3>
+<h3 class="ab-section-title">📦 Changer de plan</h3>
 <div class="abo-plans-grid">
   @for (offre of offres(); track offre.id) {
-    <div class="card abo-plan-card" [class.abo-plan-card--active]="estOffreActuelle(offre)">
+    <div class="card ab-plan-card" [class.ab-plan-card--active]="estOffreActuelle(offre)">
+      @if (estOffreActuelle(offre)) {
+        <span class="ab-plan-ribbon">✓ Plan actuel</span>
+      }
       <h3 class="abo-plan-nom">{{ offre.nom }}</h3>
       <p class="abo-plan-prix">{{ offre.prix_mensuel }} <span class="field-hint">FCFA/mois</span></p>
       <p class="field-hint">{{ offre.description }}</p>
 
-      <ul class="abo-plan-features">
+      <ul class="ab-features">
         @for (f of offre.fonctionnalites; track f) {
-          <li>✓ {{ f }}</li>
+          <li><span class="ab-check">✓</span> {{ f }}</li>
         }
         @for (l of offre.limites; track l.nom) {
-          <li>✓ {{ l.valeur === -1 ? 'Illimité' : l.valeur }} {{ l.nom }}</li>
+          <li><span class="ab-check">✓</span> {{ l.valeur === -1 ? 'Illimité' : l.valeur }} {{ l.nom }}</li>
         }
       </ul>
 
@@ -56,9 +62,12 @@
   }
 </div>
 
-<h3 class="qr-generaux-title">Historique de facturation</h3>
+<h3 class="ab-section-title">🧾 Historique de facturation</h3>
 @if (factures().length === 0) {
-  <p class="table-muted">Aucune facture pour le moment — vous êtes en période d'essai.</p>
+  <div class="card empty-state mn-empty">
+    <div class="mn-empty-icon">🧾</div>
+    <p class="mn-empty-desc">Aucune facture pour le moment — vous êtes en période d'essai.</p>
+  </div>
 } @else {
   <div class="card">
     <table class="table">
@@ -75,7 +84,7 @@
         @for (f of factures(); track f.id) {
           <tr>
             <td class="table-strong">{{ f.numero }}</td>
-            <td>{{ f.montant }} FCFA</td>
+            <td class="table-strong">{{ f.montant }} FCFA</td>
             <td class="table-muted">{{ f.date_emission | date: 'dd/MM/yyyy' }}</td>
             <td class="table-muted">{{ f.date_echeance | date: 'dd/MM/yyyy' }}</td>
             <td><app-badge [label]="LABEL_STATUT_FACTURE[f.statut]" [tone]="TONE_STATUT_FACTURE[f.statut]" /></td>

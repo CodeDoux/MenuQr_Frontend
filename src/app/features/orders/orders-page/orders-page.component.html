@@ -1,14 +1,18 @@
 <div class="page-header">
-  <div>
-    <h1 class="page-title">Commandes</h1>
-    <p class="page-subtitle">Suivez le cycle de vie des commandes, de la cuisine à l'encaissement.</p>
+  <div class="pl-header-title">
+    <span class="pl-header-icon">🧾</span>
+    <div>
+      <h1 class="page-title">Commandes</h1>
+      <p class="page-subtitle">Suivez le cycle de vie des commandes, de la cuisine à l'encaissement.</p>
+    </div>
   </div>
 </div>
 
-<div class="tabs">
-  @for (o of onglets; track o.id) {
-    <button type="button" class="tab" [class.tab--active]="onglet() === o.id" (click)="onglet.set(o.id)">
-      {{ o.label }}
+<div class="op-tabs">
+  @for (on of ongletsDisponibles; track on.id) {
+    <button class="op-tab" [class.op-tab--active]="onglet() === on.id" (click)="onglet.set(on.id)">
+      <span class="op-tab-icon">{{ ICONE_ONGLET[on.id] }}</span>
+      {{ on.label }}
     </button>
   }
 </div>

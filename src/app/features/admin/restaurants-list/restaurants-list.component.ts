@@ -17,6 +17,7 @@ const TONE_STATUT: Record<string, BadgeTone> = {
   standalone: true,
   imports: [CommonModule, BadgeComponent],
   templateUrl: './restaurants-list.component.html',
+  styleUrl: './restaurants-list.component.css',
 })
 export class RestaurantsListComponent {
   readonly restaurants;

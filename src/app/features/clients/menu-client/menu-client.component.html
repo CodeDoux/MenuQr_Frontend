@@ -1,59 +1,136 @@
 @if (chargementInitial()) {
-  <div class="pm-restaurant-header"><p class="login-subtitle">Chargement du menu...</p></div>
+  <div class="mc-loading"><p>Chargement du menu...</p></div>
 } @else {
 
-<div class="pm-restaurant-header">
-  <h1 class="pm-restaurant-name">Menu</h1>
-  <p class="pm-restaurant-sub">Menu numérique</p>
-</div>
-
-<div class="pm-categories-nav">
-  @for (cat of toutesCategories(); track cat.id) {
-    <button
-      type="button"
-      class="pm-cat-chip"
-      [class.pm-cat-chip--active]="categorieActive() === cat.id"
-      (click)="categorieActive.set(cat.id)"
-    >
-      @if (cat.icone) { <span>{{ cat.icone }}</span> }
-      {{ cat.nom }}
+<header class="mc-header">
+  <div class="mc-header-top">
+    <div class="mc-avatar">{{ initiale() }}</div>
+    <div class="mc-header-text">
+      @if (salleNom || tableNumero) {
+        <p class="mc-eyebrow">{{ salleNom }}{{ salleNom && tableNumero ? ' · ' : '' }}{{ tableNumero ? 'Table ' + tableNumero : '' }}</p>
+      }
+      <h1 class="mc-restaurant-nom">{{ restaurantNom }}</h1>
+    </div>
+    <button type="button" class="mc-icon-btn mc-icon-btn--info" (click)="infosOuvertes.set(true)" aria-label="Informations restaurant">
+      ℹ️
     </button>
-  }
-</div>
+    <button type="button" class="mc-icon-btn" (click)="allerAuPanier()" aria-label="Panier">
+      🛍️
+      @if (nombreArticles() > 0) { <span class="mc-icon-badge">{{ nombreArticles() }}</span> }
+    </button>
+  </div>
 
-@for (cat of toutesCategories(); track cat.id) {
-  @if (categorieActive() === cat.id) {
-    <div class="pm-produits-list">
-      @for (produit of produitsDeLaCategorie(cat.id); track produit.id) {
-        <button type="button" class="pm-produit-card" (click)="ouvrirProduit(produit)" [disabled]="!produit.est_disponible">
-          @if (produit.images?.length > 0) {
-            <img [src]="produit.images[0].url" alt="" class="pm-produit-img" />
-          } @else {
-            <div class="pm-produit-img pm-produit-img--empty">{{ produit.nom.charAt(0) }}</div>
-          }
-          <div class="pm-produit-info">
-            <div class="pm-produit-top">
-              <span class="pm-produit-nom">{{ produit.nom }}</span>
-              @if (produit.est_populaire) { <span class="pm-produit-star">★</span> }
-            </div>
-            @if (produit.description) {
-              <p class="pm-produit-desc">{{ produit.description }}</p>
-            }
-            <div class="pm-produit-bottom">
-              @if (!produit.est_disponible) {
-                <span class="pm-produit-rupture">Indisponible</span>
-              } @else if (produit.variantes?.length > 0) {
-                <span class="pm-produit-prix">Dès {{ produit.prix }} FCFA</span>
+  <label class="mc-search">
+    <span class="mc-search-icon">🔍</span>
+    <input
+      type="text"
+      placeholder="Rechercher un plat"
+      [ngModel]="recherche()"
+      (ngModelChange)="recherche.set($event)"
+    />
+  </label>
+
+  <div class="mc-pills">
+     <button
+        type="button"
+        class="mc-pill"
+        [class.mc-pill--active]="categorieActive() === null"
+        (click)="categorieActive.set(null)"
+      >
+        🍽️ Tous
+      </button>
+    @for (cat of toutesCategories(); track cat.id) {
+      <button
+        type="button"
+        class="mc-pill"
+        [class.mc-pill--active]="categorieActive() === cat.id"
+        (click)="categorieActive.set(cat.id)"
+      >
+        @if (cat.icone) { <span>{{ cat.icone }}</span> }
+        {{ cat.nom }}
+      </button>
+    }
+  </div>
+</header>
+
+<main class="mc-content">
+  @if (!recherche() && produitsPopulaires().length > 0) {
+    <section class="mc-section">
+      <div class="mc-section-head">
+        <div>
+          <p class="mc-eyebrow">Raccourci</p>
+          <h2 class="mc-section-titre">Les plus commandés</h2>
+        </div>
+        <span class="mc-star">★</span>
+      </div>
+
+      <div class="mc-carousel">
+        @for (p of produitsPopulaires(); track p.id) {
+          <button type="button" class="mc-carousel-card" (click)="ouvrirProduit(p)" [disabled]="!p.est_disponible">
+            <div class="mc-carousel-img-wrap">
+              @if (p.images?.length > 0) {
+                <img [src]="p.images[0].url" alt="" class="mc-carousel-img" />
               } @else {
-                <span class="pm-produit-prix">{{ produit.prix }} FCFA</span>
+                <div class="mc-carousel-img mc-carousel-img--empty">{{ p.nom.charAt(0) }}</div>
+              }
+              <span class="mc-badge-populaire">★ Populaire</span>
+            </div>
+            <p class="mc-carousel-nom">{{ p.nom }}</p>
+            <div class="mc-carousel-bottom">
+              <span class="mc-carousel-prix">{{ p.prix }} F CFA</span>
+              <span class="mc-add-circle" (click)="ajoutRapide(p, $event)">+</span>
+            </div>
+          </button>
+        }
+      </div>
+    </section>
+  }
+
+  <section class="mc-section">
+    <div class="mc-section-head">
+      <div>
+        <p class="mc-eyebrow">Catégorie</p>
+        <h2 class="mc-section-titre">{{ recherche() ? 'Résultats' : categorieActiveNom() }}</h2>
+      </div>
+      <span class="mc-count">{{ produitsAffiches().length }} plat{{ produitsAffiches().length > 1 ? 's' : '' }}</span>
+    </div>
+
+    @if (produitsAffiches().length === 0) {
+      <p class="mc-empty">Aucun plat ne correspond à votre recherche.</p>
+    }
+
+    <div class="mc-list">
+      @for (p of produitsAffiches(); track p.id) {
+        <button type="button" class="mc-row" (click)="ouvrirProduit(p)" [disabled]="!p.est_disponible">
+          @if (p.images?.length > 0) {
+            <img [src]="p.images[0].url" alt="" class="mc-row-img" />
+          } @else {
+            <div class="mc-row-img mc-row-img--empty">{{ p.nom.charAt(0) }}</div>
+          }
+
+          <div class="mc-row-body">
+            <div class="mc-row-top">
+              <span class="mc-row-nom">{{ p.nom }}</span>
+              <span class="mc-details-link" (click)="voirDetails(p, $event)">Détails</span>
+            </div>
+            @if (p.description) { <p class="mc-row-desc">{{ p.description }}</p> }
+
+            <div class="mc-row-bottom">
+              @if (!p.est_disponible) {
+                <span class="mc-rupture">Indisponible</span>
+              } @else {
+                <span class="mc-row-prix">
+                  {{ p.variantes?.length > 0 ? 'Dès ' : '' }}{{ p.prix }} F CFA
+                </span>
+                <span class="mc-add-pill" (click)="ajoutRapide(p, $event)">+ Ajouter</span>
               }
             </div>
           </div>
         </button>
       }
     </div>
-  }
-}
+  </section>
+</main>
 
 @if (produitOuvert(); as p) {
   <div class="pm-sheet-overlay" (click)="fermerProduit()">
@@ -108,10 +185,89 @@
 }
 
 @if (nombreArticles() > 0) {
-  <button type="button" class="pm-cart-bar" (click)="allerAuPanier()">
-    <span class="pm-cart-bar-count">{{ nombreArticles() }} article(s)</span>
-    <span class="pm-cart-bar-action">Voir mon panier · {{ total() }} FCFA</span>
+  <button type="button" class="mc-cart-bar" (click)="allerAuPanier()">
+    <span class="mc-cart-bar-count">🛍️ {{ nombreArticles() }} article{{ nombreArticles() > 1 ? 's' : '' }}</span>
+    <span class="mc-cart-bar-action">Voir le panier · {{ total() }} F CFA</span>
   </button>
+}
+
+<nav class="mc-bottom-nav">
+  <button type="button" class="mc-nav-item mc-nav-item--active">
+    <span class="mc-nav-icon">🏠</span>
+    <span class="mc-nav-label">Accueil</span>
+  </button>
+  <button type="button" class="mc-nav-item" (click)="allerAuPanier()">
+    <span class="mc-nav-icon">
+      🛍️
+      @if (nombreArticles() > 0) { <span class="mc-nav-badge">{{ nombreArticles() }}</span> }
+    </span>
+    <span class="mc-nav-label">Panier</span>
+  </button>
+  <button type="button" class="mc-nav-item" (click)="allerAuxCommandes()">
+    <span class="mc-nav-icon">📋</span>
+    <span class="mc-nav-label">Commandes</span>
+  </button>
+</nav>
+
+<!-- Panneau d'informations restaurant — coulisse depuis la droite -->
+@if (infosOuvertes()) {
+  <div class="mc-infos-overlay" (click)="infosOuvertes.set(false)">
+    <div class="mc-infos-panel" (click)="$event.stopPropagation()">
+      <div class="mc-infos-header">
+        <h2 class="mc-infos-titre">{{ restaurantNom }}</h2>
+        <button type="button" class="mc-infos-close" (click)="infosOuvertes.set(false)" aria-label="Fermer">✕</button>
+      </div>
+
+      <div class="mc-infos-body">
+        @if (restaurantDescription) {
+          <p class="mc-infos-description">{{ restaurantDescription }}</p>
+        }
+
+        @if (restaurantAdresse) {
+          <div class="mc-infos-ligne">
+            <span class="mc-infos-icone">📍</span>
+            <span>{{ restaurantAdresse }}</span>
+          </div>
+        }
+
+        @if (restaurantTelephone) {
+          <div class="mc-infos-ligne">
+            <span class="mc-infos-icone">📞</span>
+            <a [href]="'tel:' + restaurantTelephone">{{ restaurantTelephone }}</a>
+          </div>
+        }
+
+        @if (horaires.length > 0) {
+          <div class="mc-infos-section">
+            <h3 class="mc-infos-section-titre">🕐 Horaires d'ouverture</h3>
+            <div class="mc-infos-horaires">
+              @for (h of horaires; track h.jour) {
+                <div class="mc-infos-horaire-row">
+                  <span>{{ LABEL_JOUR[h.jour] }}</span>
+                  @if (h.ferme) {
+                    <span class="mc-infos-ferme">Fermé</span>
+                  } @else {
+                    <span>{{ h.ouverture?.slice(0, 5) }} – {{ h.fermeture?.slice(0, 5) }}</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (moyensPaiement.length > 0) {
+          <div class="mc-infos-section">
+            <h3 class="mc-infos-section-titre">💳 Moyens de paiement acceptés</h3>
+            <div class="mc-infos-methodes">
+              @for (m of moyensPaiement; track m) {
+                <span class="mc-infos-methode-chip">{{ ICONE_METHODE[m] }} {{ LABEL_METHODE[m] }}</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
 }
 
 }

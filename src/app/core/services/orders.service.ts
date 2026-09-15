@@ -11,6 +11,13 @@ const ORDRE_STATUTS_CUISINE = [
   StatutCommande.EN_ATTENTE, StatutCommande.CONFIRMEE,
   StatutCommande.EN_PREPARATION, StatutCommande.PRETE,
 ];
+export interface PaginationMeta {
+  currentPage: number;
+  lastPage: number;
+  perPage: number;
+  total: number;
+}
+
 
 @Injectable({ providedIn: 'root' })
 export class OrdersService {
@@ -24,13 +31,24 @@ export class OrdersService {
   private readonly _factures = signal<any[]>([]);
   readonly facturesTriees = this._factures.asReadonly();
 
+  private readonly _commandesGlobalePage = signal<Commande[]>([]);
+  private readonly _commandesGlobaleMeta = signal<PaginationMeta>({ currentPage: 1, lastPage: 1, perPage: 20, total: 0 });
+
+  readonly commandesGlobalePage = this._commandesGlobalePage.asReadonly();
+  readonly commandesGlobaleMeta = this._commandesGlobaleMeta.asReadonly();
+
 
   constructor(private readonly http: HttpClient) {
     this.chargerCommandes();
     this.chargerAdditions();
     this.chargerPaiements();
+    this.chargerFactures();
   }
 
+  async chargerAddition(id: string): Promise<any> {
+  const rep = await firstValueFrom(this.http.get<{ data: any }>(`${environment.apiUrl}/additions/${id}`));
+  return rep.data;
+}
    
   async chargerFactures(): Promise<void> {
     const rep = await firstValueFrom(this.http.get<{ data: any[] }>(`${environment.apiUrl}/factures`));
@@ -131,7 +149,10 @@ export class OrdersService {
       id: api.id, visiteId: api.visite_id, tableId: api.table_id, tableNumero: api.table_numero,
       mode: api.mode, statut: api.statut, sousTotal: Number(api.sous_total),
       fraisLivraison: Number(api.frais_livraison), remise: Number(api.remise), total: Number(api.total),
-      notes: api.notes, createdAt: api.created_at, updatedAt: api.updated_at,
+      notes: api.notes,
+      nomClient: api.nom_client, telephoneClient: api.telephone_client,
+      heureRetraitSouhaitee: api.heure_retrait_souhaitee,
+      createdAt: api.created_at, updatedAt: api.updated_at,
       lignes: (api.lignes ?? []).map((l: any): LigneCommande => ({
         id: l.id, commandeId: api.id, produitId: l.produit_id, produitNom: l.produit_nom,
         quantite: l.quantite, prixUnitaire: Number(l.prix_unitaire), sousTotal: Number(l.sous_total), notes: l.notes,
@@ -166,4 +187,25 @@ async encaisserCommandeDirecte(commandeId: string, methode: string): Promise<voi
   await firstValueFrom(this.http.post(`${API}/commandes/${commandeId}/encaisser-direct`, { methode }));
   await Promise.all([this.chargerPaiements(), this.chargerFactures()]);
 }
+
+  async chargerCommandesGlobale(
+    page: number = 1,
+    perPage: number = 20,
+    statut: string | null = null,
+    mode: string | null = null
+  ): Promise<void> {
+    const params: Record<string, string | number> = { page, per_page: perPage };
+    if (statut) params['statut'] = statut;
+    if (mode) params['mode'] = mode;
+
+    const rep = await firstValueFrom(this.http.get<any>(`${API}/commandes`, { params }));
+
+    this._commandesGlobalePage.set(rep.data.map((c: any) => this.mapCommande(c)));
+    this._commandesGlobaleMeta.set({
+      currentPage: rep.meta.current_page,
+      lastPage: rep.meta.last_page,
+      perPage: rep.meta.per_page,
+      total: rep.meta.total,
+    });
+  }
 }

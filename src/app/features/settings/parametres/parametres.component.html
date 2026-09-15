@@ -1,12 +1,15 @@
 <div class="page-header">
-  <div>
-    <h1 class="page-title">Paramètres</h1>
-    <p class="page-subtitle">Infos générales, horaires d'ouverture et moyens de paiement acceptés.</p>
+  <div class="pl-header-title">
+    <span class="pl-header-icon">⚙️</span>
+    <div>
+      <h1 class="page-title">Paramètres</h1>
+      <p class="page-subtitle">Infos générales, horaires d'ouverture et moyens de paiement acceptés.</p>
+    </div>
   </div>
 </div>
 
 <div class="card settings-section">
-  <h3 class="settings-section-title">Informations générales</h3>
+  <h3 class="st-section-title">🏪 Informations générales</h3>
   <form [formGroup]="formRestaurant" (ngSubmit)="enregistrerRestaurant()" class="form">
     <label class="field">
       <span class="field-label">Nom du restaurant *</span>
@@ -30,70 +33,56 @@
       <span class="field-label">Description</span>
       <textarea formControlName="description" rows="2" class="field-input" placeholder="Optionnel"></textarea>
     </label>
-    <div class="form-actions" style="justify-content: space-between; border-top: none; padding-top: 0;">
-      @if (restaurantEnregistre) { <span class="pm-suivi-terminee" style="margin:0;padding:0.4rem 0.8rem;">✓ Enregistré</span> } @else { <span></span> }
+    <div class="st-form-footer">
+      @if (restaurantEnregistre) { <span class="st-saved-badge">✓ Enregistré</span> } @else { <span></span> }
       <button type="submit" class="btn btn--primary">Enregistrer</button>
     </div>
   </form>
 </div>
 
 <div class="card settings-section">
-  <h3 class="settings-section-title">Horaires d'ouverture</h3>
+  <h3 class="st-section-title">🕐 Horaires d'ouverture</h3>
   <p class="field-hint settings-hint">Un seul créneau par jour en V1 (pas encore de gestion des services coupés midi/soir).</p>
 
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Jour</th>
-        <th>Statut</th>
-        <th>Ouverture</th>
-        <th>Fermeture</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (h of horaires(); track h.id) {
-        <tr>
-          <td class="table-strong">{{ LIBELLE_JOUR[h.jourSemaine] }}</td>
-          <td>
-            <label class="field--switch horaire-toggle">
-              <input type="checkbox" [checked]="!h.estFerme" (change)="toggleFerme(h)" class="field-switch" />
-              {{ h.estFerme ? 'Fermé' : 'Ouvert' }}
-            </label>
-          </td>
-          <td>
-            @if (!h.estFerme) {
-              <input
-                type="time"
-                class="field-input horaire-time"
-                [ngModel]="h.heureOuverture"
-                (ngModelChange)="changerHeure(h, 'heureOuverture', $event)"
-              />
-            } @else {
-              <span class="table-muted">—</span>
-            }
-          </td>
-          <td>
-            @if (!h.estFerme) {
-              <input
-                type="time"
-                class="field-input horaire-time"
-                [ngModel]="h.heureFermeture"
-                (ngModelChange)="changerHeure(h, 'heureFermeture', $event)"
-              />
-            } @else {
-              <span class="table-muted">—</span>
-            }
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
+  <div class="st-horaires-list">
+    @for (h of horaires(); track h.id) {
+      <div class="st-horaire-row">
+        <span class="st-jour">{{ LIBELLE_JOUR[h.jourSemaine] }}</span>
+
+        <label class="st-toggle">
+          <input type="checkbox" [checked]="!h.estFerme" (change)="toggleFerme(h)" hidden />
+          <span class="st-toggle-track"><span class="st-toggle-thumb"></span></span>
+          <span class="st-toggle-label" [class.st-toggle-label--off]="h.estFerme">{{ h.estFerme ? 'Fermé' : 'Ouvert' }}</span>
+        </label>
+
+        @if (!h.estFerme) {
+          <div class="st-horaire-times">
+            <input
+              type="time"
+              class="field-input horaire-time"
+              [ngModel]="h.heureOuverture"
+              (ngModelChange)="changerHeure(h, 'heureOuverture', $event)"
+            />
+            <span class="st-horaire-sep">→</span>
+            <input
+              type="time"
+              class="field-input horaire-time"
+              [ngModel]="h.heureFermeture"
+              (ngModelChange)="changerHeure(h, 'heureFermeture', $event)"
+            />
+          </div>
+        } @else {
+          <span class="table-muted st-horaire-times">Fermé toute la journée</span>
+        }
+      </div>
+    }
+  </div>
 </div>
 
 <div class="card settings-section">
   <div class="postes-header">
     <div>
-      <h3 class="settings-section-title">Zones de livraison</h3>
+      <h3 class="st-section-title">🛵 Zones de livraison</h3>
       <p class="field-hint settings-hint">Définissez les frais et délais selon la zone du client.</p>
     </div>
     <button type="button" class="btn btn--ghost btn--sm" (click)="ouvrirCreationZone()">+ Nouvelle zone</button>
@@ -116,12 +105,12 @@
         @for (zone of zones(); track zone.id) {
           <tr>
             <td class="table-strong">{{ zone.nom }}</td>
-            <td>{{ zone.frais }} FCFA</td>
-            <td class="table-muted">{{ zone.tempsEstime ? zone.tempsEstime + ' min' : '—' }}</td>
-            <td class="table-muted">{{ zone.statut === 'ACTIVE' ? 'Active' : 'Inactive' }}</td>
+            <td class="st-frais">{{ zone.frais }} FCFA</td>
+            <td class="table-muted">{{ zone.tempsEstime ? '⏱ ' + zone.tempsEstime + ' min' : '—' }}</td>
+            <td><app-badge [label]="zone.statut === 'ACTIVE' ? 'Active' : 'Inactive'" [tone]="zone.statut === 'ACTIVE' ? 'success' : 'neutral'" /></td>
             <td class="table-actions">
-              <button type="button" class="btn btn--icon" title="Modifier" (click)="ouvrirEditionZone(zone)">✎</button>
-              <button type="button" class="btn btn--icon" title="Supprimer" (click)="supprimerZone(zone)">🗑</button>
+              <button type="button" class="mn-action-btn mn-action-btn--edit" title="Modifier" (click)="ouvrirEditionZone(zone)">✎</button>
+              <button type="button" class="mn-action-btn mn-action-btn--delete" title="Supprimer" (click)="supprimerZone(zone)">🗑</button>
             </td>
           </tr>
         }
@@ -131,20 +120,24 @@
 </div>
 
 <div class="card settings-section">
-  <h3 class="settings-section-title">Moyens de paiement acceptés</h3>
+  <h3 class="st-section-title">💳 Moyens de paiement acceptés</h3>
   <p class="field-hint settings-hint">Activez les méthodes que vos clients peuvent utiliser pour payer en ligne.</p>
 
-  <div class="moyens-paiement-list">
+  <div class="st-moyens-list">
     @for (m of moyensPaiement(); track m.id) {
-      <div class="moyen-paiement-row">
-        <label class="field--switch">
-          <input type="checkbox" [checked]="m.estActif" (change)="toggleMoyenPaiement(m)" class="field-switch" />
-          {{ LIBELLE_METHODE[m.methode] }}
-        </label>
+      <div class="st-moyen-card" [class.st-moyen-card--active]="m.estActif">
+        <div class="st-moyen-top">
+          <span class="st-moyen-icon">{{ ICONE_METHODE[m.methode] }}</span>
+          <span class="st-moyen-nom">{{ LIBELLE_METHODE[m.methode] }}</span>
+          <label class="st-toggle st-toggle--sm">
+            <input type="checkbox" [checked]="m.estActif" (change)="toggleMoyenPaiement(m)" hidden />
+            <span class="st-toggle-track"><span class="st-toggle-thumb"></span></span>
+          </label>
+        </div>
         @if (m.estActif && m.methode !== 'ESPECES') {
           <input
             type="text"
-            class="field-input moyen-paiement-id"
+            class="field-input"
             placeholder="Identifiant marchand (optionnel)"
             [ngModel]="m.identifiantMarchand"
             (ngModelChange)="changerIdentifiant(m, $event)"

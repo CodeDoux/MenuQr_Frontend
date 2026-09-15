@@ -1,4 +1,4 @@
-<app-modal [ouvert]="ouvert" [titre]="titre" (fermer)="fermer.emit()">
+<app-modal [ouvert]="ouvert" [titre]="titre" icone="💼" (fermer)="fermer.emit()">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
     <label class="field">
       <span class="field-label">Nom du poste *</span>

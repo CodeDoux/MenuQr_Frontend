@@ -7,6 +7,7 @@ import { PlatformAdminService } from '../../../core/services/admin.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './admin-dashboard.component.html',
+  styleUrl: './admin-dashboard.component.css',
 })
 export class AdminDashboardComponent {
   readonly nbTotal;

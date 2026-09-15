@@ -1,15 +1,30 @@
 <div class="page-header">
-  <div>
-    <h1 class="page-title">Paiements</h1>
-    <p class="page-subtitle">Historique de tous les paiements encaissés, avec possibilité de remboursement.</p>
+  <div class="pl-header-title">
+    <span class="pl-header-icon">💰</span>
+    <div>
+      <h1 class="page-title">Paiements</h1>
+      <p class="page-subtitle">Historique de tous les paiements encaissés, avec possibilité de remboursement.</p>
+    </div>
   </div>
 </div>
 
 @if (paiements().length === 0) {
-  <div class="card empty-state">
+  <div class="card empty-state mn-empty">
+    <div class="mn-empty-icon">💰</div>
     <div class="empty-state-title">Aucun paiement pour le moment</div>
   </div>
 } @else {
+  <div class="stats-cards">
+    <div class="card stats-card">
+      <p class="field-hint">Total encaissé (confirmé)</p>
+      <p class="stats-value">{{ totalEncaisse() }} FCFA</p>
+    </div>
+    <div class="card stats-card">
+      <p class="field-hint">Nombre de paiements</p>
+      <p class="stats-value">{{ paiements().length }}</p>
+    </div>
+  </div>
+
   <div class="card">
     <table class="table">
       <thead>
@@ -27,12 +42,14 @@
           <tr>
             <td class="table-muted">{{ p.datePaiement | date: 'dd/MM/yyyy HH:mm' }}</td>
             <td class="table-strong">{{ contexte(p) }}</td>
-            <td class="table-muted">{{ p.methode }}</td>
-            <td>{{ p.montant }} FCFA</td>
+            <td>
+              <span class="pp-methode">{{ ICONE_METHODE[p.methode] }} {{ p.methode }}</span>
+            </td>
+            <td class="pp-montant">{{ p.montant }} FCFA</td>
             <td><app-badge [label]="LABEL_STATUT[p.statut]" [tone]="TONE_STATUT[p.statut]" /></td>
             <td class="table-actions">
               @if (peutRembourser(p)) {
-                <button type="button" class="btn btn--sm btn--ghost" (click)="rembourser(p)">Rembourser</button>
+                <button type="button" class="pp-rembourser-btn" (click)="rembourser(p)">↩ Rembourser</button>
               }
             </td>
           </tr>

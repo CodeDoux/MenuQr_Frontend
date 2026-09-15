@@ -1,65 +1,72 @@
 <div class="page-header">
-  <div>
-    <h1 class="page-title">Employés</h1>
-    <p class="page-subtitle">Gérez votre équipe, leurs postes et leur accès à la plateforme.</p>
+  <div class="pl-header-title">
+    <span class="pl-header-icon">👥</span>
+    <div>
+      <h1 class="page-title">Employés</h1>
+      <p class="page-subtitle">Gérez votre équipe, leurs postes et leur accès à la plateforme.</p>
+    </div>
   </div>
-  <button type="button" class="btn btn--primary" (click)="ouvrirCreationEmploye()">+ Ajouter un employé</button>
+  <button type="button" class="btn btn--primary" (click)="ouvrirCreationEmploye()">
+    <span class="mn-btn-icon">+</span> Ajouter un employé
+  </button>
 </div>
 
-<div class="card">
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Employé</th>
-        <th>Poste</th>
-        <th>Statut</th>
-        <th>Accès plateforme</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (item of employesAvecAcces(); track item.employe.id) {
-        <tr>
-          <td>
-            <div class="table-strong">{{ item.employe.nomComplet }}</div>
-            <div class="table-muted">{{ item.employe.email }}</div>
-          </td>
-          <td class="table-muted">{{ item.poste?.nom ?? '—' }}</td>
-          <td>
+@if (employesAvecAcces().length === 0) {
+  <div class="card empty-state mn-empty">
+    <div class="mn-empty-icon">👤</div>
+    <div class="empty-state-title">Aucun employé pour le moment</div>
+    <p class="mn-empty-desc">Ajoutez les membres de votre équipe pour leur donner un accès à la plateforme.</p>
+  </div>
+} @else {
+  <div class="emp-list">
+    @for (item of employesAvecAcces(); track item.employe.id) {
+      <div class="card emp-row" [class.emp-row--invite]="item.acces?.statut === 'INVITE'">
+        <div class="emp-avatar">{{ item.employe.nomComplet.charAt(0).toUpperCase() }}</div>
+
+        <div class="emp-info">
+          <div class="emp-nom">{{ item.employe.nomComplet }}</div>
+          <div class="emp-email">{{ item.employe.email }}</div>
+          <div class="emp-tags">
+            <span class="emp-poste-tag">💼 {{ item.poste?.nom ?? '—' }}</span>
             <app-badge [label]="labelStatutEmploye(item.employe.statut)" [tone]="toneStatutEmploye(item.employe.statut)" />
-          </td>
-          <td>
             @if (item.acces) {
               <app-badge [label]="labelStatutAcces(item.acces.statut) + ' · ' + item.acces.role" [tone]="toneStatutAcces(item.acces.statut)" />
             } @else {
-              <span class="table-muted">Aucun accès</span>
+              <span class="emp-no-acces">Aucun accès plateforme</span>
             }
-          </td>
-          <td class="table-actions">
-            @if (item.acces?.statut === 'INVITE') {
-              <button type="button" class="btn btn--sm btn--ghost" (click)="renvoyerInvitation(item.employe)">Renvoyer l'invitation</button>
-              <button type="button" class="btn btn--sm btn--ghost" (click)="copierLienInvitation(item.employe)">Copier le lien</button>
-            }
-            <button type="button" class="btn btn--icon" title="Modifier" (click)="ouvrirEditionEmploye(item.employe, item.acces)">✎</button>
-            <button type="button" class="btn btn--icon" title="Terminer" (click)="terminerEmploye(item.employe)">🗑</button>
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
-</div>
+          </div>
 
-<div class="card postes-card">
+          @if (item.acces?.statut === 'INVITE') {
+            <div class="emp-invite-banner">
+              <span>✉️ Invitation en attente</span>
+              <div class="emp-invite-actions">
+                <button type="button" class="btn btn--sm btn--ghost" (click)="renvoyerInvitation(item.employe)">Renvoyer</button>
+                <button type="button" class="btn btn--sm btn--ghost" (click)="copierLienInvitation(item.employe)">📋 Copier le lien</button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="emp-actions">
+          <button type="button" class="mn-action-btn mn-action-btn--edit" title="Modifier" (click)="ouvrirEditionEmploye(item.employe, item.acces)">✎</button>
+          <button type="button" class="mn-action-btn mn-action-btn--delete" title="Terminer le contrat" (click)="terminerEmploye(item.employe)">🗑</button>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<div class="card emp-postes-card">
   <div class="postes-header">
-    <h3 class="qr-generaux-title">Postes</h3>
+    <h3 class="qr-generaux-title">💼 Postes</h3>
     <button type="button" class="btn btn--ghost btn--sm" (click)="ouvrirCreationPoste()">+ Nouveau poste</button>
   </div>
   <div class="chip-select">
     @for (poste of postes(); track poste.id) {
-      <span class="chip poste-chip">
+      <span class="emp-poste-chip">
         {{ poste.nom }}
-        <button type="button" class="poste-chip-edit" (click)="ouvrirEditionPoste(poste)" title="Modifier">✎</button>
-        <button type="button" class="poste-chip-edit" (click)="supprimerPoste(poste)" title="Supprimer">✕</button>
+        <button type="button" class="emp-poste-chip-btn" (click)="ouvrirEditionPoste(poste)" title="Modifier">✎</button>
+        <button type="button" class="emp-poste-chip-btn emp-poste-chip-btn--delete" (click)="supprimerPoste(poste)" title="Supprimer">✕</button>
       </span>
     }
   </div>

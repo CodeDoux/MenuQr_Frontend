@@ -18,7 +18,6 @@ import { PromotionListComponent } from './features/promotions/promotion-list/pro
 import { ParametresComponent } from './features/settings/parametres/parametres.component';
 import { SaasLayoutComponent } from './layout/saas-layout/saas-layout.component';
 import { AbonnementComponent } from './features/subcription/abonnement/abonnement.component';
-import { StatisticsPageComponent } from './features/statistics/statistics-page/statistics-page/statistics-page.component';
 import { MonProfilComponent } from './features/profile/mon-profil/mon-profil/mon-profil.component';
 import { SignupComponent } from './features/auth/signup/signup.component';
 import { ForgotPasswordComponent } from './features/auth/forgot-password/forgot-password.component';
@@ -37,6 +36,8 @@ import { OffreManagementComponent } from './features/admin/offre-management/offr
 import { SubscriptionOverviewComponent } from './features/admin/subscription-overview/subscription-overview.component';
 import { AdminAccountsComponent } from './features/admin/admin-accounts/admin-accounts.component';
 import { AdminLoginComponent } from './features/auth/admin-login/admin-login.component';
+import { AdditionPrintComponent } from './features/factures/addition-print/addition-print.component';
+import { StatistiquesComponent } from './features/statistics/statistiques/statistiques.component';
 
 /**
  * Routing V1 - modules Menu/Categories/Produits, Salles/Tables/QRCodes, Auth.
@@ -60,7 +61,7 @@ export const routes: Routes = [
   },
   { path: 'inscription', component: SignupComponent },
   { path: 'mot-de-passe-oublie', component: ForgotPasswordComponent },
-  { path: 'reinitialiser-mot-de-passe', component: ResetPasswordComponent },
+  { path: 'reinitialisation', component: ResetPasswordComponent },
   { path: 'invitation/:employeId', component: AcceptInvitationComponent },
   {
     // Zone client publique — sans authGuard, layout mobile dédié.
@@ -90,11 +91,12 @@ export const routes: Routes = [
       { path: 'paiements', component: PaymentsPageComponent },
       { path: 'factures', component: InvoiceListComponent },
       { path: 'factures/:id/imprimer', component: InvoicePrintComponent },
+      { path: 'additions/:id/imprimer', component: AdditionPrintComponent },
       { path: 'journal', component: JournalPageComponent },
       { path: 'employes', component: EmployeeListComponent },
       { path: 'promotions', component: PromotionListComponent },
       { path: 'abonnement', component: AbonnementComponent },
-      { path: 'statistiques', component: StatisticsPageComponent },
+      { path: 'statistiques', component: StatistiquesComponent },
       { path: 'profil', component: MonProfilComponent },
       { path: 'parametres', component: ParametresComponent },
     ],

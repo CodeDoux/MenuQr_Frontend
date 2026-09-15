@@ -23,6 +23,9 @@ export interface Commande {
   remise: number;
   total: number;
   notes?: string | null;
+  nomClient?: string | null;
+  telephoneClient?: string | null;
+  heureRetraitSouhaitee?: string | null;
   createdAt: string;
   updatedAt: string;
   lignes: LigneCommande[];

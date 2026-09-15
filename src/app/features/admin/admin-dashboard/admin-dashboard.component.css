@@ -1,0 +1,17 @@
+.adm-kpi { display: flex; align-items: center; gap: 0.9rem; }
+
+.adm-kpi-icon {
+  font-size: 1.4rem;
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.adm-kpi--success .adm-kpi-icon { background: color-mix(in srgb, var(--color-success) 16%, white); }
+.adm-kpi--info .adm-kpi-icon { background: var(--color-accent-soft); }
+.adm-kpi--danger .adm-kpi-icon { background: color-mix(in srgb, var(--color-danger) 14%, white); }

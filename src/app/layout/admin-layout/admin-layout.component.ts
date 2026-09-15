@@ -14,11 +14,11 @@ export class AdminLayoutComponent {
   readonly currentAdmin;
 
   readonly navItems = [
-    { label: 'Dashboard', icon: '◱', route: '/admin/dashboard' },
+    { label: 'Dashboard', icon: '📊', route: '/admin/dashboard' },
     { label: 'Restaurants', icon: '🏬', route: '/admin/restaurants' },
-    { label: 'Offres & Plans', icon: '◆', route: '/admin/offres' },
-    { label: 'Abonnements', icon: '▧', route: '/admin/abonnements' },
-    { label: 'Administrateurs', icon: '◉', route: '/admin/administrateurs' },
+    { label: 'Offres & Plans', icon: '📦', route: '/admin/offres' },
+    { label: 'Abonnements', icon: '💳', route: '/admin/abonnements' },
+    { label: 'Administrateurs', icon: '👥', route: '/admin/administrateurs' },
   ];
 
   constructor(

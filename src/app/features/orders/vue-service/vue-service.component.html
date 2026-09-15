@@ -1,22 +1,32 @@
 @if (commandesAServir().length === 0) {
-  <div class="card empty-state">
+  <div class="card empty-state mn-empty">
+    <div class="mn-empty-icon">🛎️</div>
     <div class="empty-state-title">Aucune commande prête à servir</div>
-    <p>Les commandes marquées "Prête" en cuisine apparaîtront ici.</p>
+    <p class="mn-empty-desc">Les commandes marquées "Prête" en cuisine apparaîtront ici.</p>
   </div>
 } @else {
-  <div class="tables-grid">
+  <div class="vs-grid">
     @for (c of commandesAServir(); track c.id) {
-      <div class="card table-chip service-card">
-        <div class="table-chip-top">
-          <span class="table-chip-numero">Table {{ numeroTable(c) }}</span>
-          <span class="table-muted">{{ numeroCourt(c.id) }}</span>
+      <div class="card vs-card">
+        <div class="vs-card-accent"></div>
+        <div class="vs-card-body">
+          <div class="vs-card-top">
+            <div>
+              <span class="vs-table-label">Table</span>
+              <span class="vs-table-numero">{{ numeroTable(c) }}</span>
+            </div>
+            <span class="vs-badge">🔔 Prête</span>
+          </div>
+          <span class="table-muted vs-numero-commande">{{ numeroCourt(c.id) }}</span>
+
+          <ul class="kanban-card-lignes vs-lignes">
+            @for (l of c.lignes; track l.id) {
+              <li>{{ l.quantite }}× {{ l.produitNom }} @if (l.notes) { <span class="kanban-note">📝 {{ l.notes }}</span> }</li>
+            }
+          </ul>
+
+          <button type="button" class="btn btn--primary vs-btn-servir" (click)="servir(c)">✓ Marquer servie</button>
         </div>
-        <ul class="kanban-card-lignes">
-          @for (l of c.lignes; track l.id) {
-            <li>{{ l.quantite }}× {{ l.produitNom }} @if (l.notes) { <span class="kanban-note">📝 {{ l.notes }}</span> }</li>
-          }
-        </ul>
-        <button type="button" class="btn btn--primary btn--sm" (click)="servir(c)">Marquer servie</button>
       </div>
     }
   </div>

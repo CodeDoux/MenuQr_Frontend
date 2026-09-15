@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AdminAuthService } from '../../../core/services/admin-auth.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-admin-login',
@@ -12,6 +13,7 @@ import { AdminAuthService } from '../../../core/services/admin-auth.service';
 })
 export class AdminLoginComponent {
   private readonly fb = new FormBuilder();
+  sessionExpiree = false;
 
   form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -23,8 +25,11 @@ export class AdminLoginComponent {
 
   constructor(
     private readonly auth: AdminAuthService,
-    private readonly router: Router
-  ) {}
+    private readonly router: Router,
+    private readonly route: ActivatedRoute
+  ) {
+     this.sessionExpiree = this.route.snapshot.queryParamMap.get('raison') === 'session_expiree';
+  }
 
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {

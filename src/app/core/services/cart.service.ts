@@ -7,6 +7,7 @@ function uid(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
+const DERNIERE_COMMANDE_KEY = 'menuqr_derniere_commande_id'; // à mettre en haut du fichier, avec les autres constantes
 /**
  * Panier client — état en mémoire, propre à la session du navigateur.
  * Pas de persistance ; un rafraîchissement de page vide le panier (comportement
@@ -34,6 +35,14 @@ export class CartService {
   
    private readonly _zonesLivraison = signal<any[]>([]);
   readonly zonesLivraison = this._zonesLivraison.asReadonly();
+
+  private readonly _dernierCommandeId = signal<string | null>(localStorage.getItem(DERNIERE_COMMANDE_KEY));
+  readonly dernierCommandeId = this._dernierCommandeId.asReadonly();
+
+  enregistrerDerniereCommande(id: string): void {
+    localStorage.setItem(DERNIERE_COMMANDE_KEY, id);
+    this._dernierCommandeId.set(id);
+  }
 
 
   initialiserContexte(tableId: string | null, mode: ModeCommande | null): void {

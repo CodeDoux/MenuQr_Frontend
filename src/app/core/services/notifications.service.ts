@@ -1,52 +1,63 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { TypeNotification } from '../../core/enums/enums';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { Notification } from '../models/notification';
 
-/**
- * ⚠️ MOCK DATA + version simplifiée V1 (décision actée) : pas de push/email/SMS,
- * juste un centre de notifications in-app consulté au rafraîchissement.
- */
-
-function uid(prefix: string): string {
-  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
-}
-
-function ilYA(minutes: number): string {
-  return new Date(Date.now() - minutes * 60_000).toISOString();
-}
+const API = environment.apiUrl;
+const INTERVALLE_RAFRAICHISSEMENT_MS = 60_000; // 60s — pas de push temps réel (décision actée V1)
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
-  private readonly _notifications = signal<Notification[]>(this.seed());
+  private readonly _notifications = signal<Notification[]>([]);
 
   readonly notifications = this._notifications.asReadonly();
   readonly nombreNonLues = computed(() => this._notifications().filter((n) => !n.estLu).length);
 
-  marquerCommeLue(id: string): void {
+  constructor(private readonly http: HttpClient) {
+    this.charger();
+    setInterval(() => this.charger(), INTERVALLE_RAFRAICHISSEMENT_MS);
+  }
+
+  async charger(): Promise<void> {
+    try {
+      const rep = await firstValueFrom(this.http.get<{ data: any[] }>(`${API}/notifications`));
+      this._notifications.set(rep.data.map((n) => this.mapNotification(n)));
+    } catch {
+      // Échec silencieux (ex. token pas encore prêt au tout premier chargement) —
+      // le prochain intervalle réessaiera.
+    }
+  }
+
+  async marquerCommeLue(id: string): Promise<void> {
     this._notifications.update((liste) => liste.map((n) => (n.id === id ? { ...n, estLu: true } : n)));
+    try {
+      await firstValueFrom(this.http.patch(`${API}/notifications/${id}/lue`, {}));
+    } catch {
+      // Revert léger non géré ici — au pire, le prochain charger() resynchronisera l'état réel.
+    }
   }
 
-  toutMarquerCommeLu(): void {
+  async toutMarquerCommeLu(): Promise<void> {
     this._notifications.update((liste) => liste.map((n) => ({ ...n, estLu: true })));
+    try {
+      await firstValueFrom(this.http.patch(`${API}/notifications/tout-marquer-lu`, {}));
+    } catch {
+      // idem
+    }
   }
 
-  private seed(): Notification[] {
-    return [
-      {
-        id: uid('notif'), utilisateurId: 'user-001', clientId: null,
-        titre: 'Nouvelle commande', message: 'Commande #126 reçue — Table 12',
-        type: TypeNotification.NOUVELLE_COMMANDE, lien: '/commandes', estLu: false, dateEnvoie: ilYA(4),
-      },
-      {
-        id: uid('notif'), utilisateurId: 'user-001', clientId: null,
-        titre: 'Rupture de stock', message: 'Le produit "Thiéboudiène" est marqué en rupture',
-        type: TypeNotification.STOCK_RUPTURE, lien: '/produits', estLu: false, dateEnvoie: ilYA(45),
-      },
-      {
-        id: uid('notif'), utilisateurId: 'user-001', clientId: null,
-        titre: 'Essai bientôt terminé', message: 'Votre période d\'essai se termine dans 12 jours',
-        type: TypeNotification.ABONNEMENT_EXPIRE_BIENTOT, lien: '/parametres', estLu: true, dateEnvoie: ilYA(500),
-      },
-    ];
+  private mapNotification(api: any): Notification {
+    return {
+      id: api.id,
+      utilisateurId: '',
+      clientId: null,
+      titre: api.titre,
+      message: api.message,
+      type: api.type,
+      lien: api.lien,
+      estLu: api.est_lu,
+      dateEnvoie: api.date_envoi,
+    };
   }
 }

@@ -1,0 +1,146 @@
+/* --- En-tête (réutilise le même langage que Menus) --- */
+.pl-header-title { display: flex; align-items: flex-start; gap: 0.85rem; }
+.pl-header-icon {
+  font-size: 1.8rem;
+  background: var(--color-accent-soft);
+  width: 48px; height: 48px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* --- Toolbar --- */
+.pl-toolbar { align-items: center; }
+.pl-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.85rem;
+  min-width: 240px;
+}
+.pl-search input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.88rem;
+  font-family: inherit;
+  flex: 1;
+  color: var(--color-text-primary);
+}
+.pl-search-icon { opacity: 0.5; font-size: 0.9rem; }
+
+/* --- Liste produits (remplace le tableau) --- */
+.pl-list { display: flex; flex-direction: column; gap: 0.7rem; }
+
+.pl-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem;
+  transition: box-shadow 0.15s ease, transform 0.12s ease;
+}
+.pl-row:hover { box-shadow: 0 8px 20px rgba(35, 33, 30, 0.08); transform: translateY(-1px); }
+.pl-row--indisponible { opacity: 0.65; }
+
+.pl-thumb {
+  width: 56px; height: 56px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.pl-thumb--empty {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-surface-muted); color: var(--color-text-secondary);
+  font-weight: 700; font-size: 1.2rem;
+}
+
+.pl-info { flex: 1; min-width: 0; }
+.pl-info-top { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.15rem; }
+.pl-nom { font-weight: 700; font-size: 0.98rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pl-star { color: var(--color-warning-strong); font-size: 0.85rem; }
+.pl-categories {
+  font-size: 0.8rem; color: var(--color-text-secondary); margin: 0 0 0.45rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pl-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.pl-variantes-chip {
+  font-size: 0.72rem; font-weight: 600; color: var(--color-text-secondary);
+  background: var(--color-surface-muted); padding: 0.2rem 0.55rem; border-radius: 999px;
+}
+
+.pl-prix {
+  flex-shrink: 0;
+  text-align: right;
+  min-width: 90px;
+}
+.pl-prix-prefix { display: block; font-size: 0.68rem; color: var(--color-text-secondary); }
+.pl-prix-valeur { font-size: 1.05rem; font-weight: 800; color: var(--color-accent-strong); }
+
+.pl-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.pl-toggle-btn {
+  border: 1px solid color-mix(in srgb, var(--color-success) 35%, var(--color-border));
+  background: color-mix(in srgb, var(--color-success) 10%, white);
+  color: var(--color-success-strong);
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.1s ease;
+}
+.pl-toggle-btn:active { transform: scale(0.95); }
+.pl-toggle-btn--off {
+  border-color: color-mix(in srgb, var(--color-danger) 35%, var(--color-border));
+  background: color-mix(in srgb, var(--color-danger) 10%, white);
+  color: var(--color-danger-strong);
+}
+
+@media (max-width: 720px) {
+  .pl-row { flex-wrap: wrap; }
+  .pl-prix { text-align: left; margin-left: 72px; }
+  .pl-actions { width: 100%; margin-left: 72px; }
+}
+
+.pl-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+}
+
+.pl-page-btn {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.pl-page-btn:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+.pl-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pl-page-info {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+}

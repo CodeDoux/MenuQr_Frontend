@@ -15,6 +15,7 @@ import { TablesQrcodesService } from '../../../core/services/table-qrcode.servic
   standalone: true,
   imports: [CommonModule, SalleFormComponent, TableFormComponent, QrcodeModalComponent, BadgeComponent],
   templateUrl: './salle-list.component.html',
+  styleUrl: './salle-list.component.css',
 })
 export class SalleListComponent {
   readonly StatutTable = StatutTable;
@@ -162,4 +163,10 @@ export class SalleListComponent {
       this.service.supprimerTable(table.id).catch(() => alert('Une erreur est survenue lors de la suppression.'));
     }
   }
+
+  libererTable(table: TableRestaurant): void {
+  if (confirm(`Libérer la table ${table.numero} ? À utiliser une fois les clients partis.`)) {
+    this.service.libererTable(table.id).catch(() => alert('Une erreur est survenue.'));
+  }
+}
 }

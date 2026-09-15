@@ -1,0 +1,163 @@
+/* --- En-tête de page --- */
+.mn-header-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+.mn-header-icon {
+  font-size: 1.8rem;
+  background: var(--color-accent-soft);
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mn-btn-icon { font-weight: 800; margin-right: 0.15rem; }
+
+/* --- État vide --- */
+.mn-empty { padding: 3.5rem 1.5rem; }
+.mn-empty-icon {
+  font-size: 2.5rem;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 1rem;
+  background: var(--color-accent-soft);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mn-empty-desc { color: var(--color-text-secondary); margin-bottom: 1.25rem; }
+
+/* --- Grille de menus --- */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.menu-card {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.18s ease, transform 0.15s ease;
+}
+.menu-card:hover {
+  box-shadow: 0 12px 28px rgba(35, 33, 30, 0.12);
+  transform: translateY(-3px);
+}
+.menu-card--inactif { opacity: 0.72; }
+
+.menu-card-accent {
+  height: 5px;
+  width: 100%;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-strong));
+  flex-shrink: 0;
+}
+.menu-card-accent--inactif {
+  background: var(--color-border);
+}
+
+.menu-card-body {
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  flex: 1;
+}
+
+.menu-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.menu-card-emblem {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.menu-card-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.menu-card-title {
+  font-size: 1.02rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu-card-desc {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.menu-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.menu-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+.menu-card-meta-icon { font-size: 0.9rem; }
+
+.menu-card-actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
+/* Icônes d'action colorées et cohérentes avec l'action (au lieu du gris uniforme global) */
+.mn-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s ease, color 0.12s ease, transform 0.1s ease;
+}
+.mn-action-btn:active { transform: scale(0.92); }
+.mn-action-btn--edit:hover { background: var(--color-accent-soft); color: var(--color-accent-strong); }
+.mn-action-btn--delete:hover { background: color-mix(in srgb, var(--color-danger) 12%, white); color: var(--color-danger-strong); }
+
+@media (max-width: 480px) {
+  .mn-header-icon { width: 40px; height: 40px; font-size: 1.4rem; }
+}

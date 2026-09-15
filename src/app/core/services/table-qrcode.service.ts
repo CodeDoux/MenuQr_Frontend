@@ -108,6 +108,16 @@ export class TablesQrcodesService {
     await this.rechargerQrCodes(); // le QR de cette table a pu être désactivé côté serveur
   }
 
+  async libererTable(id: string): Promise<void> {
+  const existante = this._tables().find((t) => t.id === id);
+  if (!existante) return;
+
+  const rep = await firstValueFrom(
+    this.http.patch<{ data: any }>(`${API}/salles/${existante.salleId}/tables/${id}/liberer`, {})
+  );
+  const maj = this.mapTable(rep.data);
+  this._tables.update((liste) => liste.map((t) => (t.id === id ? maj : t)));
+}
   // ============================================================
   // QR CODES
   // ============================================================

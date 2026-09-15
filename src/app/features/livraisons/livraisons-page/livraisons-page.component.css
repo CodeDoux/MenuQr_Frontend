@@ -1,0 +1,22 @@
+.dl-tab-count {
+  background: var(--color-surface-muted);
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+  font-size: 0.72rem;
+  margin-left: 0.15rem;
+}
+.op-tab--active .dl-tab-count {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+.dl-card { padding: 1.1rem; display: flex; flex-direction: column; gap: 0.55rem; }
+.dl-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.2rem;
+}
+.dl-info { font-size: 0.85rem; color: var(--color-text-secondary); margin: 0; }
+.dl-total { font-weight: 800; color: var(--color-accent-strong); }
+.dl-btn-full { width: 100%; justify-content: center; }

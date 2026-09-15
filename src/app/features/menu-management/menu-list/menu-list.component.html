@@ -1,33 +1,55 @@
 <div class="page-header">
-  <div>
-    <h1 class="page-title">Menus</h1>
-    <p class="page-subtitle">Organisez la carte de votre restaurant en un ou plusieurs menus.</p>
+  <div class="mn-header-title">
+    <span class="mn-header-icon">📖</span>
+    <div>
+      <h1 class="page-title">Menus</h1>
+      <p class="page-subtitle">Organisez la carte de votre restaurant en un ou plusieurs menus.</p>
+    </div>
   </div>
-  <button type="button" class="btn btn--primary" (click)="ouvrirCreation()">+ Nouveau menu</button>
+  <button type="button" class="btn btn--primary" (click)="ouvrirCreation()">
+    <span class="mn-btn-icon">+</span> Nouveau menu
+  </button>
 </div>
 
 @if (menus().length === 0) {
-  <div class="card empty-state">
+  <div class="card empty-state mn-empty">
+    <div class="mn-empty-icon">🍽️</div>
     <div class="empty-state-title">Aucun menu pour le moment</div>
-    <p>Créez votre premier menu pour commencer à organiser vos catégories et produits.</p>
+    <p class="mn-empty-desc">Créez votre premier menu pour commencer à organiser vos catégories et produits.</p>
     <button type="button" class="btn btn--primary" (click)="ouvrirCreation()">+ Créer un menu</button>
   </div>
 } @else {
   <div class="menu-grid">
     @for (menu of menus(); track menu.id) {
-      <a class="card menu-card" [routerLink]="['/menus', menu.id, 'categories']">
-        <div class="menu-card-header">
-          <h3 class="menu-card-title">{{ menu.nom }}</h3>
-          <app-badge [label]="menu.estActif ? 'Actif' : 'Inactif'" [tone]="menu.estActif ? 'success' : 'neutral'" />
-        </div>
-        @if (menu.description) {
-          <p class="menu-card-desc">{{ menu.description }}</p>
-        }
-        <div class="menu-card-footer">
-          <span class="menu-card-meta">{{ nombreCategories(menu.id) }} catégorie(s)</span>
-          <div class="menu-card-actions">
-            <button type="button" class="btn btn--icon" title="Modifier" (click)="ouvrirEdition(menu, $event)">✎</button>
-            <button type="button" class="btn btn--icon" title="Supprimer" (click)="supprimer(menu, $event)">🗑</button>
+      <a
+        class="card menu-card"
+        [class.menu-card--inactif]="!menu.estActif"
+        [routerLink]="['/menus', menu.id, 'categories']"
+      >
+        <div class="menu-card-accent" [class.menu-card-accent--inactif]="!menu.estActif"></div>
+
+        <div class="menu-card-body">
+          <div class="menu-card-header">
+            <div class="menu-card-emblem">📖</div>
+            <div class="menu-card-titles">
+              <h3 class="menu-card-title">{{ menu.nom }}</h3>
+              <app-badge [label]="menu.estActif ? 'Actif' : 'Inactif'" [tone]="menu.estActif ? 'success' : 'neutral'" />
+            </div>
+          </div>
+
+          @if (menu.description) {
+            <p class="menu-card-desc">{{ menu.description }}</p>
+          }
+
+          <div class="menu-card-footer">
+            <span class="menu-card-meta">
+              <span class="menu-card-meta-icon">📂</span>
+              {{ nombreCategories(menu.id) }} catégorie{{ nombreCategories(menu.id) > 1 ? 's' : '' }}
+            </span>
+            <div class="menu-card-actions">
+              <button type="button" class="mn-action-btn mn-action-btn--edit" title="Modifier" (click)="ouvrirEdition(menu, $event)">✎</button>
+              <button type="button" class="mn-action-btn mn-action-btn--delete" title="Supprimer" (click)="supprimer(menu, $event)">🗑</button>
+            </div>
           </div>
         </div>
       </a>

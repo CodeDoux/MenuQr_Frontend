@@ -1,0 +1,67 @@
+@if (chargement) {
+  <p class="table-muted">Chargement...</p>
+} @else if (addition) {
+  <div class="invoice-actions no-print">
+    <button type="button" class="btn btn--primary" (click)="imprimer()">🖨 Imprimer</button>
+  </div>
+
+  <div class="invoice-sheet">
+    <div class="invoice-header">
+      <div>
+        <h1 class="invoice-restaurant-nom">{{ restaurantInfos().nom }}</h1>
+        <p class="invoice-restaurant-detail">{{ restaurantInfos().adresse }}</p>
+        <p class="invoice-restaurant-detail">{{ restaurantInfos().telephone }}</p>
+      </div>
+      <div class="invoice-meta">
+        <h2 class="invoice-titre">ADDITION</h2>
+        @if (addition.tableNumero) {
+          <p class="invoice-numero">Table {{ addition.tableNumero }}</p>
+        }
+        <p class="invoice-restaurant-detail">{{ addition.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+      </div>
+    </div>
+
+    <p class="table-muted no-print">⚠️ Addition non encore réglée — à présenter au client.</p>
+
+    @for (commande of addition.commandes; track commande.id) {
+      <table class="invoice-table">
+        <thead>
+          <tr><th colspan="3">Commande #{{ commande.id.slice(-4).toUpperCase() }}</th></tr>
+        </thead>
+        <tbody>
+          @for (l of commande.lignes; track l.id) {
+            <tr>
+              <td>
+                {{ l.quantite }}× {{ l.produitNom }}
+                @if (l.notes) { <br /><span class="field-hint">📝 {{ l.notes }}</span> }
+              </td>
+              <td>{{ l.prixUnitaire }} FCFA</td>
+              <td>{{ l.sousTotal }} FCFA</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+
+    <div class="invoice-totaux">
+      <div class="invoice-total-row">
+        <span>Sous-total</span>
+        <span>{{ addition.sousTotal }} FCFA</span>
+      </div>
+      @if (addition.remise > 0) {
+        <div class="invoice-total-row">
+          <span>Remise</span>
+          <span>-{{ addition.remise }} FCFA</span>
+        </div>
+      }
+      <div class="invoice-total-row invoice-total-row--final">
+        <span>Total à régler</span>
+        <span>{{ addition.total }} FCFA</span>
+      </div>
+    </div>
+
+    <p class="invoice-footer">Merci de votre visite — {{ restaurantInfos().nom }}</p>
+  </div>
+} @else {
+  <p class="table-muted">Addition introuvable.</p>
+}

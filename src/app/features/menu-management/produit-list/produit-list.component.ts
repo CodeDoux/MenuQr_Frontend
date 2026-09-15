@@ -1,4 +1,4 @@
-import { Component, Signal, computed, signal } from '@angular/core';
+import { Component, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProduitFormComponent } from '../produit-form/produit-form.component';
@@ -11,6 +11,7 @@ import { MenuManagementService } from '../../../core/services/menu-management.se
   standalone: true,
   imports: [CommonModule, FormsModule, ProduitFormComponent, BadgeComponent],
   templateUrl: './produit-list.component.html',
+  styleUrl: './produit-list.component.css',
 })
 export class ProduitListComponent {
   recherche = signal('');
@@ -20,13 +21,15 @@ export class ProduitListComponent {
   produitEnEdition = signal<Produit | null>(null);
 
   readonly categories: Signal<any[]>;
-  produits!: Signal<Produit[]>;
+  readonly produits;
+  readonly meta;
+
+  private debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(private readonly menuService: MenuManagementService) {
     this.categories = this.menuService.categories;
-    this.produits = computed(() =>
-      this.menuService.produitsFiltres(this.categorieFiltre(), this.recherche())()
-    );
+    this.produits = this.menuService.produitsPage;
+    this.meta = this.menuService.produitsMeta;
   }
 
   nomCategorie(id: string): string {
@@ -34,8 +37,29 @@ export class ProduitListComponent {
   }
 
   nomsCategories(p: Produit): string {
-  return p.categorieIds.map((id) => this.nomCategorie(id)).join(', ');
-}
+    return p.categorieIds.map((id) => this.nomCategorie(id)).join(', ');
+  }
+
+  /** Recherche avec anti-rebond — évite une requête à chaque frappe. */
+  onRechercheChange(valeur: string): void {
+    this.recherche.set(valeur);
+    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    this.debounceTimer = setTimeout(() => {
+      this.menuService.chargerProduits(1, 24, valeur, this.categorieFiltre() ?? null);
+    }, 300);
+  }
+
+  filtrerParCategorie(id: string | undefined): void {
+    this.categorieFiltre.set(id);
+    this.menuService.chargerProduits(1, 24, this.recherche(), id ?? null);
+  }
+
+  allerPage(page: number): void {
+    const m = this.meta();
+    if (page < 1 || page > m.lastPage || page === m.currentPage) return;
+    this.menuService.chargerProduits(page, m.perPage, this.recherche(), this.categorieFiltre() ?? null);
+  }
+
   ouvrirCreation(): void {
     this.produitEnEdition.set(null);
     this.formOuvert.set(true);

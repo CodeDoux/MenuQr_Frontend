@@ -8,6 +8,7 @@ import { QRCode } from '../../../core/models/qrcode';
   standalone: true,
   imports: [CommonModule, ModalComponent],
   templateUrl: './qrcode-modal.component.html',
+  styleUrl: './qrcode-modal.component.css',
 })
 export class QrcodeModalComponent {
   @Input() ouvert = false;

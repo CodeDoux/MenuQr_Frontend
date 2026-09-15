@@ -1,0 +1,131 @@
+<div class="page-header">
+  <div class="pl-header-title">
+    <span class="pl-header-icon">📊</span>
+    <div>
+      <h1 class="page-title">Statistiques</h1>
+      <p class="page-subtitle">Analyse détaillée de votre activité — complémentaire au tableau de bord.</p>
+    </div>
+  </div>
+  <div class="sx-periode-select">
+    @for (p of [7, 30, 90]; track p) {
+      <button
+        type="button"
+        class="sx-periode-btn"
+        [class.sx-periode-btn--active]="periode() === p"
+        (click)="changerPeriode(p)"
+      >
+        {{ p }}j
+      </button>
+    }
+  </div>
+</div>
+
+@if (chargement() && !data()) {
+  <p class="table-muted">Chargement des statistiques...</p>
+} @else {
+  @if (data(); as d) {
+
+    <div class="stats-cards">
+      <div class="card stats-card sx-kpi">
+        <span class="sx-kpi-icon">🛒</span>
+        <div>
+          <p class="field-hint">Panier moyen</p>
+          <p class="stats-value">{{ formatMontant(d.panierMoyen) }} FCFA</p>
+        </div>
+      </div>
+      <div class="card stats-card sx-kpi">
+        <span class="sx-kpi-icon">⚠️</span>
+        <div>
+          <p class="field-hint">Taux d'annulation</p>
+          <p class="stats-value">{{ d.tauxAnnulation }}%</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <section class="card stat-section stat-section--large">
+        <h2 class="st-section-title">📈 Évolution du chiffre d'affaires</h2>
+        <p class="field-hint sx-subtitle">Sur les {{ d.periodeJours }} derniers jours</p>
+
+        @if (maxCa() <= 1) {
+          <p class="table-muted">Pas encore de paiement confirmé sur cette période.</p>
+        } @else {
+          <div class="stat-ca-chart">
+            @for (jour of d.evolutionCa; track jour.date) {
+              <div class="stat-ca-bar-wrap" [title]="formatMontant(jour.montant) + ' FCFA'">
+                <div class="stat-ca-bar" [style.height.%]="hauteurBarreCa(jour.montant)"></div>
+                @if (d.periodeJours <= 14) {
+                  <span class="stat-ca-label">{{ formatDate(jour.date) }}</span>
+                }
+              </div>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="card stat-section">
+        <h2 class="st-section-title">💳 Méthodes de paiement</h2>
+        @if (totalPaiements() === 0) {
+          <p class="table-muted">Aucun paiement sur cette période.</p>
+        } @else {
+          <div class="sx-methode-list">
+            @for (methode of Object.keys(d.repartitionPaiement); track methode) {
+              @if (d.repartitionPaiement[methode] > 0) {
+                <div class="sx-methode-row">
+                  <span class="sx-methode-label">{{ ICONE_METHODE[methode] }} {{ LABEL_METHODE[methode] }}</span>
+                  <div class="stat-methode-track">
+                    <div class="stat-methode-fill" [style.width.%]="pourcentagePaiement(d.repartitionPaiement[methode])"></div>
+                  </div>
+                  <span class="stat-methode-value">{{ pourcentagePaiement(d.repartitionPaiement[methode]) }}%</span>
+                </div>
+              }
+            }
+          </div>
+        }
+      </section>
+
+      <section class="card stat-section">
+        <h2 class="st-section-title">🏆 Catégories les plus vendues</h2>
+        @if (d.topCategories.length === 0) {
+          <p class="table-muted">Pas encore assez de données.</p>
+        } @else {
+          <div class="sx-cat-list">
+            @for (cat of d.topCategories; track cat.categorieNom; let i = $index) {
+              <div class="sx-cat-row">
+                <span class="sx-cat-medal">{{ medaille(i) }}</span>
+                <div class="sx-cat-body">
+                  <div class="stat-cat-top">
+                    <span class="stat-cat-nom">{{ cat.categorieNom }}</span>
+                    <span class="stat-cat-qte">{{ cat.quantite }} vendu(s)</span>
+                  </div>
+                  <div class="stat-cat-track">
+                    <div class="stat-cat-fill" [style.width.%]="progressionCategorie(cat.quantite)"></div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="card stat-section stat-section--large">
+        <h2 class="st-section-title">🕐 Heures de pointe</h2>
+        <p class="field-hint sx-subtitle">Répartition des commandes par heure de la journée</p>
+
+        <div class="stat-heures-chart">
+          @for (h of d.heuresPointe; track h.heure) {
+            <div class="stat-heure-bar-wrap" [title]="h.nbCommandes + ' commande(s) à ' + h.heure + 'h'">
+              <div class="stat-heure-bar" [style.height.%]="hauteurBarreHeure(h.nbCommandes)"></div>
+              @if (h.heure % 3 === 0) {
+                <span class="stat-heure-label">{{ h.heure }}h</span>
+              }
+            </div>
+          }
+        </div>
+      </section>
+    </div>
+
+  } @else {
+    <p class="table-muted">Impossible de charger les statistiques.</p>
+  }
+}

@@ -12,7 +12,8 @@ export const LIBELLE_METHODE: Record<string, string> = {
 @Injectable({ providedIn: 'root' })
 export class SettingsService {
   private readonly _restaurantInfos = signal({
-    nom: 'Le Palais', adresse: 'Dakar', telephone: '+221770000000', logo: null as string | null,
+    nom: '', adresse: '', telephone: '', email: null as string | null,
+    description: null as string | null, logo: null as string | null,
   });
   readonly restaurantInfos = this._restaurantInfos.asReadonly();
 
@@ -24,8 +25,16 @@ export class SettingsService {
   constructor(private readonly http: HttpClient) {
     this.chargerHoraires();
     this.chargerMoyensPaiement();
+    this.chargerRestaurantInfos();
   }
 
+   private async chargerRestaurantInfos(): Promise<void> {
+    const rep = await firstValueFrom(this.http.get<any>(`${API}/restaurant`));
+    this._restaurantInfos.set({
+      nom: rep.nom, adresse: rep.adresse, telephone: rep.telephone,
+      email: rep.email, description: rep.description, logo: rep.logo,
+    });
+  }
   private async chargerHoraires(): Promise<void> {
     const rep = await firstValueFrom(this.http.get<{ data: any[] }>(`${API}/horaires`));
     this._horaires.set(rep.data.map((h) => this.mapHoraire(h)));
@@ -37,12 +46,15 @@ export class SettingsService {
   }
 
   /** Accepte soit un objet payload, soit des paramètres séparés — compatible avec les deux styles d'appel. */
-  modifierRestaurantInfos(payloadOuNom: any, adresse?: string, telephone?: string): void {
-    if (typeof payloadOuNom === 'object') {
-      this._restaurantInfos.set({ ...this._restaurantInfos(), ...payloadOuNom });
-    } else {
-      this._restaurantInfos.set({ ...this._restaurantInfos(), nom: payloadOuNom, adresse: adresse!, telephone: telephone! });
-    }
+  async modifierRestaurantInfos(payload: {
+    nom: string; adresse: string; telephone: string;
+    email: string | null; description: string | null;
+  }): Promise<void> {
+    const rep = await firstValueFrom(this.http.put<any>(`${API}/restaurant`, payload));
+    this._restaurantInfos.set({
+      nom: rep.nom, adresse: rep.adresse, telephone: rep.telephone,
+      email: rep.email, description: rep.description, logo: rep.logo,
+    });
   }
 
   async modifierHoraire(id: string, payload: { heureOuverture?: string | null; heureFermeture?: string | null; estFerme: boolean }): Promise<void> {

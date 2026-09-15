@@ -1,45 +1,53 @@
 <div class="page-header">
-  <div>
-    <h1 class="page-title">Livraisons</h1>
-    <p class="page-subtitle">Assignez et suivez les livraisons, qu'elles soient internes ou externes.</p>
+  <div class="pl-header-title">
+    <span class="pl-header-icon">🛵</span>
+    <div>
+      <h1 class="page-title">Livraisons</h1>
+      <p class="page-subtitle">Assignez et suivez les livraisons, qu'elles soient internes ou externes.</p>
+    </div>
   </div>
 </div>
 
-<div class="tabs">
-  <button type="button" class="tab" [class.tab--active]="onglet() === 'a-assigner'" (click)="onglet.set('a-assigner')">
-    À assigner ({{ aAssigner().length }})
+<div class="op-tabs">
+  <button type="button" class="op-tab" [class.op-tab--active]="onglet() === 'a-assigner'" (click)="onglet.set('a-assigner')">
+    <span class="op-tab-icon">{{ ICONE_ONGLET['a-assigner'] }}</span>
+    À assigner <span class="dl-tab-count">{{ aAssigner().length }}</span>
   </button>
-  <button type="button" class="tab" [class.tab--active]="onglet() === 'en-cours'" (click)="onglet.set('en-cours')">
-    En cours ({{ enCours().length }})
+  <button type="button" class="op-tab" [class.op-tab--active]="onglet() === 'en-cours'" (click)="onglet.set('en-cours')">
+    <span class="op-tab-icon">{{ ICONE_ONGLET['en-cours'] }}</span>
+    En cours <span class="dl-tab-count">{{ enCours().length }}</span>
   </button>
-  <button type="button" class="tab" [class.tab--active]="onglet() === 'terminees'" (click)="onglet.set('terminees')">
-    Terminées ({{ terminees().length }})
+  <button type="button" class="op-tab" [class.op-tab--active]="onglet() === 'terminees'" (click)="onglet.set('terminees')">
+    <span class="op-tab-icon">{{ ICONE_ONGLET['terminees'] }}</span>
+    Terminées <span class="dl-tab-count">{{ terminees().length }}</span>
   </button>
 </div>
 
 @if (onglet() === 'a-assigner') {
   @if (aAssigner().length === 0) {
-    <div class="card empty-state">
+    <div class="card empty-state mn-empty">
+      <div class="mn-empty-icon">📋</div>
       <div class="empty-state-title">Aucune livraison à assigner</div>
     </div>
   } @else {
     <div class="caisse-grid">
       @for (l of aAssigner(); track l.id) {
-        <div class="card caisse-card">
-          <div class="caisse-card-header">
+        <div class="card dl-card">
+          <div class="dl-card-header">
             <span class="table-strong">{{ l.nomClient }}</span>
-            <span class="table-muted">{{ l.commandeTotal }} FCFA</span>
+            <span class="dl-total">{{ l.commandeTotal }} FCFA</span>
           </div>
-          <p class="table-muted">{{ l.adresseComplete }} @if (l.quartier) { , {{ l.quartier }} }</p>
-          <p class="table-muted">📞 {{ l.telephoneClient }}</p>
+          <p class="dl-info">📍 {{ l.adresseComplete }} @if (l.quartier) { , {{ l.quartier }} }</p>
+          <p class="dl-info">📞 {{ l.telephoneClient }}</p>
 
           @if (livraisonEnAffectation() === l.id) {
-            <div class="caisse-encaissement">
-              <select class="field-input" [ngModel]="typeAffectation()" (ngModelChange)="typeAffectation.set($event)">
-                <option [ngValue]="TypeLivreur.EMPLOYE_RESTAURANT">Livreur interne</option>
-                <option [ngValue]="TypeLivreur.PRESTATAIRE_EXTERNE">Prestataire externe</option>
-                <option [ngValue]="TypeLivreur.LIVREUR_CLIENT">Livreur envoyé par le client</option>
-              </select>
+            <div class="vk-encaissement">
+              <span class="vk-encaissement-label">Type de livreur</span>
+              <div class="vk-methodes">
+                <button type="button" class="vk-methode-chip" [class.vk-methode-chip--active]="typeAffectation() === TypeLivreur.EMPLOYE_RESTAURANT" (click)="typeAffectation.set(TypeLivreur.EMPLOYE_RESTAURANT)">👤 Interne</button>
+                <button type="button" class="vk-methode-chip" [class.vk-methode-chip--active]="typeAffectation() === TypeLivreur.PRESTATAIRE_EXTERNE" (click)="typeAffectation.set(TypeLivreur.PRESTATAIRE_EXTERNE)">🏍️ Externe</button>
+                <button type="button" class="vk-methode-chip" [class.vk-methode-chip--active]="typeAffectation() === TypeLivreur.LIVREUR_CLIENT" (click)="typeAffectation.set(TypeLivreur.LIVREUR_CLIENT)">🙋 Livreur du client</button>
+              </div>
 
               @if (typeAffectation() === TypeLivreur.EMPLOYE_RESTAURANT) {
                 @if (livreursInternes().length === 0) {
@@ -62,7 +70,7 @@
               </div>
             </div>
           } @else {
-            <button type="button" class="btn btn--primary" (click)="ouvrirAffectation(l.id)">Assigner un livreur</button>
+            <button type="button" class="btn btn--primary dl-btn-full" (click)="ouvrirAffectation(l.id)">🛵 Assigner un livreur</button>
           }
         </div>
       }
@@ -72,22 +80,23 @@
 
 @if (onglet() === 'en-cours') {
   @if (enCours().length === 0) {
-    <div class="card empty-state">
+    <div class="card empty-state mn-empty">
+      <div class="mn-empty-icon">🛵</div>
       <div class="empty-state-title">Aucune livraison en cours</div>
     </div>
   } @else {
     <div class="caisse-grid">
       @for (l of enCours(); track l.id) {
-        <div class="card caisse-card">
-          <div class="caisse-card-header">
+        <div class="card dl-card">
+          <div class="dl-card-header">
             <span class="table-strong">{{ l.nomClient }}</span>
-            <span class="table-muted">{{ LABEL_STATUT[l.statut] }}</span>
+            <app-badge [label]="LABEL_STATUT[l.statut]" [tone]="TONE_STATUT[l.statut]" />
           </div>
-          <p class="table-muted">{{ l.adresseComplete }}</p>
-          <p class="table-muted">🛵 {{ nomLivreur(l) }}</p>
+          <p class="dl-info">📍 {{ l.adresseComplete }}</p>
+          <p class="dl-info">🛵 {{ nomLivreur(l) }}</p>
           <div class="form-actions" style="border-top:none; padding-top:0;">
             <button type="button" class="btn btn--ghost btn--sm" (click)="annuler(l)">Annuler</button>
-            <button type="button" class="btn btn--primary btn--sm" (click)="avancer(l)">{{ LABEL_ETAPE_SUIVANTE[l.statut] }}</button>
+            <button type="button" class="btn btn--primary btn--sm" (click)="avancer(l)">{{ LABEL_ETAPE_SUIVANTE[l.statut] }} →</button>
           </div>
         </div>
       }
@@ -97,7 +106,8 @@
 
 @if (onglet() === 'terminees') {
   @if (terminees().length === 0) {
-    <div class="card empty-state">
+    <div class="card empty-state mn-empty">
+      <div class="mn-empty-icon">✅</div>
       <div class="empty-state-title">Aucune livraison terminée</div>
     </div>
   } @else {
@@ -110,9 +120,9 @@
           @for (l of terminees(); track l.id) {
             <tr>
               <td class="table-strong">{{ l.nomClient }}</td>
-              <td class="table-muted">{{ l.adresseComplete }}</td>
-              <td class="table-muted">{{ nomLivreur(l) }}</td>
-              <td>{{ l.commandeTotal }} FCFA</td>
+              <td class="table-muted">📍 {{ l.adresseComplete }}</td>
+              <td class="table-muted">🛵 {{ nomLivreur(l) }}</td>
+              <td class="dl-total">{{ l.commandeTotal }} FCFA</td>
             </tr>
           }
         </tbody>

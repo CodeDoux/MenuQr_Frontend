@@ -19,6 +19,14 @@ interface LoginResponseMultiRestaurant {
   restaurants: { id: string; nom: string }[];
 }
 
+interface LoginResponseMonoRestaurant {
+  token: string;
+  user: { id: string; nom_complet: string; email: string };
+  restaurant: { id: string; nom: string };
+  role: string;
+  permissions: string[];
+}
+
 /**
  * ⚠️ État hybride, temporaire : login/logout/selectRestaurant appellent
  * désormais la vraie API Laravel. Le reste (inscription, invitation, profil)
@@ -51,7 +59,7 @@ export class AuthService {
       return { choixRestaurant: reponse.restaurants };
     }
 
-    return this.finaliserConnexion(reponse.token, reponse.user, reponse.restaurant);
+    return this.finaliserConnexion(reponse.token, reponse.user, reponse.restaurant, reponse.role, reponse.permissions);
   }
 
   async selectRestaurant(restaurantId: string): Promise<UtilisateurConnecte> {
@@ -61,8 +69,45 @@ export class AuthService {
       })
     );
 
-    return this.finaliserConnexion(reponse.token, reponse.user, reponse.restaurant);
+    return this.finaliserConnexion(reponse.token, reponse.user, reponse.restaurant, reponse.role, reponse.permissions);
   }
+
+// 3. finaliserConnexion() prend maintenant 2 paramètres de plus, et les utilise
+//    réellement au lieu des valeurs figées :
+
+  private finaliserConnexion(
+    token: string,
+    user: { id: string; nom_complet: string; email: string },
+    restaurant: { id: string; nom: string },
+    role: string,
+    permissions: string[]
+  ): UtilisateurConnecte {
+    const utilisateur: UtilisateurConnecte = {
+      id: user.id,
+      nomComplet: user.nom_complet,
+      email: user.email,
+      restaurantId: restaurant.id,
+      restaurantNom: restaurant.nom,
+      role: role as any, // RoleCode côté frontend — même valeurs (PROPRIETAIRE, GERANT, etc.)
+      permissions: permissions,
+    };
+
+    localStorage.setItem(TOKEN_STORAGE_KEY, token);
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(utilisateur));
+    this._currentUser.set(utilisateur);
+
+    return utilisateur;
+  }
+
+// 4. hasPermission() lit maintenant la vraie liste :
+
+  hasPermission(code: string): boolean {
+    return this._currentUser()?.permissions.includes(code) ?? false;
+  }
+
+  
+
+ 
 
   async logout(): Promise<void> {
     try {
@@ -74,35 +119,7 @@ export class AuthService {
     }
   }
 
-  private finaliserConnexion(
-    token: string,
-    user: { id: string; nom_complet: string; email: string },
-    restaurant: { id: string; nom: string }
-  ): UtilisateurConnecte {
-    // ⚠️ Rôle/permissions pas encore renvoyés par /auth/login côté backend —
-    // placeholder en attendant, pour ne pas casser sidebar/nav en attendant.
-    const utilisateur: UtilisateurConnecte = {
-      id: user.id,
-      nomComplet: user.nom_complet,
-      email: user.email,
-      restaurantId: restaurant.id,
-      restaurantNom: restaurant.nom,
-      role: RoleCode.PROPRIETAIRE,
-      permissions: [],
-    };
-
-    localStorage.setItem(TOKEN_STORAGE_KEY, token);
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(utilisateur));
-    this._currentUser.set(utilisateur);
-
-    return utilisateur;
-  }
-
-  hasPermission(code: string): boolean {
-    // ⚠️ Toujours vrai temporairement (permissions pas encore renvoyées par
-    // l'API) — à corriger dès que /auth/login inclura le rôle/permissions.
-    return true;
-  }
+  
 
   private chargerDepuisStockage(): UtilisateurConnecte | null {
     try {
@@ -117,18 +134,45 @@ export class AuthService {
   // ⚠️ MOCK — pas encore branchés sur l'API, à faire dans une prochaine étape
   // ============================================================
 
-  inscrireRestaurant(payload: { nomComplet: string; email: string; motDePasse: string; restaurantNom: string }): Promise<UtilisateurConnecte> {
-    return new Promise((resolve) => {
-      const utilisateur: UtilisateurConnecte = {
-        id: 'mock-' + Math.random().toString(36).slice(2, 10),
-        nomComplet: payload.nomComplet, email: payload.email,
-        restaurantId: 'rest-001', restaurantNom: payload.restaurantNom,
-        role: RoleCode.PROPRIETAIRE, permissions: [],
-      };
-      this._currentUser.set(utilisateur);
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(utilisateur));
-      setTimeout(() => resolve(utilisateur), 400);
-    });
+  async inscrireRestaurant(payload: {
+    restaurantNom: string;
+    restaurantAdresse: string;
+    restaurantTelephone: string;
+    nomComplet: string;
+    email: string;
+    motDePasse: string;
+    confirmationMotDePasse: string;
+  }): Promise<UtilisateurConnecte> {
+    // Une seule offre existe actuellement (essai gratuit) — sélectionnée
+    // automatiquement, sans exposer de choix inutile à l'inscription.
+    const offres = await firstValueFrom(
+      this.http.get<{ data: any[] }>(`${environment.apiUrl}/offres`)
+    );
+    const offreId = offres.data[0]?.id;
+    if (!offreId) {
+      throw new Error('Aucune offre disponible pour le moment. Contactez le support.');
+    }
+
+    const reponse = await firstValueFrom(
+      this.http.post<{
+        token: string;
+        user: { id: string; nom_complet: string; email: string };
+        restaurant: { id: string; nom: string };
+        role: string;
+        permissions: string[];
+      }>(`${environment.apiUrl}/auth/register`, {
+        nom_complet: payload.nomComplet,
+        email: payload.email,
+        password: payload.motDePasse,
+        password_confirmation: payload.confirmationMotDePasse,
+        restaurant_nom: payload.restaurantNom,
+        restaurant_adresse: payload.restaurantAdresse,
+        restaurant_telephone: payload.restaurantTelephone,
+        offre_id: offreId,
+      })
+    );
+
+    return this.finaliserConnexion(reponse.token, reponse.user, reponse.restaurant, reponse.role, reponse.permissions);
   }
 
   creerCompteInvite(input: { email: string; nomComplet: string; motDePasse: string; role: RoleCode; restaurantNom: string }): UtilisateurConnecte {
@@ -143,30 +187,46 @@ export class AuthService {
     return utilisateur;
   }
 
-  modifierProfil(nomComplet: string, email: string): void {
-    const utilisateur = this._currentUser();
-    if (!utilisateur) return;
-    const maj = { ...utilisateur, nomComplet, email };
-    this._currentUser.set(maj);
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(maj));
+  async modifierProfil(nomComplet: string, email: string): Promise<void> {
+    const rep = await firstValueFrom(
+      this.http.put<{ user: { id: string; nom_complet: string; email: string } }>(
+        `${environment.apiUrl}/auth/profil`,
+        { nom_complet: nomComplet, email: email }
+      )
+    );
+    const utilisateurActuel = this._currentUser();
+    if (utilisateurActuel) {
+      const misAJour = { ...utilisateurActuel, nomComplet: rep.user.nom_complet, email: rep.user.email };
+      this._currentUser.set(misAJour);
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(misAJour));
+    }
   }
 
-  changerMotDePasse(_ancien: string, _nouveau: string): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, 500));
+  async demanderReinitialisation(email: string): Promise<string | null> {
+    const rep = await firstValueFrom(
+      this.http.post<{ message: string; reset_url?: string }>(
+        `${environment.apiUrl}/auth/mot-de-passe-oublie`,
+        { email }
+      )
+    );
+    return rep.reset_url ?? null;
   }
 
-  demanderReinitialisation(_email: string): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, 600));
+  async reinitialiserMotDePasse(
+    email: string,
+    token: string,
+    nouveauMotDePasse: string,
+    confirmation: string
+  ): Promise<void> {
+    await firstValueFrom(
+      this.http.post(`${environment.apiUrl}/auth/reinitialiser-mot-de-passe`, {
+        email, token,
+        nouveau_mot_de_passe: nouveauMotDePasse,
+        nouveau_mot_de_passe_confirmation: confirmation,
+      })
+    );
   }
 
-  reinitialiserMotDePasse(_token: string, _nouveau: string): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, 600));
-  }
-
-  // ⚠️ Ajoute ces 2 méthodes dans la section "RÉEL" de auth.service.ts
-// (juste après selectRestaurant, par exemple), et RETIRE l'ancienne méthode
-// mock `creerCompteInvite` de la section MOCK plus bas (remplacée par
-// `accepterInvitation` ci-dessous, qui appelle le vrai backend).
 
   async chargerInvitation(employeId: string): Promise<{ nomComplet: string; role: string; restaurantNom: string } | null> {
     try {
@@ -187,12 +247,28 @@ export class AuthService {
         token: string;
         user: { id: string; nom_complet: string; email: string };
         restaurant: { id: string; nom: string };
+        role: string;
+        permissions: string[];
       }>(`${environment.apiUrl}/invitations/${employeId}/accepter`, {
         password: motDePasse,
         password_confirmation: confirmation,
       })
     );
 
-    return this.finaliserConnexion(reponse.token, reponse.user, reponse.restaurant);
+    return this.finaliserConnexion(reponse.token, reponse.user, reponse.restaurant, reponse.role, reponse.permissions);
+  }
+
+   async changerMotDePasse(
+    motDePasseActuel: string,
+    nouveauMotDePasse: string,
+    confirmation: string
+  ): Promise<void> {
+    await firstValueFrom(
+      this.http.put(`${environment.apiUrl}/auth/mot-de-passe`, {
+        mot_de_passe_actuel: motDePasseActuel,
+        nouveau_mot_de_passe: nouveauMotDePasse,
+        nouveau_mot_de_passe_confirmation: confirmation,
+      })
+    );
   }
 }

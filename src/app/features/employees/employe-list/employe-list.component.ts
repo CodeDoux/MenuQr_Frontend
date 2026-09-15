@@ -12,6 +12,7 @@ import { EmployeesService } from '../../../core/services/employees.service';
   standalone: true,
   imports: [CommonModule, PosteFormComponent, EmployeFormComponent, BadgeComponent],
   templateUrl: './employe-list.component.html',
+  styleUrl: './employe-list.component.css',
 })
 export class EmployeeListComponent {
   readonly postes;

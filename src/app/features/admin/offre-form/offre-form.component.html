@@ -1,4 +1,4 @@
-<app-modal [ouvert]="ouvert" [titre]="titre" (fermer)="fermer.emit()">
+<app-modal [ouvert]="ouvert" [titre]="titre" icone="📦" (fermer)="fermer.emit()">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
     <label class="field">
       <span class="field-label">Nom de l'offre *</span>
@@ -13,47 +13,53 @@
       <textarea formControlName="description" rows="2" class="field-input" placeholder="Optionnel"></textarea>
     </label>
 
-    <div class="field-row">
-      <label class="field">
-        <span class="field-label">Prix mensuel (FCFA) *</span>
-        <input type="number" formControlName="prixMensuel" min="0" class="field-input" />
-      </label>
-      <label class="field">
-        <span class="field-label">Prix annuel (FCFA)</span>
-        <input type="number" formControlName="prixAnnuel" min="0" class="field-input" placeholder="Optionnel" />
-      </label>
+    <div class="mf-section">
+      <span class="mf-section-title">💰 Tarification</span>
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">Prix mensuel (FCFA) *</span>
+          <input type="number" formControlName="prixMensuel" min="0" class="field-input" />
+        </label>
+        <label class="field">
+          <span class="field-label">Prix annuel (FCFA)</span>
+          <input type="number" formControlName="prixAnnuel" min="0" class="field-input" placeholder="Optionnel" />
+        </label>
+      </div>
+
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">Durée d'essai (jours)</span>
+          <input type="number" formControlName="dureeEssai" min="0" class="field-input" />
+        </label>
+        <label class="field">
+          <span class="field-label">Statut</span>
+          <select formControlName="statut" class="field-input">
+            <option [value]="StatutPlan.ACTIF">Actif</option>
+            <option [value]="StatutPlan.INACTIF">Inactif</option>
+            <option [value]="StatutPlan.ARCHIVE">Archivé</option>
+          </select>
+        </label>
+      </div>
     </div>
 
-    <div class="field-row">
-      <label class="field">
-        <span class="field-label">Durée d'essai (jours)</span>
-        <input type="number" formControlName="dureeEssai" min="0" class="field-input" />
-      </label>
-      <label class="field">
-        <span class="field-label">Statut</span>
-        <select formControlName="statut" class="field-input">
-          <option [value]="StatutPlan.ACTIF">Actif</option>
-          <option [value]="StatutPlan.INACTIF">Inactif</option>
-          <option [value]="StatutPlan.ARCHIVE">Archivé</option>
-        </select>
-      </label>
-    </div>
-
-    <div class="field-row">
-      <label class="field">
-        <span class="field-label">Limite tables</span>
-        <input type="number" formControlName="limiteTables" min="-1" class="field-input" />
-        <span class="field-hint">-1 = illimité</span>
-      </label>
-      <label class="field">
-        <span class="field-label">Limite employés</span>
-        <input type="number" formControlName="limiteEmployes" min="-1" class="field-input" />
-        <span class="field-hint">-1 = illimité</span>
-      </label>
+    <div class="mf-section">
+      <span class="mf-section-title">📐 Limites du plan</span>
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">Limite tables</span>
+          <input type="number" formControlName="limiteTables" min="-1" class="field-input" />
+          <span class="field-hint">-1 = illimité</span>
+        </label>
+        <label class="field">
+          <span class="field-label">Limite employés</span>
+          <input type="number" formControlName="limiteEmployes" min="-1" class="field-input" />
+          <span class="field-hint">-1 = illimité</span>
+        </label>
+      </div>
     </div>
 
     <label class="field">
-      <span class="field-label">Fonctionnalités (une par ligne)</span>
+      <span class="field-label">✓ Fonctionnalités (une par ligne)</span>
       <textarea formControlName="fonctionnalitesTexte" rows="4" class="field-input" placeholder="Menus illimités&#10;QR codes illimités&#10;Support prioritaire"></textarea>
     </label>
 

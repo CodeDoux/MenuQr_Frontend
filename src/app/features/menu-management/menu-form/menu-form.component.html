@@ -1,4 +1,4 @@
-<app-modal [ouvert]="ouvert" [titre]="titre" (fermer)="fermer.emit()">
+<app-modal [ouvert]="ouvert" [titre]="titre" icone="📖" (fermer)="fermer.emit()">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
     <label class="field">
       <span class="field-label">Nom du menu *</span>
@@ -13,27 +13,33 @@
       <textarea formControlName="description" rows="2" class="field-input" placeholder="Optionnel"></textarea>
     </label>
 
-    <div class="field-row">
-      <label class="field">
-        <span class="field-label">Ordre d'affichage</span>
-        <input type="number" formControlName="ordreAffichage" min="1" class="field-input" />
-      </label>
+    <div class="mf-section">
+      <span class="mf-section-title">Réglages</span>
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">Ordre d'affichage</span>
+          <input type="number" formControlName="ordreAffichage" min="1" class="field-input" />
+        </label>
 
-      <label class="field field--switch">
-        <span class="field-label">Menu actif</span>
-        <input type="checkbox" formControlName="estActif" class="field-switch" />
-      </label>
+        <label class="field field--switch">
+          <span class="field-label">Menu actif</span>
+          <input type="checkbox" formControlName="estActif" class="field-switch" />
+        </label>
+      </div>
     </div>
 
-    <div class="field-row">
-      <label class="field">
-        <span class="field-label">Disponible à partir de</span>
-        <input type="date" formControlName="dateDebut" class="field-input" />
-      </label>
-      <label class="field">
-        <span class="field-label">Disponible jusqu'au</span>
-        <input type="date" formControlName="dateFin" class="field-input" />
-      </label>
+    <div class="mf-section">
+      <span class="mf-section-title">Disponibilité (optionnel)</span>
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">À partir de</span>
+          <input type="date" formControlName="dateDebut" class="field-input" />
+        </label>
+        <label class="field">
+          <span class="field-label">Jusqu'au</span>
+          <input type="date" formControlName="dateFin" class="field-input" />
+        </label>
+      </div>
     </div>
 
     <div class="form-actions">

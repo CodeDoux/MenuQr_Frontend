@@ -1,0 +1,111 @@
+.vk-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+  margin-bottom: 0.9rem;
+}
+.vk-section-title--suivante { margin-top: 2.2rem; }
+.vk-section-icon {
+  width: 30px; height: 30px;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-soft);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.95rem;
+}
+
+.vk-card { padding: 1.1rem; display: flex; flex-direction: column; gap: 0.7rem; }
+
+.vk-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.vk-table-numero { font-weight: 800; font-size: 1rem; }
+.vk-nb-commandes { font-size: 0.8rem; color: var(--color-text-secondary); }
+
+.vk-lignes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.vk-lignes li { display: flex; justify-content: space-between; gap: 0.5rem; }
+.vk-ligne-prix { flex-shrink: 0; font-weight: 600; color: var(--color-text-primary); }
+
+.vk-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-accent-soft);
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+.vk-total-valeur {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-accent-strong);
+}
+
+.vk-actions { display: flex; flex-direction: column; gap: 0.4rem; }
+.vk-btn-encaisser { width: 100%; justify-content: center; }
+
+.vk-encaissement {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  background: var(--color-surface-muted);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.9rem;
+}
+.vk-encaissement-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.vk-methodes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.vk-methode-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.vk-methode-chip--active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: white;
+}
+
+.vk-contact-client {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-muted);
+  padding: 0.5rem 0.65rem;
+  border-radius: var(--radius-sm);
+  margin: -0.2rem 0 0.2rem;
+}

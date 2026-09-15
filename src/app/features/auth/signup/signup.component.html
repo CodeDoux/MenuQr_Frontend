@@ -17,6 +17,22 @@
       </label>
 
       <label class="field">
+        <span class="field-label">Adresse du restaurant</span>
+        <input type="text" formControlName="restaurantAdresse" class="field-input" placeholder="Ex. Rue 10, Dakar" />
+        @if (form.get('restaurantAdresse')?.touched && form.get('restaurantAdresse')?.invalid) {
+          <span class="field-error">Adresse requise.</span>
+        }
+      </label>
+
+      <label class="field">
+        <span class="field-label">Téléphone du restaurant</span>
+        <input type="tel" formControlName="restaurantTelephone" class="field-input" placeholder="Ex. 77 123 45 67" />
+        @if (form.get('restaurantTelephone')?.touched && form.get('restaurantTelephone')?.invalid) {
+          <span class="field-error">Téléphone requis.</span>
+        }
+      </label>
+
+      <label class="field">
         <span class="field-label">Votre nom complet</span>
         <input type="text" formControlName="nomComplet" class="field-input" />
         @if (form.get('nomComplet')?.touched && form.get('nomComplet')?.invalid) {
@@ -32,13 +48,22 @@
         }
       </label>
 
-      <label class="field">
-        <span class="field-label">Mot de passe</span>
-        <input type="password" formControlName="motDePasse" class="field-input" autocomplete="new-password" />
-        @if (form.get('motDePasse')?.touched && form.get('motDePasse')?.invalid) {
-          <span class="field-error">8 caractères minimum.</span>
-        }
-      </label>
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">Mot de passe</span>
+          <input type="password" formControlName="motDePasse" class="field-input" autocomplete="new-password" />
+          @if (form.get('motDePasse')?.touched && form.get('motDePasse')?.invalid) {
+            <span class="field-error">8 caractères minimum.</span>
+          }
+        </label>
+        <label class="field">
+          <span class="field-label">Confirmer le mot de passe</span>
+          <input type="password" formControlName="confirmationMotDePasse" class="field-input" autocomplete="new-password" />
+          @if (form.get('confirmationMotDePasse')?.touched && form.get('confirmationMotDePasse')?.invalid) {
+            <span class="field-error">Les mots de passe ne correspondent pas.</span>
+          }
+        </label>
+      </div>
 
       @if (erreur()) {
         <div class="login-error">{{ erreur() }}</div>

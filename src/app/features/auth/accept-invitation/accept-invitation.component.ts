@@ -51,7 +51,7 @@ export class AcceptInvitationComponent implements OnInit {
     this.enCours.set(true);
     try {
       await this.auth.accepterInvitation(this.employeId, this.form.value.motDePasse!, this.form.value.confirmation!);
-      this.router.navigate(['/dashboard']);
+      window.location.href = '/dashboard';
     } catch (e: any) {
       this.erreur.set(e?.error?.message ?? 'Cette invitation n\'est plus valide.');
     } finally {

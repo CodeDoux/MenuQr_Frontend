@@ -23,8 +23,9 @@ const TONE_STATUT_FACTURE: Record<string, BadgeTone> = {
   standalone: true,
   imports: [CommonModule, BadgeComponent],
   templateUrl: './abonnement.component.html',
+  styleUrl: './abonnement.component.css',
 })
-export class AbonnementComponent implements OnInit{
+export class AbonnementComponent implements OnInit {
   readonly offres;
   readonly abonnement;
   readonly offreActuelle;
@@ -44,8 +45,8 @@ export class AbonnementComponent implements OnInit{
   }
 
   estOffreActuelle(offre: Offre): boolean {
-    return this.abonnement().offreId === offre.id;
-  }
+  return this.abonnement()?.offre?.id === offre.id;
+}
 
   choisirOffre(offre: Offre): void {
     if (this.estOffreActuelle(offre)) return;
@@ -55,7 +56,7 @@ export class AbonnementComponent implements OnInit{
   }
 
   ngOnInit(): void {
-  this.service.chargerAbonnement().catch(() => {});
-  this.service.chargerFactures().catch(() => {});
-}
+    this.service.chargerAbonnement().catch(() => {});
+    this.service.chargerFactures().catch(() => {});
+  }
 }

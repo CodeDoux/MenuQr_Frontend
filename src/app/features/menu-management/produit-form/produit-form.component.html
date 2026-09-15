@@ -1,4 +1,4 @@
-<app-modal [ouvert]="ouvert" [titre]="titre" (fermer)="fermer.emit()">
+<app-modal [ouvert]="ouvert" [titre]="titre" icone="🍽️" (fermer)="fermer.emit()">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
     <label class="field">
       <span class="field-label">Nom du produit *</span>
@@ -24,8 +24,8 @@
       </label>
     </div>
 
-    <div class="field">
-      <span class="field-label">Catégories *</span>
+    <div class="mf-section">
+      <span class="mf-section-title">Catégories *</span>
       <div class="chip-select">
         @for (cat of categoriesDisponibles; track cat.id) {
           <label class="chip" [class.chip--active]="estCategorieCochee(cat.id)">
@@ -44,25 +44,27 @@
       }
     </div>
 
-    <div class="field-row">
-      <label class="field field--switch">
-        <span class="field-label">Disponible</span>
-        <input type="checkbox" formControlName="estDisponible" class="field-switch" />
-      </label>
-      <label class="field field--switch">
-        <span class="field-label">Visible sur le menu</span>
-        <input type="checkbox" formControlName="estVisible" class="field-switch" />
-      </label>
-      <label class="field field--switch">
-        <span class="field-label">Populaire</span>
-        <input type="checkbox" formControlName="estPopulaire" class="field-switch" />
-      </label>
+    <div class="mf-section">
+      <span class="mf-section-title">Disponibilité</span>
+      <div class="field-row">
+        <label class="field field--switch">
+          <span class="field-label">Disponible</span>
+          <input type="checkbox" formControlName="estDisponible" class="field-switch" />
+        </label>
+        <label class="field field--switch">
+          <span class="field-label">Visible sur le menu</span>
+          <input type="checkbox" formControlName="estVisible" class="field-switch" />
+        </label>
+        <label class="field field--switch">
+          <span class="field-label">Populaire ★</span>
+          <input type="checkbox" formControlName="estPopulaire" class="field-switch" />
+        </label>
+      </div>
     </div>
 
-    <!-- Bloc images : sélecteur de fichier réel -->
-    <div class="variantes-block">
+    <div class="mf-section">
       <div class="variantes-header">
-        <span class="field-label">Images du produit</span>
+        <span class="mf-section-title">Images du produit</span>
         <input
           type="file"
           #inputFichier
@@ -96,14 +98,14 @@
             />
             Principale
           </label>
-          <button type="button" class="btn btn--icon" title="Supprimer" (click)="supprimerImage($index)">🗑</button>
+          <button type="button" class="mn-action-btn mn-action-btn--delete" title="Supprimer" (click)="supprimerImage($index)">🗑</button>
         </div>
       }
     </div>
 
-    <div class="variantes-block">
+    <div class="mf-section">
       <div class="variantes-header">
-        <span class="field-label">Variantes (optionnel)</span>
+        <span class="mf-section-title">Variantes (optionnel)</span>
         <button type="button" class="btn btn--ghost btn--sm" (click)="ajouterVariante()">+ Ajouter une variante</button>
       </div>
 
@@ -119,7 +121,7 @@
             <input type="checkbox" formControlName="estDisponible" class="field-switch" />
             Dispo
           </label>
-          <button type="button" class="btn btn--icon" title="Supprimer" (click)="supprimerVariante($index)">🗑</button>
+          <button type="button" class="mn-action-btn mn-action-btn--delete" title="Supprimer" (click)="supprimerVariante($index)">🗑</button>
         </div>
       }
     </div>

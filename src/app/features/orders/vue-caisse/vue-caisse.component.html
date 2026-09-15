@@ -1,91 +1,128 @@
-<h3 class="qr-generaux-title">Additions ouvertes</h3>
+<h3 class="vk-section-title"><span class="vk-section-icon">🧾</span> Additions ouvertes</h3>
 
 @if (additionsOuvertes().length === 0) {
   <p class="table-muted caisse-empty">Aucune addition ouverte pour le moment.</p>
 } @else {
   <div class="caisse-grid">
     @for (item of additionsOuvertes(); track item.addition.id) {
-      <div class="card caisse-card">
-        <div class="caisse-card-header">
-          <span class="table-strong">Table {{ item.addition.tableNumero ?? '—' }}</span>
-          <span class="table-muted">{{ item.commandes.length }} commande(s)</span>
+      <div class="card vk-card">
+        <div class="vk-card-header">
+          <span class="vk-table-numero">🪑 Table {{ item.addition.tableNumero ?? '—' }}</span>
+          <span class="vk-nb-commandes">{{ item.commandes.length }} commande(s)</span>
         </div>
 
         @for (c of item.commandes; track c.id) {
           <div class="caisse-commande-bloc">
             <div class="table-muted caisse-commande-titre">{{ numeroCourt(c.id) }} · {{ LABEL_MODE[c.mode] }}</div>
-            <ul class="kanban-card-lignes">
+            <ul class="vk-lignes">
               @for (l of c.lignes; track l.id) {
-                <li>{{ l.quantite }}× {{ l.produitNom }} — {{ l.sousTotal }} FCFA @if (l.notes) { <span class="kanban-note">📝 {{ l.notes }}</span> }</li>
+                <li>
+                  <span>{{ l.quantite }}× {{ l.produitNom }} @if (l.notes) { <span class="kanban-note">📝 {{ l.notes }}</span> }</span>
+                  <span class="vk-ligne-prix">{{ l.sousTotal }} F</span>
+                </li>
               }
             </ul>
           </div>
         }
 
-        <div class="caisse-total">
-          <span>Total</span>
-          <span class="table-strong">{{ item.addition.total }} FCFA</span>
+        <div class="vk-total">
+          <span>Total à payer</span>
+          <span class="vk-total-valeur">{{ item.addition.total }} FCFA</span>
         </div>
 
         @if (additionEnEncaissement() === item.addition.id) {
-          <div class="caisse-encaissement">
-            <select class="field-input" [ngModel]="methodeChoisie()" (ngModelChange)="methodeChoisie.set($event)">
+          <div class="vk-encaissement">
+            <span class="vk-encaissement-label">Méthode de paiement</span>
+            <div class="vk-methodes">
               @for (m of moyensPaiementActifs(); track m.id) {
-                <option [value]="m.methode">{{ LIBELLE_METHODE[m.methode] }}</option>
+                <button
+                  type="button"
+                  class="vk-methode-chip"
+                  [class.vk-methode-chip--active]="methodeChoisie() === m.methode"
+                  (click)="methodeChoisie.set(m.methode)"
+                >
+                  <span>{{ ICONE_METHODE[m.methode] }}</span> {{ LIBELLE_METHODE[m.methode] }}
+                </button>
               }
-            </select>
+            </div>
             <div class="form-actions">
               <button type="button" class="btn btn--ghost btn--sm" (click)="fermerEncaissement()">Annuler</button>
-              <button type="button" class="btn btn--primary btn--sm" (click)="confirmerEncaissement()">Confirmer le paiement</button>
+              <button type="button" class="btn btn--primary btn--sm" (click)="confirmerEncaissement()">✓ Confirmer le paiement</button>
             </div>
           </div>
         } @else {
-          <button type="button" class="btn btn--primary" (click)="ouvrirEncaissementAddition(item.addition.id)">Encaisser</button>
+          <div class="vk-actions">
+            <button type="button" class="btn btn--primary vk-btn-encaisser" (click)="ouvrirEncaissementAddition(item.addition.id)">💰 Encaisser</button>
+            <a [routerLink]="['/additions', item.addition.id, 'imprimer']" target="_blank" class="btn btn--ghost btn--sm">
+              🖨 Voir l'addition
+            </a>
+          </div>
         }
       </div>
     }
   </div>
 }
 
-<h3 class="qr-generaux-title caisse-section-suivante">Commandes à emporter / livraison — paiement direct</h3>
+<h3 class="vk-section-title vk-section-title--suivante"><span class="vk-section-icon">📦</span> Paiement direct — Emporter / Livraison</h3>
 
 @if (commandesDirectes().length === 0) {
   <p class="table-muted caisse-empty">Aucune commande en attente de paiement direct.</p>
 } @else {
   <div class="caisse-grid">
     @for (c of commandesDirectes(); track c.id) {
-      <div class="card caisse-card">
-        <div class="caisse-card-header">
-          <span class="table-strong">{{ numeroCourt(c.id) }}</span>
-          <span class="table-muted">{{ LABEL_MODE[c.mode] }}</span>
+      <div class="card vk-card">
+        <div class="vk-card-header">
+          <span class="vk-table-numero">{{ numeroCourt(c.id) }}</span>
+          <span class="vk-nb-commandes">{{ LABEL_MODE[c.mode] }}</span>
         </div>
-        <ul class="kanban-card-lignes">
+
+        @if (c.mode === 'EMPORTER' && c.nomClient  ) {
+          <div class="vk-contact-client">
+            <span>👤 {{ c.nomClient  }}</span>
+            <span>📞 {{ c.telephoneClient  }}</span>
+            @if (c.heureRetraitSouhaitee) {
+              <span>🕐 Retrait souhaité : {{ c.heureRetraitSouhaitee | date: 'HH:mm' }}</span>
+            }
+          </div>
+        }
+
+        <ul class="vk-lignes">
           @for (l of c.lignes; track l.id) {
-            <li>{{ l.quantite }}× {{ l.produitNom }} — {{ l.sousTotal }} FCFA @if (l.notes) { <span class="kanban-note">📝 {{ l.notes }}</span> }</li>
+            <li>
+              <span>{{ l.quantite }}× {{ l.produitNom }} @if (l.notes) { <span class="kanban-note">📝 {{ l.notes }}</span> }</span>
+              <span class="vk-ligne-prix">{{ l.sousTotal }} F</span>
+            </li>
           }
         </ul>
-        <div class="caisse-total">
-          <span>Total</span>
-          <span class="table-strong">{{ c.total }} FCFA</span>
+        <div class="vk-total">
+          <span>Total à payer</span>
+          <span class="vk-total-valeur">{{ c.total }} FCFA</span>
         </div>
 
         @if (commandeEnEncaissement() === c.id) {
-          <div class="caisse-encaissement">
-            <select class="field-input" [ngModel]="methodeChoisie()" (ngModelChange)="methodeChoisie.set($event)">
+          <div class="vk-encaissement">
+            <span class="vk-encaissement-label">Méthode de paiement</span>
+            <div class="vk-methodes">
               @for (m of moyensPaiementActifs(); track m.id) {
-                <option [value]="m.methode">{{ LIBELLE_METHODE[m.methode] }}</option>
+                <button
+                  type="button"
+                  class="vk-methode-chip"
+                  [class.vk-methode-chip--active]="methodeChoisie() === m.methode"
+                  (click)="methodeChoisie.set(m.methode)"
+                >
+                  <span>{{ ICONE_METHODE[m.methode] }}</span> {{ LIBELLE_METHODE[m.methode] }}
+                </button>
               }
-            </select>
+            </div>
             <div class="form-actions">
               <button type="button" class="btn btn--ghost btn--sm" (click)="fermerEncaissement()">Annuler</button>
-              <button type="button" class="btn btn--primary btn--sm" (click)="confirmerEncaissement()">Confirmer le paiement</button>
+              <button type="button" class="btn btn--primary btn--sm" (click)="confirmerEncaissement()">✓ Confirmer le paiement</button>
             </div>
           </div>
         } @else {
-          <button type="button" class="btn btn--primary" (click)="ouvrirEncaissementDirect(c.id)">Encaisser</button>
+          <button type="button" class="btn btn--primary vk-btn-encaisser" (click)="ouvrirEncaissementDirect(c.id)">💰 Encaisser</button>
         }
       </div>
     }
   </div>
 }
-

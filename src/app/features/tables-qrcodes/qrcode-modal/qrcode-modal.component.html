@@ -1,23 +1,39 @@
-<app-modal [ouvert]="ouvert" [titre]="titre" (fermer)="fermer.emit()">
+<app-modal [ouvert]="ouvert" [titre]="titre" icone="▦" (fermer)="fermer.emit()">
   <div class="qr-panel">
     @if (enCoursGeneration) {
-      <div class="qr-loading">Génération du QR code...</div>
-    } @else if (qrCode?.image) {
-      <img [src]="qrCode!.image" alt="QR Code" class="qr-image" />
-      <p class="qr-url">{{ qrCode!.url }}</p>
-      <div class="qr-meta">
-        <span>{{ qrCode!.nombreScan }} scan(s)</span>
-        <span>·</span>
-        <span>Créé le {{ qrCode!.createdAt | date: 'dd/MM/yyyy' }}</span>
+      <div class="tq-qr-loading">
+        <span class="tq-qr-loading-icon">▦</span>
+        <p>Génération du QR code...</p>
       </div>
+    } @else if (qrCode?.image) {
+      <div class="tq-qr-frame">
+        <img [src]="qrCode!.image" alt="QR Code" class="qr-image" />
+      </div>
+
+      <p class="tq-qr-url">{{ qrCode!.url }}</p>
+
+      <div class="tq-qr-stats">
+        <span class="tq-qr-stat">
+          <span class="tq-qr-stat-value">{{ qrCode!.nombreScan }}</span>
+          <span class="tq-qr-stat-label">scan{{ qrCode!.nombreScan > 1 ? 's' : '' }}</span>
+        </span>
+        <span class="tq-qr-stat">
+          <span class="tq-qr-stat-value">{{ qrCode!.createdAt | date: 'dd/MM/yyyy' }}</span>
+          <span class="tq-qr-stat-label">créé le</span>
+        </span>
+      </div>
+
       <div class="form-actions">
-        <button type="button" class="btn btn--ghost" (click)="regenerer.emit()">Régénérer</button>
-        <button type="button" class="btn btn--primary" (click)="telecharger()">Télécharger</button>
+        <button type="button" class="btn btn--ghost" (click)="regenerer.emit()">↻ Régénérer</button>
+        <button type="button" class="btn btn--primary" (click)="telecharger()">⬇ Télécharger</button>
       </div>
     } @else {
-      <div class="qr-loading">Aucun QR code généré pour l'instant.</div>
+      <div class="tq-qr-empty">
+        <span class="tq-qr-empty-icon">▦</span>
+        <p>Aucun QR code généré pour l'instant.</p>
+      </div>
       <div class="form-actions">
-        <button type="button" class="btn btn--primary" (click)="regenerer.emit()">Générer le QR code</button>
+        <button type="button" class="btn btn--primary" (click)="regenerer.emit()">▦ Générer le QR code</button>
       </div>
     }
   </div>

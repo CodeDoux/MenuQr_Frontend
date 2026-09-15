@@ -25,6 +25,7 @@ export class MonProfilComponent {
   });
 
   profilEnregistre = signal(false);
+  profilErreur = signal<string | null>(null);
   motDePasseEnCours = signal(false);
   motDePasseMessage = signal<string | null>(null);
 
@@ -34,14 +35,19 @@ export class MonProfilComponent {
     if (u) this.formProfil.patchValue({ nomComplet: u.nomComplet, email: u.email });
   }
 
-  enregistrerProfil(): void {
+  async enregistrerProfil(): Promise<void> {
+    this.profilErreur.set(null);
     if (this.formProfil.invalid) {
       this.formProfil.markAllAsTouched();
       return;
     }
-    this.auth.modifierProfil(this.formProfil.value.nomComplet!, this.formProfil.value.email!);
-    this.profilEnregistre.set(true);
-    setTimeout(() => this.profilEnregistre.set(false), 2500);
+    try {
+      await this.auth.modifierProfil(this.formProfil.value.nomComplet!, this.formProfil.value.email!);
+      this.profilEnregistre.set(true);
+      setTimeout(() => this.profilEnregistre.set(false), 2500);
+    } catch (e: any) {
+      this.profilErreur.set(e?.error?.errors?.email?.[0] ?? 'Une erreur est survenue.');
+    }
   }
 
   async changerMotDePasse(): Promise<void> {
@@ -55,12 +61,20 @@ export class MonProfilComponent {
       return;
     }
     this.motDePasseEnCours.set(true);
-    await this.auth.changerMotDePasse(
-      this.formMotDePasse.value.ancienMotDePasse!,
-      this.formMotDePasse.value.nouveauMotDePasse!
-    );
-    this.motDePasseEnCours.set(false);
-    this.motDePasseMessage.set('✓ Mot de passe mis à jour (simulation).');
-    this.formMotDePasse.reset();
+    try {
+      await this.auth.changerMotDePasse(
+        this.formMotDePasse.value.ancienMotDePasse!,
+        this.formMotDePasse.value.nouveauMotDePasse!,
+        this.formMotDePasse.value.confirmation!
+      );
+      this.motDePasseMessage.set('✓ Mot de passe mis à jour.');
+      this.formMotDePasse.reset();
+    } catch (e: any) {
+      this.motDePasseMessage.set(
+        e?.error?.errors?.mot_de_passe_actuel?.[0] ?? 'Une erreur est survenue.'
+      );
+    } finally {
+      this.motDePasseEnCours.set(false);
+    }
   }
 }

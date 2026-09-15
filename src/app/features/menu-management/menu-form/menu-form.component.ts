@@ -9,6 +9,7 @@ import { Menu, MenuFormPayload } from '../../../core/models/menu';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ModalComponent],
   templateUrl: './menu-form.component.html',
+  styleUrl: './menu-form.component.css'
 })
 export class MenuFormComponent implements OnChanges {
   @Input() ouvert = false;

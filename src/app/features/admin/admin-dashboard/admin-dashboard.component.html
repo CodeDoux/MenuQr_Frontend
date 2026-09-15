@@ -1,25 +1,40 @@
 <div class="page-header">
-  <div>
-    <h1 class="page-title">Dashboard plateforme</h1>
-    <p class="page-subtitle">Vue d'ensemble de tous les restaurants inscrits sur MenuQr.</p>
+  <div class="pl-header-title">
+    <span class="pl-header-icon">📊</span>
+    <div>
+      <h1 class="page-title">Dashboard plateforme</h1>
+      <p class="page-subtitle">Vue d'ensemble de tous les restaurants inscrits sur MenuQr.</p>
+    </div>
   </div>
 </div>
 
 <div class="stats-cards">
-  <div class="card stats-card">
-    <p class="field-hint">Restaurants inscrits</p>
-    <p class="stats-value">{{ nbTotal() }}</p>
+  <div class="card stats-card adm-kpi">
+    <span class="adm-kpi-icon">🏬</span>
+    <div>
+      <p class="field-hint">Restaurants inscrits</p>
+      <p class="stats-value">{{ nbTotal() }}</p>
+    </div>
   </div>
-  <div class="card stats-card">
-    <p class="field-hint">Actifs</p>
-    <p class="stats-value">{{ nbActifs() }}</p>
+  <div class="card stats-card adm-kpi adm-kpi--success">
+    <span class="adm-kpi-icon">✅</span>
+    <div>
+      <p class="field-hint">Actifs</p>
+      <p class="stats-value">{{ nbActifs() }}</p>
+    </div>
   </div>
-  <div class="card stats-card">
-    <p class="field-hint">En période d'essai</p>
-    <p class="stats-value">{{ nbEnEssai() }}</p>
+  <div class="card stats-card adm-kpi adm-kpi--info">
+    <span class="adm-kpi-icon">⏳</span>
+    <div>
+      <p class="field-hint">En période d'essai</p>
+      <p class="stats-value">{{ nbEnEssai() }}</p>
+    </div>
   </div>
-  <div class="card stats-card">
-    <p class="field-hint">Suspendus</p>
-    <p class="stats-value">{{ nbSuspendus() }}</p>
+  <div class="card stats-card adm-kpi adm-kpi--danger">
+    <span class="adm-kpi-icon">⛔</span>
+    <div>
+      <p class="field-hint">Suspendus</p>
+      <p class="stats-value">{{ nbSuspendus() }}</p>
+    </div>
   </div>
 </div>

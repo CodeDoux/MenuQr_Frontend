@@ -4,13 +4,22 @@ import { FormsModule } from '@angular/forms';
 import { TypeLivreur } from '../../../core/enums/enums';
 import { DeliveryService } from '../../../core/services/livraison.service';
 import { EmployeesService } from '../../../core/services/employees.service';
+import { BadgeComponent, BadgeTone } from '../../../shared/components/badge/badge.component';
 
 const LABEL_STATUT: Record<string, string> = {
   EN_ATTENTE_AFFECTATION: 'À assigner', AFFECTEE: 'Affectée', RECUPEREE: 'Récupérée',
   EN_ROUTE: 'En route', LIVREE: 'Livrée', ANNULEE: 'Annulée',
 };
+const TONE_STATUT: Record<string, BadgeTone> = {
+  EN_ATTENTE_AFFECTATION: 'neutral', AFFECTEE: 'info', RECUPEREE: 'warning',
+  EN_ROUTE: 'info', LIVREE: 'success', ANNULEE: 'danger',
+};
 const LABEL_ETAPE_SUIVANTE: Record<string, string> = {
   AFFECTEE: 'Marquer récupérée', RECUPEREE: 'Marquer en route', EN_ROUTE: 'Marquer livrée',
+};
+
+const ICONE_ONGLET: Record<string, string> = {
+  'a-assigner': '📋', 'en-cours': '🛵', terminees: '✅',
 };
 
 type Onglet = 'a-assigner' | 'en-cours' | 'terminees';
@@ -18,13 +27,16 @@ type Onglet = 'a-assigner' | 'en-cours' | 'terminees';
 @Component({
   selector: 'app-livraisons-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BadgeComponent],
   templateUrl: './livraisons-page.component.html',
+  styleUrl: './livraisons-page.component.css',
 })
 export class LivraisonsPageComponent {
   readonly TypeLivreur = TypeLivreur;
   readonly LABEL_STATUT = LABEL_STATUT;
+  readonly TONE_STATUT = TONE_STATUT;
   readonly LABEL_ETAPE_SUIVANTE = LABEL_ETAPE_SUIVANTE;
+  readonly ICONE_ONGLET = ICONE_ONGLET;
 
   readonly aAssigner;
   readonly enCours;
@@ -45,7 +57,6 @@ export class LivraisonsPageComponent {
     this.aAssigner = this.service.aAssigner;
     this.enCours = this.service.enCours;
     this.terminees = this.service.terminees;
-    // ⚠️ Plus d'id de poste figé côté mock — on identifie le poste "Livreur" par son nom.
     this.livreursInternes = () =>
       this.employeesService.employesAvecAcces()
         .filter((item) => item.poste?.nom?.toLowerCase() === 'livreur')

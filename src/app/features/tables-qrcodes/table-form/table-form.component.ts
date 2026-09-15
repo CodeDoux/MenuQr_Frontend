@@ -10,6 +10,8 @@ import { StatutTable } from '../../../core/enums/enums';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ModalComponent],
   templateUrl: './table-form.component.html',
+    styleUrl: './table-form.component.css',
+
 })
 export class TableFormComponent implements OnChanges {
   @Input() ouvert = false;

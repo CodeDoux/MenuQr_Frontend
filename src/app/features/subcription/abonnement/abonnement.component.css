@@ -1,0 +1,68 @@
+.ab-hero {
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-strong));
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  color: white;
+  margin-bottom: 1.75rem;
+}
+.ab-hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.ab-hero-label { font-size: 0.78rem; color: rgba(255, 255, 255, 0.8); margin: 0 0 0.2rem; }
+.ab-hero-nom { font-size: 1.5rem; color: white; margin: 0; }
+.ab-hero-prix { font-size: 1.1rem; font-weight: 700; margin: 0.75rem 0 0; }
+.ab-hero-prix-unit { font-size: 0.8rem; font-weight: 500; opacity: 0.85; }
+
+.ab-essai-banner {
+  margin-top: 1rem;
+  background: rgba(255, 255, 255, 0.18);
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.ab-section-title {
+  font-size: 1.05rem;
+  margin-bottom: 0.9rem;
+}
+
+.ab-plan-card {
+  position: relative;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: box-shadow 0.15s ease, transform 0.12s ease;
+}
+.ab-plan-card:hover { box-shadow: 0 10px 24px rgba(35, 33, 30, 0.1); transform: translateY(-2px); }
+.ab-plan-card--active {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+.ab-plan-ribbon {
+  position: absolute;
+  top: -10px;
+  right: 1rem;
+  background: var(--color-accent);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+}
+
+.ab-features {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 1rem;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.ab-check {
+  color: var(--color-success);
+  font-weight: 800;
+  margin-right: 0.2rem;
+}

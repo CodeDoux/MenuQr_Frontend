@@ -16,6 +16,7 @@ export class ForgotPasswordComponent {
 
   enCours = signal(false);
   envoye = signal(false);
+  lienReinitialisation = signal<string | null>(null);
 
   constructor(private readonly auth: AuthService) {}
 
@@ -25,8 +26,14 @@ export class ForgotPasswordComponent {
       return;
     }
     this.enCours.set(true);
-    await this.auth.demanderReinitialisation(this.form.value.email!);
+    const lien = await this.auth.demanderReinitialisation(this.form.value.email!);
+    this.lienReinitialisation.set(lien);
     this.enCours.set(false);
     this.envoye.set(true);
+  }
+
+  copierLien(): void {
+    const lien = this.lienReinitialisation();
+    if (lien) navigator.clipboard?.writeText(lien).catch(() => {});
   }
 }

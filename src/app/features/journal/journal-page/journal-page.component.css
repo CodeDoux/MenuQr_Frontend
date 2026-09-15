@@ -1,0 +1,56 @@
+.jp-cible {
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+.jp-cible-id {
+  display: inline-block;
+  margin-left: 0.35rem;
+  font-size: 0.72rem;
+  background: var(--color-surface-muted);
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+}
+
+.jp-detail {
+  font-size: 0.8rem;
+  max-width: 280px;
+}
+.jp-arrow {
+  color: var(--color-accent-strong);
+  margin: 0 0.3rem;
+  font-weight: 700;
+}
+
+.jp-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+}
+
+.jp-page-btn {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.jp-page-btn:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+.jp-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.jp-page-info {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+}

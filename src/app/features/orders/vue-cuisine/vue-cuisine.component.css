@@ -1,0 +1,43 @@
+.vc-kanban { gap: 1.1rem; }
+
+.vc-col {
+  border-top: 3px solid var(--color-border);
+}
+.vc-col--attente { border-top-color: var(--color-text-secondary); }
+.vc-col--confirmees { border-top-color: var(--color-accent); }
+.vc-col--preparation { border-top-color: var(--color-warning); }
+.vc-col--pretes { border-top-color: var(--color-success); }
+
+.vc-col-icon { margin-right: 0.3rem; }
+.vc-col-empty {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  padding: 1.5rem 0;
+}
+
+.vc-card { position: relative; }
+.vc-card--urgent { box-shadow: 0 0 0 1.5px var(--color-warning), var(--shadow-card); }
+
+.vc-mode {
+  font-size: 0.76rem;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.vc-temps {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-muted);
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  margin-bottom: 0.5rem;
+}
+.vc-temps--urgent {
+  background: color-mix(in srgb, var(--color-warning) 20%, white);
+  color: var(--color-warning-strong);
+}
+
+.vc-btn-avancer { width: 100%; justify-content: center; }

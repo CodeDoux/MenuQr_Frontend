@@ -1,0 +1,56 @@
+.vs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.vs-card {
+  padding: 0;
+  overflow: hidden;
+  transition: box-shadow 0.15s ease, transform 0.12s ease;
+}
+.vs-card:hover { box-shadow: 0 10px 24px rgba(35, 33, 30, 0.1); transform: translateY(-2px); }
+
+.vs-card-accent {
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-success), var(--color-success-strong));
+}
+
+.vs-card-body { padding: 1.1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+
+.vs-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.vs-table-label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+}
+.vs-table-numero {
+  display: block;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  line-height: 1.1;
+}
+
+.vs-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-success-strong);
+  background: color-mix(in srgb, var(--color-success) 14%, white);
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.vs-numero-commande { font-size: 0.76rem; }
+
+.vs-lignes { margin: 0.3rem 0 0.5rem; }
+
+.vs-btn-servir { width: 100%; justify-content: center; }

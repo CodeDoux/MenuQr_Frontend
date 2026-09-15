@@ -43,7 +43,7 @@ export class LoginComponent {
       if ('choixRestaurant' in resultat) {
         this.restaurantsAChoisir.set(resultat.choixRestaurant);
       } else {
-        this.router.navigate(['/dashboard']);
+       window.location.href = '/dashboard';
       }
     } catch (e: any) {
       this.erreur.set(e?.error?.message ?? 'Email ou mot de passe incorrect.');
@@ -56,7 +56,7 @@ export class LoginComponent {
     this.enCours.set(true);
     try {
       await this.auth.selectRestaurant(restaurantId);
-      this.router.navigate(['/dashboard']);
+      window.location.href = '/dashboard';
     } catch (e: any) {
       this.erreur.set('Impossible de sélectionner ce restaurant.');
     } finally {

@@ -1,4 +1,4 @@
-<div class="shell">
+<div class="shell saas-shell">
   <aside class="sidebar">
     <div class="brand">
       <span class="brand-mark">MQ</span>
@@ -30,6 +30,11 @@
   </aside>
 
   <div class="main">
+    <div class="mobile-brand-bar">
+      <span class="brand-mark">MQ</span>
+      <span class="mobile-brand-name">MenuQr</span>
+    </div>
+
     <header class="topbar">
       <div></div>
       <div class="topbar-actions">
@@ -45,5 +50,18 @@
     <main class="content">
       <router-outlet></router-outlet>
     </main>
+
+    <nav class="mobile-bottom-nav">
+      @for (item of navItems; track item.route) {
+        <a
+          class="mobile-bottom-nav-item"
+          [routerLink]="item.route"
+          routerLinkActive="mobile-bottom-nav-item--active"
+        >
+          <span class="mobile-bottom-nav-icon" aria-hidden="true">{{ item.icon }}</span>
+          <span class="mobile-bottom-nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
   </div>
 </div>

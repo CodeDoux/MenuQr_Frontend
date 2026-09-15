@@ -9,19 +9,43 @@ import { ImageProduit, Produit, ProduitFormPayload, Variante } from '../models/p
 
 const API = environment.apiUrl;
 
+export interface PaginationMeta {
+  currentPage: number;
+  lastPage: number;
+  perPage: number;
+  total: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class MenuManagementService {
   private readonly _menus = signal<Menu[]>([]);
   private readonly _categories = signal<Categorie[]>([]);
-  private readonly _produits = signal<Produit[]>([]);
+
+  // --- Produits : page actuellement affichée (liste paginée côté serveur) ---
+  private readonly _produitsPage = signal<Produit[]>([]);
+  private readonly _produitsMeta = signal<PaginationMeta>({ currentPage: 1, lastPage: 1, perPage: 24, total: 0 });
+
+  // --- Produits : liste complète, pour les consommateurs qui en ont besoin
+  //     en entier (ex. sélecteur de produits du formulaire Promotion) ---
+  private readonly _produitsTous = signal<Produit[]>([]);
 
   readonly menus = this._menus.asReadonly();
   readonly categories = this._categories.asReadonly();
-  readonly produits = this._produits.asReadonly();
+  readonly produitsPage = this._produitsPage.asReadonly();
+  readonly produitsMeta = this._produitsMeta.asReadonly();
+  readonly produitsTous = this._produitsTous.asReadonly();
 
   readonly menusTries = computed(() =>
     [...this._menus()].sort((a, b) => a.ordreAffichage - b.ordreAffichage)
   );
+
+  // Mémorise les derniers filtres utilisés, pour pouvoir rafraîchir la même
+  // page après une création/modification/archivage sans que l'appelant ait
+  // à les répéter.
+  private dernierePage = 1;
+  private dernierPerPage = 24;
+  private derniereRecherche = '';
+  private dernierCategorieId: string | null = null;
 
   constructor(private readonly http: HttpClient) {
     this.chargerTout();
@@ -39,8 +63,11 @@ export class MenuManagementService {
     }
     this._categories.set(toutesCategories);
 
-    const repProduits = await firstValueFrom(this.http.get<{ data: any[] }>(`${API}/produits`));
-    this._produits.set(repProduits.data.map((p) => this.mapProduit(p)));
+    // ⚠️ Les produits ne sont plus chargés en entier ici (risque de
+    // performance avec des centaines de produits) — voir chargerProduits()
+    // (paginé, pour la liste) et chargerTousLesProduits() (pour les
+    // sélecteurs qui ont vraiment besoin de tout, ex. Promotion).
+    await this.chargerProduits();
   }
 
   // ============================================================
@@ -114,24 +141,51 @@ export class MenuManagementService {
 
     await firstValueFrom(this.http.delete(`${API}/menus/${existante.menuId}/categories/${id}`));
     this._categories.update((liste) => liste.filter((c) => c.id !== id));
-    this._produits.update((liste) =>
-      liste.map((p) => ({ ...p, categorieIds: p.categorieIds.filter((cid) => cid !== id) }))
-    );
+    await this.rafraichirPageActuelle();
   }
 
   // ============================================================
-  // PRODUITS
+  // PRODUITS — pagination + recherche/filtre côté serveur
   // ============================================================
 
-  produitsFiltres(categorieId: string | undefined, recherche: string) {
-    return computed(() => {
-      const texte = recherche.trim().toLowerCase();
-      return this._produits().filter((p) => {
-        const matchCategorie = !categorieId || p.categorieIds.includes(categorieId);
-        const matchTexte = !texte || p.nom.toLowerCase().includes(texte);
-        return matchCategorie && matchTexte && p.statut === StatutProduit.ACTIF;
-      });
+  /** Charge une page de produits, avec recherche/filtre catégorie optionnels. */
+  async chargerProduits(
+    page: number = this.dernierePage,
+    perPage: number = this.dernierPerPage,
+    recherche: string = this.derniereRecherche,
+    categorieId: string | null = this.dernierCategorieId
+  ): Promise<void> {
+    this.dernierePage = page;
+    this.dernierPerPage = perPage;
+    this.derniereRecherche = recherche;
+    this.dernierCategorieId = categorieId;
+
+    const params: Record<string, string | number> = { page, per_page: perPage };
+    if (recherche) params['recherche'] = recherche;
+    if (categorieId) params['categorie_id'] = categorieId;
+
+    const rep = await firstValueFrom(this.http.get<any>(`${API}/produits`, { params }));
+
+    this._produitsPage.set(rep.data.map((p: any) => this.mapProduit(p)));
+    this._produitsMeta.set({
+      currentPage: rep.meta.current_page,
+      lastPage: rep.meta.last_page,
+      perPage: rep.meta.per_page,
+      total: rep.meta.total,
     });
+  }
+
+  /** Charge TOUS les produits (sans pagination) — pour les sélecteurs qui
+   *  ont besoin de la liste complète (ex. formulaire Promotion). */
+  async chargerTousLesProduits(): Promise<Produit[]> {
+    const rep = await firstValueFrom(this.http.get<{ data: any[] }>(`${API}/produits`));
+    const tous = rep.data.map((p: any) => this.mapProduit(p));
+    this._produitsTous.set(tous);
+    return tous;
+  }
+
+  private async rafraichirPageActuelle(): Promise<void> {
+    await this.chargerProduits(this.dernierePage, this.dernierPerPage, this.derniereRecherche, this.dernierCategorieId);
   }
 
   async creerProduit(payload: ProduitFormPayload): Promise<Produit> {
@@ -139,25 +193,24 @@ export class MenuManagementService {
       this.http.post<{ data: any }>(`${API}/produits`, this.produitPayloadVersApi(payload))
     );
     const nouveau = this.mapProduit(rep.data);
-    this._produits.update((liste) => [...liste, nouveau]);
+    await this.rafraichirPageActuelle();
     return nouveau;
   }
 
   async modifierProduit(id: string, payload: ProduitFormPayload): Promise<void> {
-    const rep = await firstValueFrom(
+    await firstValueFrom(
       this.http.put<{ data: any }>(`${API}/produits/${id}`, this.produitPayloadVersApi(payload))
     );
-    const maj = this.mapProduit(rep.data);
-    this._produits.update((liste) => liste.map((p) => (p.id === id ? maj : p)));
+    await this.rafraichirPageActuelle();
   }
 
   async archiverProduit(id: string): Promise<void> {
     await firstValueFrom(this.http.patch(`${API}/produits/${id}/archiver`, {}));
-    this._produits.update((liste) => liste.filter((p) => p.id !== id));
+    await this.rafraichirPageActuelle();
   }
 
   async basculerDisponibilite(id: string): Promise<void> {
-    const produit = this._produits().find((p) => p.id === id);
+    const produit = this._produitsPage().find((p) => p.id === id);
     if (!produit) return;
 
     await this.modifierProduit(id, {
@@ -180,70 +233,42 @@ export class MenuManagementService {
 
   private mapMenu(api: any): Menu {
     return {
-      id: api.id,
-      restaurantId: '',
-      nom: api.nom,
-      description: api.description,
-      image: api.image,
-      ordreAffichage: api.ordre_affichage,
-      estActif: api.est_actif,
-      dateDebut: api.date_debut,
-      dateFin: api.date_fin,
-      createdAt: api.created_at,
-      updatedAt: api.updated_at,
+      id: api.id, restaurantId: '', nom: api.nom, description: api.description, image: api.image,
+      ordreAffichage: api.ordre_affichage, estActif: api.est_actif,
+      dateDebut: api.date_debut, dateFin: api.date_fin,
+      createdAt: api.created_at, updatedAt: api.updated_at,
     };
   }
 
   private menuPayloadVersApi(payload: MenuFormPayload) {
     return {
-      nom: payload.nom,
-      description: payload.description,
-      image: payload.image,
-      ordre_affichage: payload.ordreAffichage,
-      est_actif: payload.estActif,
-      date_debut: payload.dateDebut,
-      date_fin: payload.dateFin,
+      nom: payload.nom, description: payload.description, image: payload.image,
+      ordre_affichage: payload.ordreAffichage, est_actif: payload.estActif,
+      date_debut: payload.dateDebut, date_fin: payload.dateFin,
     };
   }
 
   private mapCategorie(api: any): Categorie {
     return {
-      id: api.id,
-      menuId: api.menu_id,
-      nom: api.nom,
-      description: api.description,
-      icone: api.icone,
-      ordreAffichage: api.ordre_affichage,
-      estActive: api.est_active,
-      createdAt: api.created_at,
-      updatedAt: api.updated_at,
+      id: api.id, menuId: api.menu_id, nom: api.nom, description: api.description, icone: api.icone,
+      ordreAffichage: api.ordre_affichage, estActive: api.est_active,
+      createdAt: api.created_at, updatedAt: api.updated_at,
     };
   }
 
   private categoriePayloadVersApi(payload: CategorieFormPayload) {
     return {
-      nom: payload.nom,
-      description: payload.description,
-      icone: payload.icone,
-      ordre_affichage: payload.ordreAffichage,
-      est_active: payload.estActive,
+      nom: payload.nom, description: payload.description, icone: payload.icone,
+      ordre_affichage: payload.ordreAffichage, est_active: payload.estActive,
     };
   }
 
   private mapProduit(api: any): Produit {
     return {
-      id: api.id,
-      restaurantId: '',
-      nom: api.nom,
-      description: api.description,
-      prix: Number(api.prix),
-      estDisponible: api.est_disponible,
-      estVisible: api.est_visible,
-      estPopulaire: api.est_populaire,
-      tempsPreparation: api.temps_preparation,
-      statut: api.statut as StatutProduit,
-      createdAt: api.created_at,
-      updatedAt: api.updated_at,
+      id: api.id, restaurantId: '', nom: api.nom, description: api.description, prix: Number(api.prix),
+      estDisponible: api.est_disponible, estVisible: api.est_visible, estPopulaire: api.est_populaire,
+      tempsPreparation: api.temps_preparation, statut: api.statut as StatutProduit,
+      createdAt: api.created_at, updatedAt: api.updated_at,
       categorieIds: api.categorie_ids ?? [],
       variantes: (api.variantes ?? []).map((v: any): Variante => ({
         id: v.id, produitId: api.id, nom: v.nom, prix: Number(v.prix), estDisponible: v.est_disponible,
@@ -256,14 +281,9 @@ export class MenuManagementService {
 
   private produitPayloadVersApi(payload: ProduitFormPayload) {
     return {
-      nom: payload.nom,
-      description: payload.description,
-      prix: payload.prix,
-      est_disponible: payload.estDisponible,
-      est_visible: payload.estVisible,
-      est_populaire: payload.estPopulaire,
-      temps_preparation: payload.tempsPreparation,
-      categorie_ids: payload.categorieIds,
+      nom: payload.nom, description: payload.description, prix: payload.prix,
+      est_disponible: payload.estDisponible, est_visible: payload.estVisible, est_populaire: payload.estPopulaire,
+      temps_preparation: payload.tempsPreparation, categorie_ids: payload.categorieIds,
       variantes: payload.variantes.map((v) => ({ nom: v.nom, prix: v.prix, est_disponible: v.estDisponible })),
       images: payload.images.map((i) => ({ url: i.url, ordre_affichage: i.ordreAffichage, est_principale: i.estPrincipale })),
     };

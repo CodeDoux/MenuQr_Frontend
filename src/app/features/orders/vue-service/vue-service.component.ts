@@ -8,6 +8,7 @@ import { Commande } from '../../../core/models/orders';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './vue-service.component.html',
+  styleUrl: './vue-service.component.css',
 })
 export class VueServiceComponent {
   readonly commandesAServir;
@@ -20,7 +21,7 @@ export class VueServiceComponent {
     return '#' + id.slice(-4).toUpperCase();
   }
 
-   numeroTable(c: Commande): string {
+  numeroTable(c: Commande): string {
     return c.tableNumero ?? '—';
   }
 

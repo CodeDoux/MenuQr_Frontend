@@ -1,0 +1,19 @@
+.emp-list { display: flex; flex-direction: column; gap: 0.7rem; }
+.emp-row { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.1rem; transition: box-shadow 0.15s ease; }
+.emp-row:hover { box-shadow: 0 8px 18px rgba(35, 33, 30, 0.08); }
+.emp-row--invite { border-color: color-mix(in srgb, var(--color-warning) 40%, var(--color-border)); background: color-mix(in srgb, var(--color-warning) 4%, white); }
+
+.emp-avatar {
+  width: 46px; height: 46px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-strong));
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.emp-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+.emp-nom { font-weight: 700; font-size: 0.95rem; }
+.emp-email { font-size: 0.82rem; color: var(--color-text-secondary); }
+.emp-actions { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; }

@@ -7,9 +7,16 @@ const API = environment.apiUrl;
 
 export interface PublicMenuData {
   restaurantId: string;
+  restaurantNom: string;
+  restaurantAdresse: string | null;
+  restaurantTelephone: string | null;
+  restaurantDescription: string | null;
+  horaires: { jour: string; ouverture: string | null; fermeture: string | null; ferme: boolean }[];
+  moyensPaiement: string[];
   typeQr: string;
   tableId: string | null;
   tableNumero: string | null;
+  salleNom: string | null;
   menus: any[];
   produits: any[];
   zonesLivraison: any[];
@@ -31,6 +38,12 @@ export interface InfosLivraison {
   zoneLivraisonId: string;
 }
 
+export interface InfosEmporterPayload {
+  nomClient: string;
+  telephoneClient: string;
+  heureRetraitSouhaitee?: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PublicOrderService {
   constructor(private readonly http: HttpClient) {}
@@ -38,8 +51,14 @@ export class PublicOrderService {
   async chargerMenu(code: string): Promise<PublicMenuData> {
     const rep = await firstValueFrom(this.http.get<any>(`${API}/public/menu`, { params: { code } }));
     return {
-      restaurantId: rep.restaurant_id, typeQr: rep.type_qr,
-      tableId: rep.table_id, tableNumero: rep.table_numero,
+      restaurantId: rep.restaurant_id, restaurantNom: rep.restaurant_nom, typeQr: rep.type_qr,
+      restaurantAdresse: rep.restaurant_adresse, restaurantTelephone: rep.restaurant_telephone,
+      restaurantDescription: rep.restaurant_description,
+      horaires: (rep.horaires ?? []).map((h: any) => ({
+        jour: h.jour, ouverture: h.ouverture, fermeture: h.fermeture, ferme: h.ferme,
+      })),
+      moyensPaiement: rep.moyens_paiement ?? [],
+      tableId: rep.table_id, tableNumero: rep.table_numero, salleNom: rep.salle_nom,
       menus: rep.menus.data ?? rep.menus,
       produits: rep.produits.data ?? rep.produits,
       zonesLivraison: rep.zones_livraison?.data ?? rep.zones_livraison ?? [],
@@ -48,7 +67,8 @@ export class PublicOrderService {
 
   async creerCommande(
     code: string, mode: string, items: CommandeItem[], notes: string | null,
-    infosLivraison: InfosLivraison | null = null
+    infosLivraison: InfosLivraison | null = null,
+    infosEmporter: InfosEmporterPayload | null = null
   ): Promise<any> {
     const body: any = {
       code, mode, notes,
@@ -65,6 +85,12 @@ export class PublicOrderService {
       body.quartier = infosLivraison.quartier ?? null;
       body.indications = infosLivraison.indications ?? null;
       body.zone_livraison_id = infosLivraison.zoneLivraisonId;
+    }
+
+    if (infosEmporter) {
+      body.nom_client = infosEmporter.nomClient;
+      body.telephone_client = infosEmporter.telephoneClient;
+      body.heure_retrait_souhaitee = infosEmporter.heureRetraitSouhaitee ?? null;
     }
 
     const rep = await firstValueFrom(this.http.post<{ data: any }>(`${API}/public/commandes`, body));

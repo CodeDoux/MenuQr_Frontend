@@ -5,14 +5,20 @@ import { BadgeComponent } from '../../../shared/components/badge/badge.component
 import { Offre, OffreFormPayload } from '../../../core/models/subcription';
 import { SubscriptionService } from '../../../core/services/subcription.service';
 
+const LABEL_STATUT: Partial<Record<string, string>> = {
+  ACTIF: 'Actif', INACTIF: 'Inactif', ARCHIVE: 'Archivé',
+};
+
 @Component({
   selector: 'app-offers-management',
   standalone: true,
   imports: [CommonModule, OffreFormComponent, BadgeComponent],
   templateUrl: './offre-management.component.html',
+  styleUrl: './offre-management.component.css',
 })
-export class OffreManagementComponent implements OnInit{
+export class OffreManagementComponent implements OnInit {
   readonly offres;
+  readonly LABEL_STATUT = LABEL_STATUT;
 
   formOuvert = signal(false);
   offreEnEdition = signal<Offre | null>(null);
@@ -20,7 +26,8 @@ export class OffreManagementComponent implements OnInit{
   constructor(private readonly service: SubscriptionService) {
     this.offres = this.service.offres;
   }
- ngOnInit(): void {
+
+  ngOnInit(): void {
     this.service.chargerOffresAdmin().catch(() => {
       console.error('Impossible de charger les offres.');
     });

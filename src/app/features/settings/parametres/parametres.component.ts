@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, effect, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { JourSemaine } from '../../../core/enums/enums';
@@ -7,6 +7,7 @@ import { LIBELLE_METHODE, SettingsService } from '../../../core/services/setting
 import { ZoneFormPayload, ZoneLivraison } from '../../../core/models/livraison';
 import { DeliveryService } from '../../../core/services/livraison.service';
 import { Horaire, MoyenPaiement } from '../../../core/models/settings';
+import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 
 const LIBELLE_JOUR: Record<string, string> = {
   [JourSemaine.LUNDI]: 'Lundi',
@@ -18,11 +19,16 @@ const LIBELLE_JOUR: Record<string, string> = {
   [JourSemaine.DIMANCHE]: 'Dimanche',
 };
 
+const ICONE_METHODE: Record<string, string> = {
+  ESPECES: '💵', WAVE: '🟦', ORANGE_MONEY: '🟧', CARTE: '💳', AUTRE: '➕',
+};
+
 @Component({
   selector: 'app-parametres',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ZoneFormComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ZoneFormComponent, BadgeComponent],
   templateUrl: './parametres.component.html',
+  styleUrl: './parametres.component.css',
 })
 export class ParametresComponent {
   readonly horaires;
@@ -30,6 +36,7 @@ export class ParametresComponent {
   readonly zones;
   readonly LIBELLE_METHODE = LIBELLE_METHODE;
   readonly LIBELLE_JOUR = LIBELLE_JOUR;
+  readonly ICONE_METHODE = ICONE_METHODE;
 
   zoneFormOuvert = signal(false);
   zoneEnEdition = signal<ZoneLivraison | null>(null);
@@ -51,7 +58,14 @@ export class ParametresComponent {
     this.horaires = this.service.horaires;
     this.moyensPaiement = this.service.moyensPaiement;
     this.zones = this.deliveryService.zones;
-    this.formRestaurant.patchValue(this.service.restaurantInfos());
+
+    // ⚠️ Les infos restaurant se chargent désormais depuis le vrai backend
+    // (asynchrone) — on réagit au signal plutôt que de lire sa valeur une
+    // seule fois à la construction (qui serait encore vide à ce moment-là).
+    effect(() => {
+      const infos = this.service.restaurantInfos();
+      this.formRestaurant.patchValue(infos);
+    });
   }
 
   ouvrirCreationZone(): void {
@@ -74,9 +88,12 @@ export class ParametresComponent {
       telephone: this.formRestaurant.value.telephone!,
       email: this.formRestaurant.value.email || null,
       description: this.formRestaurant.value.description || null,
-    });
-    this.restaurantEnregistre = true;
-    setTimeout(() => (this.restaurantEnregistre = false), 2500);
+    })
+      .then(() => {
+        this.restaurantEnregistre = true;
+        setTimeout(() => (this.restaurantEnregistre = false), 2500);
+      })
+      .catch(() => alert('Une erreur est survenue lors de l\'enregistrement.'));
   }
 
   toggleFerme(h: Horaire): void {

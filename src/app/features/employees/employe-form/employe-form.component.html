@@ -1,4 +1,4 @@
-<app-modal [ouvert]="ouvert" [titre]="titre" (fermer)="fermer.emit()">
+<app-modal [ouvert]="ouvert" [titre]="titre" icone="👤" (fermer)="fermer.emit()">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
     <div class="field-row">
       <label class="field">
@@ -17,38 +17,41 @@
       </label>
     </div>
 
-    <div class="field-row">
-      <label class="field">
-        <span class="field-label">Poste *</span>
-        <select formControlName="posteId" class="field-input">
-          <option value="" disabled>Sélectionner un poste</option>
-          @for (poste of postesDisponibles; track poste.id) {
-            <option [value]="poste.id">{{ poste.nom }}</option>
+    <div class="mf-section">
+      <span class="mf-section-title">Poste & contrat</span>
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">Poste *</span>
+          <select formControlName="posteId" class="field-input">
+            <option value="" disabled>Sélectionner un poste</option>
+            @for (poste of postesDisponibles; track poste.id) {
+              <option [value]="poste.id">{{ poste.nom }}</option>
+            }
+          </select>
+          @if (form.get('posteId')?.touched && form.get('posteId')?.invalid) {
+            <span class="field-error">Sélectionnez un poste.</span>
           }
-        </select>
-        @if (form.get('posteId')?.touched && form.get('posteId')?.invalid) {
-          <span class="field-error">Sélectionnez un poste.</span>
-        }
-      </label>
-      <label class="field">
-        <span class="field-label">Matricule</span>
-        <input type="text" formControlName="matricule" class="field-input" placeholder="Optionnel" />
-      </label>
-    </div>
+        </label>
+        <label class="field">
+          <span class="field-label">Matricule</span>
+          <input type="text" formControlName="matricule" class="field-input" placeholder="Optionnel" />
+        </label>
+      </div>
 
-    <div class="field-row">
-      <label class="field">
-        <span class="field-label">Date d'embauche</span>
-        <input type="date" formControlName="dateEmbauche" class="field-input" />
-      </label>
-      <label class="field">
-        <span class="field-label">Statut</span>
-        <select formControlName="statut" class="field-input">
-          <option [value]="StatutEmploye.ACTIF">Actif</option>
-          <option [value]="StatutEmploye.EN_CONGE">En congé</option>
-          <option [value]="StatutEmploye.SUSPENDU">Suspendu</option>
-        </select>
-      </label>
+      <div class="field-row">
+        <label class="field">
+          <span class="field-label">Date d'embauche</span>
+          <input type="date" formControlName="dateEmbauche" class="field-input" />
+        </label>
+        <label class="field">
+          <span class="field-label">Statut</span>
+          <select formControlName="statut" class="field-input">
+            <option [value]="StatutEmploye.ACTIF">Actif</option>
+            <option [value]="StatutEmploye.EN_CONGE">En congé</option>
+            <option [value]="StatutEmploye.SUSPENDU">Suspendu</option>
+          </select>
+        </label>
+      </div>
     </div>
 
     <label class="field">
@@ -56,7 +59,8 @@
       <textarea formControlName="notes" rows="2" class="field-input" placeholder="Optionnel"></textarea>
     </label>
 
-    <div class="acces-block">
+    <div class="mf-section ef-acces-section">
+      <span class="mf-section-title">🔑 Accès plateforme</span>
       <label class="field field--switch">
         <span class="field-label">Donner accès à la plateforme MenuQr</span>
         <input type="checkbox" formControlName="accorderAcces" class="field-switch" />
@@ -76,7 +80,7 @@
           @if (form.get('role')?.touched && form.get('role')?.invalid) {
             <span class="field-error">Sélectionnez un rôle pour accorder l'accès.</span>
           }
-          <span class="field-hint">Un email d'invitation sera simulé — l'employé apparaîtra en statut "Invité" jusqu'à acceptation.</span>
+          <span class="field-hint">✉️ Un email d'invitation sera simulé — l'employé apparaîtra en statut "Invité" jusqu'à acceptation.</span>
         </label>
       }
     </div>

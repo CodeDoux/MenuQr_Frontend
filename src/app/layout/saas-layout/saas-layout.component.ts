@@ -14,27 +14,29 @@ import { AuthService } from '../../core/services/auth.service';
 export class SaasLayoutComponent {
   readonly currentUser;
 
-  readonly navItems = [
-    { label: 'Tableau de bord', icon: '◱', route: '/dashboard' },
-    { label: 'Menus', icon: '☰', route: '/menus' },
-    { label: 'Produits', icon: '◈', route: '/produits' },
-    { label: 'Tables & QR', icon: '▦', route: '/tables' },
-    { label: 'Commandes', icon: '▤', route: '/commandes' },
-    { label: 'Livraisons', icon: '🛵', route: '/livraisons' },
-    { label: 'Paiements', icon: '◈', route: '/paiements' },
-    { label: 'Factures', icon: '▧', route: '/factures' },
-    { label: 'Employés', icon: '◉', route: '/employes' },
-    { label: 'Promotions', icon: '★', route: '/promotions' },
-    { label: 'Statistiques', icon: '◧', route: '/statistiques' },
-    { label: 'Abonnement', icon: '◆', route: '/abonnement' },
-    { label: 'Journal d\'activité', icon: '☰', route: '/journal' },
-    { label: 'Paramètres', icon: '⚙', route: '/parametres' },
+  readonly navItemsBruts = [
+    { label: 'Dashboard', icon: '◱', route: '/dashboard', permission: null },
+    { label: 'Menus', icon: '📖', route: '/menus', permission: null },
+    { label: 'Produits', icon: '🍽️', route: '/produits', permission: null },
+    { label: 'Tables & QR', icon: '⬛', route: '/tables', permission: null },
+    { label: 'Commandes', icon: '🧾', route: '/commandes', permission: 'commande.voir' },
+    { label: 'Livraisons', icon: '🛵', route: '/livraisons', permission: 'livraison.gerer' },
+    { label: 'Employés', icon: '👥', route: '/employes', permission: 'employe.gerer' },
+    { label: 'Promotions', icon: '🏷️', route: '/promotions', permission: 'promotion.gerer' },
+    { label: 'Statistiques', icon: '📊', route: '/statistiques', permission: 'statistique.consulter' },
+    { label: 'Abonnement', icon: '💳', route: '/abonnement', permission: 'abonnement.gerer' },
+    { label: 'Paiements', icon: '💰', route: '/paiements', permission: 'facture.consulter' },
+    { label: 'Factures', icon: '📄', route: '/factures', permission: 'facture.consulter' },
+    { label: 'Journal', icon: '📋', route: '/journal', permission: 'journal.consulter' },
+    { label: 'Paramètres', icon: '⚙️', route: '/parametres', permission: 'parametre.gerer' },
   ];
 
-  constructor(
-    private readonly auth: AuthService,
-    private readonly router: Router
-  ) {
+  readonly navItems;
+
+  constructor(private readonly auth: AuthService, private readonly router: Router) {
+    this.navItems = this.navItemsBruts.filter(
+      (item) => item.permission === null || this.auth.hasPermission(item.permission)
+    );
     this.currentUser = this.auth.currentUser;
   }
 
@@ -48,8 +50,8 @@ export class SaasLayoutComponent {
       .toUpperCase();
   }
 
-  deconnexion(): void {
+ deconnexion(): void {
     this.auth.logout();
-    this.router.navigate(['/login']);
+    window.location.href = '/login';
   }
 }

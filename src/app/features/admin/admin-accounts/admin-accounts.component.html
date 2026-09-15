@@ -1,40 +1,45 @@
 <div class="page-header">
-  <div>
-    <h1 class="page-title">Administrateurs</h1>
-    <p class="page-subtitle">Comptes ayant accès à l'espace d'administration MenuQr.</p>
+  <div class="pl-header-title">
+    <span class="pl-header-icon">👥</span>
+    <div>
+      <h1 class="page-title">Administrateurs</h1>
+      <p class="page-subtitle">Comptes ayant accès à l'espace d'administration MenuQr.</p>
+    </div>
   </div>
-  <button type="button" class="btn btn--primary" (click)="ouvrirCreation()">+ Nouvel administrateur</button>
+  <button type="button" class="btn btn--primary" (click)="ouvrirCreation()">
+    <span class="mn-btn-icon">+</span> Nouvel administrateur
+  </button>
 </div>
 
-<div class="card">
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Nom</th>
-        <th>Email</th>
-        <th>Statut</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (c of comptes(); track c.id) {
-        <tr>
-          <td class="table-strong">{{ c.nomComplet }}</td>
-          <td class="table-muted">{{ c.email }}</td>
-          <td><app-badge [label]="c.actif ? 'Actif' : 'Désactivé'" [tone]="c.actif ? 'success' : 'neutral'" /></td>
-          <td class="table-actions">
-            <button type="button" class="btn btn--sm btn--ghost" (click)="basculerActif(c.id)">
-              {{ c.actif ? 'Désactiver' : 'Réactiver' }}
-            </button>
-            <button type="button" class="btn btn--icon" title="Supprimer" (click)="supprimer(c.id, c.nomComplet)">🗑</button>
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
-</div>
+@if (comptes().length === 0) {
+  <div class="card empty-state mn-empty">
+    <div class="mn-empty-icon">🛡️</div>
+    <div class="empty-state-title">Aucun compte administrateur</div>
+  </div>
+} @else {
+  <div class="emp-list">
+    @for (c of comptes(); track c.id) {
+      <div class="card emp-row" [class.emp-row--invite]="!c.actif">
+        <div class="emp-avatar adm-avatar">{{ c.nom_complet.charAt(0).toUpperCase() }}</div>
 
-<app-modal [ouvert]="formOuvert()" titre="Nouvel administrateur" (fermer)="formOuvert.set(false)">
+        <div class="emp-info">
+          <div class="emp-nom">{{ c.nom_complet }}</div>
+          <div class="emp-email">{{ c.email }}</div>
+          <app-badge [label]="c.actif ? 'Actif' : 'Désactivé'" [tone]="c.actif ? 'success' : 'neutral'" />
+        </div>
+
+        <div class="emp-actions">
+          <button type="button" class="adm-action-chip" [class.adm-action-chip--success]="!c.actif" [class.adm-action-chip--warning]="c.actif" (click)="basculerActif(c.id)">
+            {{ c.actif ? '⏸ Désactiver' : '✓ Réactiver' }}
+          </button>
+          <button type="button" class="mn-action-btn mn-action-btn--delete" title="Supprimer" (click)="supprimer(c.id, c.nomComplet)">🗑</button>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<app-modal [ouvert]="formOuvert()" titre="Nouvel administrateur" icone="🛡️" (fermer)="formOuvert.set(false)">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
     <label class="field">
       <span class="field-label">Nom complet *</span>

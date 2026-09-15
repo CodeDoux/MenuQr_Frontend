@@ -10,6 +10,7 @@ import { PlatformAdminService } from '../../../core/services/admin.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ModalComponent, BadgeComponent],
   templateUrl: './admin-accounts.component.html',
+  styleUrl: './admin-accounts.component.css',
 })
 export class AdminAccountsComponent {
   readonly comptes;
