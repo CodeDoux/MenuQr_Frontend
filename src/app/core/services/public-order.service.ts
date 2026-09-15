@@ -20,6 +20,8 @@ export interface PublicMenuData {
   menus: any[];
   produits: any[];
   zonesLivraison: any[];
+  promotionsProduits: Record<string, { typeReduction: string; valeur: number }>;
+  promotionGlobale: { nom: string; typeReduction: string; valeur: number } | null;
 }
 
 export interface CommandeItem {
@@ -62,7 +64,15 @@ export class PublicOrderService {
       menus: rep.menus.data ?? rep.menus,
       produits: rep.produits.data ?? rep.produits,
       zonesLivraison: rep.zones_livraison?.data ?? rep.zones_livraison ?? [],
-    };
+      promotionsProduits: Object.fromEntries(
+        Object.entries(rep.promotions_produits ?? {}).map(([id, p]: [string, any]) => [
+          id, { typeReduction: p.type_reduction, valeur: Number(p.valeur) },
+        ])
+      ),
+      promotionGlobale: rep.promotion_globale
+        ? { nom: rep.promotion_globale.nom, typeReduction: rep.promotion_globale.type_reduction, valeur: Number(rep.promotion_globale.valeur) }
+        : null,
+          };
   }
 
   async creerCommande(
@@ -102,10 +112,19 @@ export class PublicOrderService {
     return rep.data;
   }
 
-  async chargerCommandesDeLaVisite(commandeId: string): Promise<any[]> {
-    const rep = await firstValueFrom(this.http.get<{ data: any[] }>(`${API}/public/commandes/${commandeId}/visite`));
-    return rep.data;
-  }
+  async chargerCommandesDeLaVisite(commandeId: string): Promise<{ commandes: any[]; additionSousTotal: number | null; additionRemise: number | null; additionTotal: number | null }> {
+  const rep = await firstValueFrom(
+    this.http.get<{ data: any[]; addition_sous_total: number | null; addition_remise: number | null; addition_total: number | null }>(
+      `${API}/public/commandes/${commandeId}/visite`
+    )
+  );
+  return {
+    commandes: rep.data,
+    additionSousTotal: rep.addition_sous_total !== null ? Number(rep.addition_sous_total) : null,
+    additionRemise: rep.addition_remise !== null ? Number(rep.addition_remise) : null,
+    additionTotal: rep.addition_total !== null ? Number(rep.addition_total) : null,
+  };
+}
 
   async payer(commandeId: string, methode: string): Promise<void> {
     await firstValueFrom(this.http.post(`${API}/public/commandes/${commandeId}/payer`, { methode }));

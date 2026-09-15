@@ -19,6 +19,11 @@ const ICONE_METHODE: Record<string, string> = {
   ESPECES: '💵', WAVE: '🟦', ORANGE_MONEY: '🟧', CARTE: '💳', AUTRE: '➕',
 };
 
+interface PromoProduit {
+  typeReduction: string;
+  valeur: number;
+}
+
 @Component({
   selector: 'app-menu-client',
   standalone: true,
@@ -37,6 +42,9 @@ export class MenuClientComponent implements OnInit {
   restaurantDescription: string | null = null;
   horaires: { jour: string; ouverture: string | null; fermeture: string | null; ferme: boolean }[] = [];
   moyensPaiement: string[] = [];
+
+  promotionsProduits: Record<string, PromoProduit> = {};
+  promotionGlobale: { nom: string; typeReduction: string; valeur: number } | null = null;
 
   salleNom: string | null = null;
   tableNumero: string | null = null;
@@ -90,12 +98,15 @@ export class MenuClientComponent implements OnInit {
       this.restaurantDescription = donnees.restaurantDescription;
       this.horaires = donnees.horaires;
       this.moyensPaiement = donnees.moyensPaiement;
+      this.promotionsProduits = donnees.promotionsProduits ?? {};
+      this.promotionGlobale = donnees.promotionGlobale ?? null;
       this.salleNom = donnees.salleNom;
       this.tableNumero = donnees.tableNumero;
       this.menus.set(donnees.menus);
       this.produits.set(donnees.produits);
       this.cart.initialiserContexte(donnees.tableId, null);
       this.cart.definirZonesLivraison(donnees.zonesLivraison);
+      this.cart.definirPromotions(this.promotionsProduits, this.promotionGlobale);
       this.categorieActive.set(donnees.menus[0]?.categories?.[0]?.id ?? null);
     } catch {
       this.router.navigate(['/m', this.restaurantId, 'invalide']);
@@ -132,6 +143,21 @@ export class MenuClientComponent implements OnInit {
     });
   }
 
+  /** Promo ciblée sur ce produit précis, s'il y en a une. */
+  promoDeProduit(p: any): PromoProduit | null {
+    return this.promotionsProduits[p.id] ?? null;
+  }
+
+  /** Prix après réduction, pour l'affichage (prix barré). */
+  prixApresPromo(prix: number, promo: PromoProduit): number {
+    const reduction = promo.typeReduction === 'POURCENTAGE' ? prix * (promo.valeur / 100) : promo.valeur;
+    return Math.max(0, prix - reduction);
+  }
+
+  labelPromo(promo: PromoProduit): string {
+    return promo.typeReduction === 'POURCENTAGE' ? `-${promo.valeur}%` : `-${promo.valeur} F`;
+  }
+
   ouvrirProduit(p: any): void {
     if (!p.est_disponible) return;
     this.produitOuvert.set(p);
@@ -151,6 +177,14 @@ export class MenuClientComponent implements OnInit {
 
   prixAffiche(p: any): number {
     return Number(this.varianteChoisie()?.prix ?? p.prix);
+  }
+
+  /** Prix après promo pour le tiroir détail — s'applique même si une
+   *  variante est choisie (la promo porte sur le produit, pas une variante précise). */
+  prixApresPromoAffiche(p: any): number {
+    const prixBase = this.prixAffiche(p);
+    const promo = this.promoDeProduit(p);
+    return promo ? this.prixApresPromo(prixBase, promo) : prixBase;
   }
 
   ajoutRapide(p: any, evt: Event): void {

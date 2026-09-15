@@ -109,3 +109,11 @@
   border-radius: var(--radius-sm);
   margin: -0.2rem 0 0.2rem;
 }
+.vk-reduction {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-success-strong);
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 0.3rem 0;
+}

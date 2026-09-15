@@ -34,7 +34,7 @@ export class PanierComponent implements OnInit {
   code = '';
 
   constructor(
-    private readonly cart: CartService,
+    protected readonly cart: CartService,
     private readonly publicOrderService: PublicOrderService,
     private readonly route: ActivatedRoute,
     private readonly router: Router

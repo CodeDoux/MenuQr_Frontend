@@ -54,22 +54,34 @@
   }
 
   @if (peutPayer()) {
-    <div class="pm-suivi-recap">
-      <h2 class="pm-section-titre">Paiement</h2>
-      @if (commande()!.visite_id) {
-        <p class="pm-field-hint">Ce paiement règle l'intégralité de l'addition de votre table ({{ montantAPayer() }} FCFA), y compris vos autres commandes de cette visite.</p>
-      } @else {
-        <p class="pm-field-hint">Payez en ligne dès maintenant, ou réglez à la remise/livraison.</p>
-      }
-      <div class="pm-paiement-options">
-        @for (m of methodesPaiementEnLigne; track m.code) {
-          <button type="button" class="pm-mode-chip" (click)="payerEnLigne(m.code)">
-            Payer {{ montantAPayer() }} FCFA par {{ m.libelle }}
-          </button>
-        }
+  <div class="pm-suivi-recap">
+    <h2 class="pm-section-titre">Paiement</h2>
+
+    @if (remiseAffichee() > 0) {
+      <div class="pm-recap-ligne">
+        <span>Sous-total</span>
+        <span class="mc-prix-barre">{{ sousTotalAvantRemise() }} F</span>
       </div>
+      <div class="pm-recap-ligne pm-recap-reduction">
+        <span>🎉 Réduction</span>
+        <span>-{{ remiseAffichee() | number: '1.0-0' }} FCFA</span>
+      </div>
+    }
+
+    @if (commande()!.visite_id) {
+      <p class="pm-field-hint">Ce paiement règle l'intégralité de l'addition de votre table ({{ montantAPayer() }} FCFA), y compris vos autres commandes de cette visite.</p>
+    } @else {
+      <p class="pm-field-hint">Payez en ligne dès maintenant, ou réglez à la remise/livraison.</p>
+    }
+    <div class="pm-paiement-options">
+      @for (m of methodesPaiementEnLigne; track m.code) {
+        <button type="button" class="pm-mode-chip" (click)="payerEnLigne(m.code)">
+          Payer {{ montantAPayer() }} FCFA par {{ m.libelle }}
+        </button>
+      }
     </div>
-  }
+  </div>
+}
   @if (paiementConfirme()) {
     <div class="pm-suivi-terminee">✓ Paiement confirmé</div>
   }

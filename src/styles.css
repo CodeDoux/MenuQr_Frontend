@@ -982,3 +982,59 @@ button { font-family: inherit; }
   padding: 0.4rem 0.75rem;
   border-radius: 999px;
 }
+
+.mc-promo-banniere {
+  background: var(--color-accent);
+  color: white;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.65rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+}
+
+.mc-prix-barre {
+  text-decoration: line-through;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  font-size: 0.8rem;
+  margin-right: 0.3rem;
+}
+
+.mc-badge-promo {
+  background: var(--color-danger-strong);
+  color: white;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
+  margin-left: 0.4rem;
+}
+
+.mc-row-prix--promo,
+.mc-carousel-prix--promo {
+  color: var(--color-danger-strong);
+}
+.pm-sheet-promo {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-danger-strong);
+  margin: 0.3rem 0 0;
+}
+
+.pm-economie {
+  background: color-mix(in srgb, var(--color-success) 12%, white);
+  color: var(--color-success-strong);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 0.6rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.75rem;
+}
+
+.pm-recap-reduction {
+  color: var(--color-success-strong);
+  font-weight: 700;
+}

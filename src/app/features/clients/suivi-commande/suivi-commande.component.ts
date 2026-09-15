@@ -31,6 +31,9 @@ export class SuiviCommandeComponent implements OnInit {
   readonly LABEL_STATUT = LABEL_STATUT;
   readonly ETAPES = ETAPES;
   readonly methodesPaiementEnLigne = METHODES_PAIEMENT_EN_LIGNE;
+  additionTotal = signal<number | null>(null);
+  additionSousTotal = signal<number | null>(null);
+additionRemise = signal<number | null>(null);
 
   commandeId = '';
   restaurantId = '';
@@ -59,9 +62,13 @@ export class SuiviCommandeComponent implements OnInit {
       const c = await this.publicOrderService.chargerCommande(this.commandeId);
       this.commande.set(c);
       if (c.visite_id) {
-        const autres = await this.publicOrderService.chargerCommandesDeLaVisite(this.commandeId);
-        this.autresCommandesVisite.set(autres);
-      }
+      const { commandes, additionSousTotal, additionRemise, additionTotal } =
+      await this.publicOrderService.chargerCommandesDeLaVisite(this.commandeId);
+      this.autresCommandesVisite.set(commandes);
+      this.additionSousTotal.set(additionSousTotal);
+      this.additionRemise.set(additionRemise);
+      this.additionTotal.set(additionTotal);
+    }
     } finally {
       this.chargement.set(false);
     }
@@ -79,18 +86,34 @@ export class SuiviCommandeComponent implements OnInit {
     return statut === 'ANNULEE';
   }
 
-  /** Si la commande fait partie d'une visite, le montant à payer couvre
-   *  l'ensemble des commandes de cette visite (addition), pas juste celle-ci. */
   montantAPayer(): number {
-    const c = this.commande();
-    if (!c) return 0;
-    if (c.visite_id && this.autresCommandesVisite().length > 0) {
-      return this.autresCommandesVisite()
-        .filter((cmd: any) => cmd.statut !== 'ANNULEE')
-        .reduce((acc: number, cmd: any) => acc + Number(cmd.total), 0);
-    }
-    return Number(c.total);
+  const c = this.commande();
+  if (!c) return 0;
+  if (c.visite_id && this.additionTotal() !== null) {
+    return this.additionTotal()!;
   }
+  return Number(c.total);
+}
+
+/** Réduction réellement appliquée — celle de l'addition si sur place,
+ *  sinon celle de la commande elle-même (Emporter/Livraison). */
+remiseAffichee(): number {
+  const c = this.commande();
+  if (!c) return 0;
+  if (c.visite_id && this.additionRemise() !== null) {
+    return this.additionRemise()!;
+  }
+  return Number(c.remise ?? 0);
+}
+
+sousTotalAvantRemise(): number {
+  const c = this.commande();
+  if (!c) return 0;
+  if (c.visite_id && this.additionSousTotal() !== null) {
+    return this.additionSousTotal()!;
+  }
+  return Number(c.sous_total ?? c.total);
+}
 
   peutPayer(): boolean {
     const c = this.commande();

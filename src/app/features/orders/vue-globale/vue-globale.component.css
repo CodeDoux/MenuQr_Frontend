@@ -58,3 +58,9 @@
   font-size: 0.82rem;
   color: var(--color-text-secondary);
 }
+
+.vk-reduction-badge {
+  color: var(--color-success-strong);
+  font-weight: 700;
+  font-size: 0.8rem;
+}

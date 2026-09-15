@@ -54,6 +54,13 @@
 </header>
 
 <main class="mc-content">
+  @if (promotionGlobale) {
+    <div class="mc-promo-banniere">
+      🎉 {{ promotionGlobale.typeReduction === 'POURCENTAGE' ? '-' + promotionGlobale.valeur + '%' : '-' + promotionGlobale.valeur + ' F' }}
+      sur toute la commande !
+    </div>
+  }
+
   @if (!recherche() && produitsPopulaires().length > 0) {
     <section class="mc-section">
       <div class="mc-section-head">
@@ -77,7 +84,14 @@
             </div>
             <p class="mc-carousel-nom">{{ p.nom }}</p>
             <div class="mc-carousel-bottom">
-              <span class="mc-carousel-prix">{{ p.prix }} F CFA</span>
+              @if (promoDeProduit(p); as promo) {
+                <span class="mc-carousel-prix mc-carousel-prix--promo">
+                  <span class="mc-prix-barre">{{ p.prix }} F</span>
+                  {{ prixApresPromo(p.prix, promo) | number: '1.0-0' }} F
+                </span>
+              } @else {
+                <span class="mc-carousel-prix">{{ p.prix }} F CFA</span>
+              }
               <span class="mc-add-circle" (click)="ajoutRapide(p, $event)">+</span>
             </div>
           </button>
@@ -119,10 +133,19 @@
               @if (!p.est_disponible) {
                 <span class="mc-rupture">Indisponible</span>
               } @else {
-                <span class="mc-row-prix">
-                  {{ p.variantes?.length > 0 ? 'Dès ' : '' }}{{ p.prix }} F CFA
-                </span>
-                <span class="mc-add-pill" (click)="ajoutRapide(p, $event)">+ Ajouter</span>
+                @if (promoDeProduit(p); as promo) {
+                  <span class="mc-row-prix mc-row-prix--promo">
+                    <span class="mc-prix-barre">{{ p.prix }} F</span>
+                    {{ prixApresPromo(p.prix, promo) | number: '1.0-0' }} F CFA
+                    <span class="mc-badge-promo">{{ labelPromo(promo) }}</span>
+                  </span>
+                  <span class="mc-add-pill" (click)="ajoutRapide(p, $event)">+ Ajouter</span>
+                } @else {
+                  <span class="mc-row-prix">
+                    {{ p.variantes?.length > 0 ? 'Dès ' : '' }}{{ p.prix }} F CFA
+                  </span>
+                  <span class="mc-add-pill" (click)="ajoutRapide(p, $event)">+ Ajouter</span>
+                }
               }
             </div>
           </div>
@@ -144,6 +167,14 @@
       <div class="pm-sheet-body">
         <h2 class="pm-sheet-titre">{{ p.nom }}</h2>
         @if (p.description) { <p class="pm-sheet-desc">{{ p.description }}</p> }
+
+        @if (promoDeProduit(p); as promo) {
+          <p class="pm-sheet-promo">
+            <span class="mc-prix-barre">{{ prixAffiche(p) }} F</span>
+            {{ prixApresPromoAffiche(p) | number: '1.0-0' }} FCFA
+            <span class="mc-badge-promo">{{ labelPromo(promo) }}</span>
+          </p>
+        }
 
         @if (p.variantes?.length > 0) {
           <div class="pm-variantes">
@@ -177,7 +208,7 @@
         </label>
 
         <button type="button" class="pm-btn-ajouter" (click)="ajouterAuPanier()">
-          Ajouter — {{ prixAffiche(p) * quantiteChoisie() }} FCFA
+          Ajouter — {{ prixApresPromoAffiche(p) * quantiteChoisie() }} FCFA
         </button>
       </div>
     </div>

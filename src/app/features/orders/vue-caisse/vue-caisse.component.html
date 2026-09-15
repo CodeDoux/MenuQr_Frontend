@@ -25,6 +25,13 @@
           </div>
         }
 
+        @if (item.addition.remise > 0) {
+          <div class="vk-reduction">
+            <span>🎉 Réduction appliquée</span>
+            <span>-{{ item.addition.remise | number: '1.0-0' }} F</span>
+          </div>
+        }
+
         <div class="vk-total">
           <span>Total à payer</span>
           <span class="vk-total-valeur">{{ item.addition.total }} FCFA</span>
@@ -76,10 +83,10 @@
           <span class="vk-nb-commandes">{{ LABEL_MODE[c.mode] }}</span>
         </div>
 
-        @if (c.mode === 'EMPORTER' && c.nomClient  ) {
+        @if (c.mode === 'EMPORTER' && c.nomClient) {
           <div class="vk-contact-client">
-            <span>👤 {{ c.nomClient  }}</span>
-            <span>📞 {{ c.telephoneClient  }}</span>
+            <span>👤 {{ c.nomClient }}</span>
+            <span>📞 {{ c.telephoneClient }}</span>
             @if (c.heureRetraitSouhaitee) {
               <span>🕐 Retrait souhaité : {{ c.heureRetraitSouhaitee | date: 'HH:mm' }}</span>
             }
@@ -94,6 +101,14 @@
             </li>
           }
         </ul>
+
+        @if (c.remise > 0) {
+          <div class="vk-reduction">
+            <span>🎉 Réduction appliquée</span>
+            <span>-{{ c.remise | number: '1.0-0' }} F</span>
+          </div>
+        }
+
         <div class="vk-total">
           <span>Total à payer</span>
           <span class="vk-total-valeur">{{ c.total }} FCFA</span>

@@ -7,7 +7,14 @@
     <div class="pm-panier-item">
       <div class="pm-panier-item-info">
         <span class="pm-panier-item-nom">{{ item.produitNom }}</span>
-        <span class="pm-panier-item-prix">{{ item.sousTotal }} FCFA</span>
+        @if (cart.prixItemApresPromo(item) < item.sousTotal) {
+          <span class="pm-panier-item-prix">
+            <span class="mc-prix-barre">{{ item.sousTotal }} F</span>
+            {{ cart.prixItemApresPromo(item) | number: '1.0-0' }} FCFA
+          </span>
+        } @else {
+          <span class="pm-panier-item-prix">{{ item.sousTotal }} FCFA</span>
+        }
       </div>
       @if (item.notes) {
         <p class="pm-panier-item-note">📝 {{ item.notes }}</p>
@@ -102,6 +109,10 @@
 
 @if (erreur()) {
   <div class="pm-erreur">{{ erreur() }}</div>
+}
+
+@if (cart.montantEconomise() > 0) {
+  <div class="pm-economie">🎉 Vous économisez {{ cart.montantEconomise() | number: '1.0-0' }} FCFA</div>
 }
 
 <div class="pm-total-bar">
