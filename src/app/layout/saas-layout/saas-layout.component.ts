@@ -34,12 +34,12 @@ export class SaasLayoutComponent {
   ];
 
   readonly navItems;
-  lienVerification = signal<string | null>(null);
+  verificationEnvoyee = signal(false);
 
   async demanderVerification(): Promise<void> {
-    const lien = await this.auth.demanderVerificationEmail();
-    this.lienVerification.set(lien);
-  }
+  await this.auth.demanderVerificationEmail();
+  this.verificationEnvoyee.set(true);
+}
 
   constructor(private readonly auth: AuthService, private readonly router: Router) {
     this.navItems = this.navItemsBruts.filter(

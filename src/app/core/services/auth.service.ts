@@ -118,15 +118,11 @@ export class AuthService {
   // Vérification d'email — jamais bloquant, simple rappel (décision actée)
   // ============================================================
 
-  /** Demande un nouveau lien de vérification pour l'utilisateur CONNECTÉ. */
-  async demanderVerificationEmail(): Promise<string | null> {
-    const rep = await firstValueFrom(
-      this.http.post<{ message: string; verification_url?: string }>(
-        `${environment.apiUrl}/auth/renvoyer-verification-email`,
-        {}
-      )
+  /** Demande un nouveau lien de vérification pour l'utilisateur CONNECTÉ — envoyé par email désormais. */
+  async demanderVerificationEmail(): Promise<void> {
+    await firstValueFrom(
+      this.http.post(`${environment.apiUrl}/auth/renvoyer-verification-email`, {})
     );
-    return rep.verification_url ?? null;
   }
 
   /** Appelée depuis la page publique de vérification (lien cliqué). */
@@ -215,14 +211,10 @@ export class AuthService {
     }
   }
 
-  async demanderReinitialisation(email: string): Promise<string | null> {
-    const rep = await firstValueFrom(
-      this.http.post<{ message: string; reset_url?: string }>(
-        `${environment.apiUrl}/auth/mot-de-passe-oublie`,
-        { email }
-      )
+  async demanderReinitialisation(email: string): Promise<void> {
+    await firstValueFrom(
+      this.http.post(`${environment.apiUrl}/auth/mot-de-passe-oublie`, { email })
     );
-    return rep.reset_url ?? null;
   }
 
   async reinitialiserMotDePasse(
