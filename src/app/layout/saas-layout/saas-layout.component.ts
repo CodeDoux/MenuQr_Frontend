@@ -3,6 +3,8 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NotificationBellComponent } from '../../features/notifications/notification-bell/notification-bell.component';
 import { AuthService } from '../../core/services/auth.service';
+import { signal } from '@angular/core'; // déjà importé normalement
+
 
 @Component({
   selector: 'app-saas-layout',
@@ -32,6 +34,12 @@ export class SaasLayoutComponent {
   ];
 
   readonly navItems;
+  lienVerification = signal<string | null>(null);
+
+  async demanderVerification(): Promise<void> {
+    const lien = await this.auth.demanderVerificationEmail();
+    this.lienVerification.set(lien);
+  }
 
   constructor(private readonly auth: AuthService, private readonly router: Router) {
     this.navItems = this.navItemsBruts.filter(

@@ -1038,3 +1038,71 @@ button { font-family: inherit; }
   color: var(--color-success-strong);
   font-weight: 700;
 }
+
+.nf-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+  padding: 1.5rem;
+}
+
+.nf-card {
+  text-align: center;
+  max-width: 360px;
+}
+
+.nf-emoji {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.nf-titre {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.nf-texte {
+  color: var(--color-text-secondary);
+  font-size: 0.92rem;
+  margin-bottom: 1.5rem;
+}
+
+.nf-btn {
+  display: inline-block;
+}
+.banniere-verification {
+  background: color-mix(in srgb, var(--color-warning) 15%, white);
+  color: var(--color-warning-strong);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.banniere-verification-btn {
+  background: var(--color-warning-strong);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.banniere-verification-lien {
+  background: color-mix(in srgb, var(--color-warning) 8%, white);
+  padding: 0.5rem 1.5rem;
+  font-size: 0.78rem;
+  word-break: break-all;
+}
+.banniere-verification-lien a {
+  color: var(--color-warning-strong);
+}

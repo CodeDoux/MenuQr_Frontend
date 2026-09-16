@@ -1,0 +1,21 @@
+<div class="login-shell">
+  <div class="login-card" style="text-align: center;">
+    @switch (statut()) {
+      @case ('en_cours') {
+        <p class="login-subtitle">Vérification en cours...</p>
+      }
+      @case ('succes') {
+        <div class="nf-emoji">✅</div>
+        <h1 class="login-title">Email vérifié !</h1>
+        <p class="login-subtitle">Ton adresse email est maintenant confirmée.</p>
+        <a routerLink="/dashboard" class="btn btn--primary login-submit">Retour au tableau de bord</a>
+      }
+      @case ('erreur') {
+        <div class="nf-emoji">⚠️</div>
+        <h1 class="login-title">Lien invalide</h1>
+        <p class="login-subtitle">{{ messageErreur() }}</p>
+        <a routerLink="/dashboard" class="btn btn--ghost login-submit">Retour au tableau de bord</a>
+      }
+    }
+  </div>
+</div>

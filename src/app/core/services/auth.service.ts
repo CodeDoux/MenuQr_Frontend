@@ -10,21 +10,15 @@ const USER_STORAGE_KEY = 'menuqr_current_user';
 
 interface LoginResponseMonoRestaurant {
   token: string;
-  user: { id: string; nom_complet: string; email: string };
+  user: { id: string; nom_complet: string; email: string; email_verifie?: boolean };
   restaurant: { id: string; nom: string };
+  role: string;
+  permissions: string[];
 }
 
 interface LoginResponseMultiRestaurant {
   pre_auth_token: string;
   restaurants: { id: string; nom: string }[];
-}
-
-interface LoginResponseMonoRestaurant {
-  token: string;
-  user: { id: string; nom_complet: string; email: string };
-  restaurant: { id: string; nom: string };
-  role: string;
-  permissions: string[];
 }
 
 /**
@@ -72,12 +66,9 @@ export class AuthService {
     return this.finaliserConnexion(reponse.token, reponse.user, reponse.restaurant, reponse.role, reponse.permissions);
   }
 
-// 3. finaliserConnexion() prend maintenant 2 paramètres de plus, et les utilise
-//    réellement au lieu des valeurs figées :
-
   private finaliserConnexion(
     token: string,
-    user: { id: string; nom_complet: string; email: string },
+    user: { id: string; nom_complet: string; email: string; email_verifie?: boolean },
     restaurant: { id: string; nom: string },
     role: string,
     permissions: string[]
@@ -86,9 +77,10 @@ export class AuthService {
       id: user.id,
       nomComplet: user.nom_complet,
       email: user.email,
+      emailVerifie: user.email_verifie ?? true, // true par défaut si absent (ex. anciens comptes)
       restaurantId: restaurant.id,
       restaurantNom: restaurant.nom,
-      role: role as any, // RoleCode côté frontend — même valeurs (PROPRIETAIRE, GERANT, etc.)
+      role: role as any,
       permissions: permissions,
     };
 
@@ -99,15 +91,9 @@ export class AuthService {
     return utilisateur;
   }
 
-// 4. hasPermission() lit maintenant la vraie liste :
-
   hasPermission(code: string): boolean {
     return this._currentUser()?.permissions.includes(code) ?? false;
   }
-
-  
-
- 
 
   async logout(): Promise<void> {
     try {
@@ -119,14 +105,43 @@ export class AuthService {
     }
   }
 
-  
-
   private chargerDepuisStockage(): UtilisateurConnecte | null {
     try {
       const brut = localStorage.getItem(USER_STORAGE_KEY);
       return brut ? (JSON.parse(brut) as UtilisateurConnecte) : null;
     } catch {
       return null;
+    }
+  }
+
+  // ============================================================
+  // Vérification d'email — jamais bloquant, simple rappel (décision actée)
+  // ============================================================
+
+  /** Demande un nouveau lien de vérification pour l'utilisateur CONNECTÉ. */
+  async demanderVerificationEmail(): Promise<string | null> {
+    const rep = await firstValueFrom(
+      this.http.post<{ message: string; verification_url?: string }>(
+        `${environment.apiUrl}/auth/renvoyer-verification-email`,
+        {}
+      )
+    );
+    return rep.verification_url ?? null;
+  }
+
+  /** Appelée depuis la page publique de vérification (lien cliqué). */
+  async verifierEmailAvecToken(email: string, token: string): Promise<void> {
+    await firstValueFrom(
+      this.http.post(`${environment.apiUrl}/auth/verifier-email`, { email, token })
+    );
+
+    // Si l'utilisateur est toujours connecté dans cet onglet, on met à jour
+    // son état local pour faire disparaître le bandeau immédiatement.
+    const utilisateurActuel = this._currentUser();
+    if (utilisateurActuel && utilisateurActuel.email === email) {
+      const misAJour = { ...utilisateurActuel, emailVerifie: true };
+      this._currentUser.set(misAJour);
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(misAJour));
     }
   }
 
@@ -143,8 +158,6 @@ export class AuthService {
     motDePasse: string;
     confirmationMotDePasse: string;
   }): Promise<UtilisateurConnecte> {
-    // Une seule offre existe actuellement (essai gratuit) — sélectionnée
-    // automatiquement, sans exposer de choix inutile à l'inscription.
     const offres = await firstValueFrom(
       this.http.get<{ data: any[] }>(`${environment.apiUrl}/offres`)
     );
@@ -156,7 +169,7 @@ export class AuthService {
     const reponse = await firstValueFrom(
       this.http.post<{
         token: string;
-        user: { id: string; nom_complet: string; email: string };
+        user: { id: string; nom_complet: string; email: string; email_verifie?: boolean };
         restaurant: { id: string; nom: string };
         role: string;
         permissions: string[];
@@ -178,7 +191,7 @@ export class AuthService {
   creerCompteInvite(input: { email: string; nomComplet: string; motDePasse: string; role: RoleCode; restaurantNom: string }): UtilisateurConnecte {
     const utilisateur: UtilisateurConnecte = {
       id: 'mock-' + Math.random().toString(36).slice(2, 10),
-      nomComplet: input.nomComplet, email: input.email,
+      nomComplet: input.nomComplet, email: input.email, emailVerifie: true,
       restaurantId: 'rest-001', restaurantNom: input.restaurantNom,
       role: input.role, permissions: [],
     };
@@ -227,7 +240,6 @@ export class AuthService {
     );
   }
 
-
   async chargerInvitation(employeId: string): Promise<{ nomComplet: string; role: string; restaurantNom: string } | null> {
     try {
       const rep = await firstValueFrom(
@@ -245,7 +257,7 @@ export class AuthService {
     const reponse = await firstValueFrom(
       this.http.post<{
         token: string;
-        user: { id: string; nom_complet: string; email: string };
+        user: { id: string; nom_complet: string; email: string; email_verifie?: boolean };
         restaurant: { id: string; nom: string };
         role: string;
         permissions: string[];
@@ -258,7 +270,7 @@ export class AuthService {
     return this.finaliserConnexion(reponse.token, reponse.user, reponse.restaurant, reponse.role, reponse.permissions);
   }
 
-   async changerMotDePasse(
+  async changerMotDePasse(
     motDePasseActuel: string,
     nouveauMotDePasse: string,
     confirmation: string

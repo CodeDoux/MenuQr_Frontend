@@ -38,6 +38,8 @@ import { AdminAccountsComponent } from './features/admin/admin-accounts/admin-ac
 import { AdminLoginComponent } from './features/auth/admin-login/admin-login.component';
 import { AdditionPrintComponent } from './features/factures/addition-print/addition-print.component';
 import { StatistiquesComponent } from './features/statistics/statistiques/statistiques.component';
+import { NotFoundComponent } from './features/not-found/not-found.component';
+import { VerificationEmailComponent } from './features/verification-email/verification-email.component';
 
 /**
  * Routing V1 - modules Menu/Categories/Produits, Salles/Tables/QRCodes, Auth.
@@ -101,5 +103,6 @@ export const routes: Routes = [
       { path: 'parametres', component: ParametresComponent },
     ],
   },
-  { path: '**', redirectTo: 'dashboard' },
+  { path: 'verification-email', component: VerificationEmailComponent },
+  { path: '**', component: NotFoundComponent },
 ];

@@ -13,6 +13,7 @@ export interface UtilisateurConnecte {
   restaurantNom: string;
   role: RoleCode;
   permissions: string[];
+  emailVerifie: boolean;
 }
 
 export interface LoginPayload {

@@ -47,6 +47,20 @@
       </div>
     </header>
 
+    @if (currentUser()?.emailVerifie === false) {
+  <div class="banniere-verification">
+    <span>✉️ Vérifiez votre adresse email pour sécuriser votre compte.</span>
+    <button type="button" class="banniere-verification-btn" (click)="demanderVerification()">
+      {{ lienVerification() ? 'Lien généré ↓' : 'Obtenir le lien' }}
+    </button>
+  </div>
+  @if (lienVerification(); as lien) {
+    <div class="banniere-verification-lien">
+      <a [href]="lien" target="_blank">{{ lien }}</a>
+    </div>
+  }
+}
+
     <main class="content">
       <router-outlet></router-outlet>
     </main>
