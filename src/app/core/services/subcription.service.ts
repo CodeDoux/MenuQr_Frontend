@@ -113,4 +113,11 @@ export class SubscriptionService {
       dateProchainPaiement: api.date_prochain_paiement,
     };
   }
+
+  async payerAbonnement(): Promise<string> {
+    const rep = await firstValueFrom(
+      this.http.post<{ url_paiement: string }>(`${environment.apiUrl}/abonnement/payer`, {})
+    );
+    return rep.url_paiement;
+  }
 }

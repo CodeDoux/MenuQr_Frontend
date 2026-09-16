@@ -1106,3 +1106,17 @@ button { font-family: inherit; }
 .banniere-verification-lien a {
   color: var(--color-warning-strong);
 }
+.ab-btn-payer {
+  margin-top: 1rem;
+}
+
+.ab-verification-banner {
+  background: color-mix(in srgb, var(--color-accent) 12%, white);
+  color: var(--color-accent-strong);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 0.7rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.25rem;
+}

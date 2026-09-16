@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { StatutAbonnement, StatutFactureAbonnement } from '../../../core/enums/enums';
 import { BadgeComponent, BadgeTone } from '../../../shared/components/badge/badge.component';
 import { SubscriptionService } from '../../../core/services/subcription.service';
@@ -36,7 +37,13 @@ export class AbonnementComponent implements OnInit {
   readonly LABEL_STATUT_FACTURE = LABEL_STATUT_FACTURE;
   readonly TONE_STATUT_FACTURE = TONE_STATUT_FACTURE;
 
-  constructor(private readonly service: SubscriptionService) {
+  enPaiement = signal(false);
+  verificationRetour = signal(false);
+
+  constructor(
+    private readonly service: SubscriptionService,
+    private readonly route: ActivatedRoute
+  ) {
     this.offres = this.service.offres;
     this.abonnement = this.service.abonnement;
     this.offreActuelle = this.service.offreActuelle;
@@ -45,8 +52,8 @@ export class AbonnementComponent implements OnInit {
   }
 
   estOffreActuelle(offre: Offre): boolean {
-  return this.abonnement()?.offre?.id === offre.id;
-}
+    return this.abonnement()?.offre?.id === offre.id;
+  }
 
   choisirOffre(offre: Offre): void {
     if (this.estOffreActuelle(offre)) return;
@@ -55,8 +62,45 @@ export class AbonnementComponent implements OnInit {
     }
   }
 
+  async payer(): Promise<void> {
+    this.enPaiement.set(true);
+    try {
+      const url = await this.service.payerAbonnement();
+      window.location.href = url;
+    } catch {
+      alert('Une erreur est survenue lors de la préparation du paiement.');
+      this.enPaiement.set(false);
+    }
+  }
+
   ngOnInit(): void {
     this.service.chargerAbonnement().catch(() => {});
     this.service.chargerFactures().catch(() => {});
+
+    // Retour depuis PayDunya : le webhook peut mettre quelques secondes à
+    // confirmer le paiement — on revérifie plusieurs fois avant d'abandonner.
+    if (this.route.snapshot.queryParamMap.get('paiement') === 'retour') {
+      this.verificationRetour.set(true);
+      this.rafraichirPeriodiquement();
+    }
+  }
+
+  private async rafraichirPeriodiquement(tentative: number = 0): Promise<void> {
+    if (tentative >= 6) {
+      this.verificationRetour.set(false);
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await Promise.all([
+      this.service.chargerAbonnement().catch(() => {}),
+      this.service.chargerFactures().catch(() => {}),
+    ]);
+
+    const derniereFacture = this.factures()[0];
+    if (derniereFacture?.statut === 'PAYEE') {
+      this.verificationRetour.set(false);
+      return;
+    }
+    this.rafraichirPeriodiquement(tentative + 1);
   }
 }

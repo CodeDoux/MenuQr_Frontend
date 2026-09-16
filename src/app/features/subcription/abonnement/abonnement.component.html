@@ -8,6 +8,10 @@
   </div>
 </div>
 
+@if (verificationRetour()) {
+  <div class="ab-verification-banner">⏳ Vérification de votre paiement en cours...</div>
+}
+
 @if (abonnement(); as abo) {
   <div class="ab-hero">
     <div class="ab-hero-top">
@@ -23,6 +27,10 @@
     @if (joursRestantsEssai() !== null) {
       <div class="ab-essai-banner">⏳ {{ joursRestantsEssai() }} jour(s) restant(s) avant la fin de votre période d'essai.</div>
     }
+
+    <button type="button" class="btn btn--primary ab-btn-payer" [disabled]="enPaiement()" (click)="payer()">
+      {{ enPaiement() ? 'Préparation du paiement...' : '💳 Payer maintenant' }}
+    </button>
   </div>
 } @else {
   <p class="table-muted">Chargement de l'abonnement...</p>
