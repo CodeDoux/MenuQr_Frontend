@@ -30,6 +30,14 @@
           <td><span class="adm-offre-tag">{{ r.offreNom }}</span></td>
           <td><app-badge [label]="LABEL_STATUT[r.statut]" [tone]="TONE_STATUT[r.statut]" /></td>
           <td class="table-actions">
+            <button
+              type="button"
+              class="adm-action-chip"
+              [disabled]="impersonationEnCours() === r.id"
+              (click)="seConnecterEnTantQue(r)"
+            >
+              🔑 {{ impersonationEnCours() === r.id ? 'Connexion...' : 'Se connecter en tant que' }}
+            </button>
             @if (r.statut !== StatutRestaurant.ACTIF) {
               <button type="button" class="adm-action-chip adm-action-chip--success" (click)="changerStatut(r, StatutRestaurant.ACTIF)">✓ Activer</button>
             }

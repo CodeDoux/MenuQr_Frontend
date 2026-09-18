@@ -19,6 +19,7 @@ export class AdminLayoutComponent {
     { label: 'Offres & Plans', icon: '📦', route: '/admin/offres' },
     { label: 'Abonnements', icon: '💳', route: '/admin/abonnements' },
     { label: 'Administrateurs', icon: '👥', route: '/admin/administrateurs' },
+    { label: 'Journal', icon: '📋', route: '/admin/journal' }
   ];
 
   constructor(

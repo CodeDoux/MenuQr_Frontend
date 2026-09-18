@@ -40,6 +40,7 @@ import { AdditionPrintComponent } from './features/factures/addition-print/addit
 import { StatistiquesComponent } from './features/statistics/statistiques/statistiques.component';
 import { NotFoundComponent } from './features/not-found/not-found.component';
 import { VerificationEmailComponent } from './features/verification-email/verification-email.component';
+import { JournalAdminComponent } from './features/admin/journal-admin/journal-admin.component';
 
 /**
  * Routing V1 - modules Menu/Categories/Produits, Salles/Tables/QRCodes, Auth.
@@ -59,6 +60,7 @@ export const routes: Routes = [
       { path: 'offres', component: OffreManagementComponent },
       { path: 'abonnements', component: SubscriptionOverviewComponent },
       { path: 'administrateurs', component: AdminAccountsComponent },
+      {path: 'journal', component: JournalAdminComponent}
     ],
   },
   { path: 'inscription', component: SignupComponent },

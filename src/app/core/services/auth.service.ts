@@ -66,6 +66,22 @@ export class AuthService {
     return this.finaliserConnexion(reponse.token, reponse.user, reponse.restaurant, reponse.role, reponse.permissions);
   }
 
+
+  /** Admin uniquement : se connecte TEMPORAIREMENT à la place d'un
+   *  restaurant pour l'assister. Utilise le token ADMIN actuel pour
+   *  l'appel (intercepteur), puis bascule sur le nouveau token restaurant
+   *  reçu — mêmes clés de stockage qu'une connexion normale. */
+  async impersonerRestaurant(restaurantId: string): Promise<UtilisateurConnecte> {
+    const reponse = await firstValueFrom(
+      this.http.post<LoginResponseMonoRestaurant>(
+        `${environment.apiUrl}/admin/restaurants/${restaurantId}/impersonate`,
+        {}
+      )
+    );
+ 
+    return this.finaliserConnexion(reponse.token, reponse.user, reponse.restaurant, reponse.role, reponse.permissions);
+  }
+
   private finaliserConnexion(
     token: string,
     user: { id: string; nom_complet: string; email: string; email_verifie?: boolean },
