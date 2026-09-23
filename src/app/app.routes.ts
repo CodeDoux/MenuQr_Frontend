@@ -41,12 +41,14 @@ import { StatistiquesComponent } from './features/statistics/statistiques/statis
 import { NotFoundComponent } from './features/not-found/not-found.component';
 import { VerificationEmailComponent } from './features/verification-email/verification-email.component';
 import { JournalAdminComponent } from './features/admin/journal-admin/journal-admin.component';
+import { LandingPageComponent } from './features/landing-page/landing-page/landing-page.component';
 
 /**
  * Routing V1 - modules Menu/Categories/Produits, Salles/Tables/QRCodes, Auth.
  * Toutes les routes sous le layout SaaS sont desormais protegees par authGuard.
  */
 export const routes: Routes = [
+  { path: '', component: LandingPageComponent, pathMatch: 'full' },
  { path: 'login', component: LoginComponent },
   { path: 'admin/login', component: AdminLoginComponent },
   {

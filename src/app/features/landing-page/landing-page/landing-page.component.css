@@ -1,0 +1,413 @@
+/* ==========================================================
+   Landing page — direction artistique dédiée, distincte du
+   reste de l'app : ambiance restaurant tamisée plutôt que
+   l'interface utilitaire crème/terracotta du produit lui-même.
+   ========================================================== */
+
+.lp-shell {
+  --lp-ink: #17130F;
+  --lp-ink-soft: #211B15;
+  --lp-copper: #C6803A;
+  --lp-copper-strong: #A6672A;
+  --lp-copper-soft: rgba(198, 128, 58, 0.14);
+  --lp-cream: #FAF5EC;
+  --lp-cream-muted: #F1E9DA;
+  --lp-text-clair: #F3ECDF;
+  --lp-text-clair-mute: rgba(243, 236, 223, 0.65);
+  --lp-text-sombre: #241D16;
+  --lp-text-sombre-mute: #6B5F51;
+  --lp-serif: 'Fraunces', Georgia, serif;
+  --lp-sans: 'Inter', -apple-system, sans-serif;
+
+  background: var(--lp-cream);
+  color: var(--lp-text-sombre);
+  font-family: var(--lp-sans);
+  overflow-x: hidden;
+}
+
+/* --- Boutons dédiés --- */
+.lp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.9rem 1.7rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.lp-btn:hover { transform: translateY(-1px); }
+.lp-btn--primary {
+  background: var(--lp-copper);
+  color: #17130F;
+  box-shadow: 0 8px 24px -8px rgba(198, 128, 58, 0.55);
+}
+.lp-btn--primary:hover { background: var(--lp-copper-strong); box-shadow: 0 10px 28px -6px rgba(198, 128, 58, 0.6); }
+.lp-btn--ghost {
+  background: transparent;
+  color: var(--lp-text-clair);
+  border-color: rgba(243, 236, 223, 0.28);
+}
+.lp-btn--ghost:hover { border-color: rgba(243, 236, 223, 0.5); }
+
+/* --- Navigation --- */
+.lp-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 5vw;
+  max-width: 1320px;
+  margin: 0 auto;
+  position: relative;
+}
+.lp-nav-brand { display: flex; align-items: center; gap: 0.65rem; }
+.lp-brand-mark {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  background: var(--lp-copper);
+  color: var(--lp-ink);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.82rem;
+  font-family: var(--lp-sans);
+}
+.lp-nav-name { font-family: var(--lp-serif); font-weight: 600; font-size: 1.2rem; color: var(--lp-text-sombre); }
+.lp-nav-actions { display: flex; align-items: center; gap: 1.5rem; }
+.lp-nav-link { color: var(--lp-text-sombre-mute); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+.lp-nav-link:hover { color: var(--lp-text-sombre); }
+.lp-nav-cta {
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  background: var(--lp-ink);
+  color: var(--lp-text-clair);
+}
+
+/* Header flottant, fixe, superposé sur la photo du héro — bascule
+   d'apparence dès qu'on scrolle sous le héro (sinon illisible sur les
+   sections claires en dessous). */
+.lp-nav--flottant {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  padding: 1.1rem 5vw;
+  background: rgba(23, 19, 15, 0.75);
+}
+.lp-nav-name--clair { color: var(--lp-text-clair); }
+.lp-nav-link--clair { color: rgba(243, 236, 223, 0.75); }
+.lp-nav-link--clair:hover { color: var(--lp-text-clair); }
+.lp-nav-cta--clair {
+  background: var(--lp-text-clair);
+  color: var(--lp-ink);
+}
+.lp-nav-cta--clair:hover { background: #fff; }
+
+/* --- Héro (photo réelle) --- */
+.lp-hero {
+  position: relative;
+  min-height: 640px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.lp-hero-image {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 35%;
+  z-index: 0;
+}
+
+/* Voile horizontal : sombre à gauche (texte), s'éclaircit vers la droite
+   (laisse voir la photo : pupitre QR + téléphone). */
+.lp-hero-voile {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    rgba(15, 12, 9, 0.94) 0%,
+    rgba(15, 12, 9, 0.88) 32%,
+    rgba(15, 12, 9, 0.55) 55%,
+    rgba(15, 12, 9, 0.15) 78%,
+    rgba(15, 12, 9, 0.05) 100%
+  );
+  z-index: 1;
+}
+
+/* Voile vertical supplémentaire : sombre en haut sur TOUTE la largeur,
+   pour que le header reste lisible même côté droit de la photo. */
+.lp-hero-voile-haut {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(15, 12, 9, 0.75) 0%,
+    rgba(15, 12, 9, 0.35) 12%,
+    rgba(15, 12, 9, 0) 24%
+  );
+  z-index: 1;
+}
+
+.lp-hero-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 6rem 5vw;
+  width: 100%;
+}
+.lp-hero-inner--photo { display: block; }
+.lp-hero-inner--photo .lp-hero-texte { max-width: 620px; }
+
+.lp-hero-eyebrow {
+  color: var(--lp-copper);
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin-bottom: 1.25rem;
+}
+
+.lp-hero-titre {
+  font-family: var(--lp-serif);
+  font-weight: 600;
+  color: var(--lp-text-clair);
+  font-size: clamp(2.6rem, 5vw, 4.1rem);
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.5rem;
+}
+.lp-hero-titre em { font-style: italic; color: var(--lp-copper); }
+
+.lp-hero-sous-titre {
+  font-size: 1.1rem;
+  color: var(--lp-text-clair-mute);
+  line-height: 1.6;
+  max-width: 42ch;
+  margin-bottom: 2.25rem;
+}
+
+.lp-hero-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.lp-hero-note { font-size: 0.82rem; color: var(--lp-text-clair-mute); }
+
+/* --- Bandeau constat --- */
+.lp-constat { background: var(--lp-cream-muted); padding: 3.5rem 5vw; text-align: center; }
+.lp-constat-texte {
+  font-family: var(--lp-serif);
+  font-size: clamp(1.3rem, 2.4vw, 1.75rem);
+  line-height: 1.4;
+  max-width: 46ch;
+  margin: 0 auto;
+  color: var(--lp-text-sombre-mute);
+}
+.lp-constat-accent { color: var(--lp-text-sombre); font-weight: 600; }
+
+/* --- Sections génériques --- */
+.lp-section { position: relative; max-width: 1280px; margin: 0 auto; padding: 5.5rem 5vw; }
+.lp-section--sombre { background: var(--lp-ink); max-width: none; padding-left: 5vw; padding-right: 5vw; }
+.lp-section--sombre > *:not(.lp-hero-texture) { max-width: 1280px; margin-left: auto; margin-right: auto; }
+.lp-section--tinted { background: var(--lp-cream-muted); max-width: none; padding-left: 5vw; padding-right: 5vw; }
+.lp-section--tinted > * { max-width: 1280px; margin-left: auto; margin-right: auto; }
+
+.lp-section-eyebrow { color: var(--lp-copper-strong); font-weight: 700; font-size: 0.85rem; margin-bottom: 0.75rem; text-align: center; }
+.lp-section-eyebrow--clair { color: var(--lp-copper); }
+
+.lp-section-titre {
+  font-family: var(--lp-serif);
+  font-weight: 600;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  letter-spacing: -0.01em;
+  max-width: 22ch;
+  margin: 0 auto 0.75rem;
+  color: var(--lp-text-sombre);
+  text-align: center;
+}
+.lp-section-titre--clair { color: var(--lp-text-clair); }
+.lp-section-sous-titre { color: var(--lp-text-sombre-mute); font-size: 1rem; max-width: 50ch; margin: 0 auto 3rem; text-align: center; }
+
+/* --- Comment ça marche : cartes avec image --- */
+.lp-etapes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.75rem; margin-top: 3rem; }
+.lp-etape {
+  background: var(--lp-cream);
+  border: 1px solid rgba(23, 19, 15, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-card, 0 1px 3px rgba(28, 26, 23, 0.06));
+}
+.lp-etape-image-wrap { position: relative; }
+.lp-etape-image { width: 100%; height: 160px; object-fit: cover; display: block; }
+.lp-etape-numero {
+  position: absolute;
+  bottom: -18px;
+  left: 1.25rem;
+  width: 36px; height: 36px;
+  background: var(--lp-copper);
+  color: var(--lp-ink);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--lp-serif);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 3px solid var(--lp-cream);
+}
+.lp-etape-titre { font-size: 1.05rem; margin: 1.75rem 1.25rem 0.5rem; color: var(--lp-text-sombre); }
+.lp-etape-texte { color: var(--lp-text-sombre-mute); font-size: 0.88rem; line-height: 1.55; margin: 0 1.25rem 1.25rem; }
+
+/* --- Fonctionnalités --- */
+.lp-features { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem; margin-top: 3rem; }
+.lp-feature { padding: 1.75rem; background: var(--lp-ink-soft); border-radius: 16px; border: 1px solid rgba(243, 236, 223, 0.06); }
+.lp-feature-icone { font-size: 1.7rem; display: block; margin-bottom: 1rem; }
+.lp-feature-titre { font-size: 1.02rem; color: var(--lp-text-clair); margin-bottom: 0.5rem; }
+.lp-feature-texte { color: var(--lp-text-clair-mute); font-size: 0.88rem; line-height: 1.55; }
+
+/* --- Avantages concrets : cartes + apparition échelonnée au scroll --- */
+.lp-avantages {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.lp-avantage-card {
+  background: var(--lp-cream);
+  border: 1px solid rgba(23, 19, 15, 0.08);
+  border-radius: 18px;
+  padding: 2rem 1.75rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+
+  /* État initial : invisible, légèrement décalé — révélé au scroll */
+  opacity: 0;
+  transform: translateY(24px);
+  transition-property: opacity, transform, box-shadow, border-color;
+  transition-duration: 0.6s, 0.6s, 0.25s, 0.25s;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lp-avantage-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 48px -20px rgba(23, 19, 15, 0.18);
+  border-color: rgba(198, 128, 58, 0.3);
+}
+
+/* Une fois visible : apparition, avec un délai croissant par carte */
+.lp-avantages--visible .lp-avantage-card { opacity: 1; transform: translateY(0); }
+.lp-avantages--visible .lp-avantage-card:nth-child(1) { transition-delay: 0s; }
+.lp-avantages--visible .lp-avantage-card:nth-child(2) { transition-delay: 0.08s; }
+.lp-avantages--visible .lp-avantage-card:nth-child(3) { transition-delay: 0.16s; }
+.lp-avantages--visible .lp-avantage-card:nth-child(4) { transition-delay: 0.24s; }
+.lp-avantages--visible .lp-avantage-card:nth-child(5) { transition-delay: 0.32s; }
+
+.lp-avantage-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  background: var(--lp-copper-soft);
+  font-size: 1.4rem;
+  margin-bottom: 1.25rem;
+}
+
+.lp-avantage-titre { font-size: 1.05rem; margin-bottom: 0.6rem; color: var(--lp-text-sombre); }
+.lp-avantage-texte { color: var(--lp-text-sombre-mute); font-size: 0.88rem; line-height: 1.6; }
+
+/* Respecte les préférences d'accessibilité : pas d'animation si demandé */
+@media (prefers-reduced-motion: reduce) {
+  .lp-avantage-card { opacity: 1; transform: none; transition: none; }
+}
+
+/* --- Tarifs --- */
+.lp-plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+.lp-plan-card {
+  padding: 1.85rem;
+  background: var(--lp-cream);
+  border: 1px solid rgba(23, 19, 15, 0.08);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+}
+.lp-plan-nom { font-family: var(--lp-serif); font-size: 1.2rem; margin-bottom: 0.3rem; color: var(--lp-text-sombre); }
+.lp-plan-desc { color: var(--lp-text-sombre-mute); font-size: 0.85rem; margin-bottom: 1rem; }
+.lp-plan-prix { font-size: 1.9rem; font-weight: 700; color: var(--lp-copper-strong); margin-bottom: 0.2rem; }
+.lp-plan-prix-unit { font-size: 0.85rem; font-weight: 500; color: var(--lp-text-sombre-mute); }
+.lp-plan-essai {
+  font-size: 0.78rem; font-weight: 600; color: #256A41;
+  background: rgba(60, 139, 93, 0.12);
+  display: inline-block; padding: 0.25rem 0.6rem; border-radius: 999px;
+  margin-bottom: 1.25rem; width: fit-content;
+}
+.lp-plan-liste { list-style: none; padding: 0; margin: 0 0 1.5rem; display: flex; flex-direction: column; gap: 0.55rem; font-size: 0.88rem; flex: 1; }
+.lp-plan-check { color: var(--lp-copper-strong); font-weight: 700; margin-right: 0.4rem; }
+.lp-plan-btn { width: 100%; text-align: center; }
+
+/* --- FAQ --- */
+.lp-faq { display: flex; flex-direction: column; border-top: 1px solid rgba(23, 19, 15, 0.1); }
+.lp-faq-item { border-bottom: 1px solid rgba(23, 19, 15, 0.1); }
+.lp-faq-question {
+  width: 100%; background: none; border: none; text-align: left;
+  padding: 1.15rem 0; font-size: 1rem; font-weight: 600; color: var(--lp-text-sombre);
+  cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  font-family: var(--lp-sans);
+}
+.lp-faq-icone { font-size: 1.3rem; color: var(--lp-copper-strong); flex-shrink: 0; }
+.lp-faq-reponse { color: var(--lp-text-sombre-mute); font-size: 0.92rem; line-height: 1.6; max-width: 65ch; padding-bottom: 1.15rem; margin: 0; }
+
+/* --- CTA finale --- */
+.lp-cta-finale { position: relative; background: var(--lp-ink); color: var(--lp-text-clair); text-align: center; padding: 6rem 5vw; }
+.lp-cta-finale-titre { position: relative; font-family: var(--lp-serif); font-weight: 600; font-size: clamp(1.8rem, 3.2vw, 2.5rem); color: var(--lp-text-clair); margin-bottom: 0.75rem; }
+.lp-cta-finale-texte { position: relative; color: var(--lp-text-clair-mute); margin-bottom: 2.25rem; }
+.lp-cta-finale-btn { position: relative; padding: 1rem 2.2rem; font-size: 1rem; }
+
+/* --- Pied de page --- */
+.lp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2.25rem 5vw;
+  font-size: 0.82rem;
+  color: var(--lp-text-sombre-mute);
+}
+.lp-footer-brand { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; color: var(--lp-text-sombre); }
+.lp-footer a { color: var(--lp-text-sombre-mute); text-decoration: none; }
+
+/* --- Responsive --- */
+@media (max-width: 960px) {
+  .lp-hero-sous-titre { margin-left: auto; margin-right: auto; }
+  .lp-hero-actions { justify-content: center; }
+  .lp-etapes { grid-template-columns: repeat(2, 1fr); }
+  .lp-features { grid-template-columns: 1fr; }
+  .lp-avantages { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .lp-etapes { grid-template-columns: 1fr; }
+  .lp-avantages { grid-template-columns: 1fr; }
+  .lp-footer { flex-direction: column; gap: 0.75rem; text-align: center; }
+}
+/* --- Bouton WhatsApp --- */
+.lp-whatsapp {
+  display: flex;
+  justify-content: center;
+  padding: 0 5vw 4rem;
+}
+.lp-whatsapp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: #25D366;
+  color: #0B3D1E;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.9rem 1.75rem;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 10px 28px -10px rgba(37, 211, 102, 0.55);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.lp-whatsapp-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px -8px rgba(37, 211, 102, 0.6);
+}
+.lp-whatsapp-icone { display: inline-flex; }
