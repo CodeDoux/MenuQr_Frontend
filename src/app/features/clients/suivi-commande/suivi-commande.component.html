@@ -52,6 +52,9 @@
       }
     </div>
   }
+@if (verificationRetour()) {
+  <div class="pm-suivi-terminee">⏳ Vérification de votre paiement en cours...</div>
+}
 
   @if (peutPayer()) {
   <div class="pm-suivi-recap">
@@ -73,13 +76,9 @@
     } @else {
       <p class="pm-field-hint">Payez en ligne dès maintenant, ou réglez à la remise/livraison.</p>
     }
-    <div class="pm-paiement-options">
-      @for (m of methodesPaiementEnLigne; track m.code) {
-        <button type="button" class="pm-mode-chip" (click)="payerEnLigne(m.code)">
-          Payer {{ montantAPayer() }} FCFA par {{ m.libelle }}
-        </button>
-      }
-    </div>
+    <button type="button" class="pm-mode-chip" [disabled]="enPaiement()" (click)="payer()">
+      {{ enPaiement() ? 'Préparation...' : 'Payer ' + montantAPayer() + ' FCFA' }}
+    </button>
   </div>
 }
   @if (paiementConfirme()) {

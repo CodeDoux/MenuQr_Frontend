@@ -126,7 +126,10 @@ export class PublicOrderService {
   };
 }
 
-  async payer(commandeId: string, methode: string): Promise<void> {
-    await firstValueFrom(this.http.post(`${API}/public/commandes/${commandeId}/payer`, { methode }));
-  }
+  async payerCommande(commandeId: string): Promise<string> {
+  const rep = await firstValueFrom(
+    this.http.post<{ url_paiement: string }>(`${API}/public/commandes/${commandeId}/payer`, {})
+  );
+  return rep.url_paiement;
+}
 }

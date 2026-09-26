@@ -33,7 +33,11 @@ export class SuiviCommandeComponent implements OnInit {
   readonly methodesPaiementEnLigne = METHODES_PAIEMENT_EN_LIGNE;
   additionTotal = signal<number | null>(null);
   additionSousTotal = signal<number | null>(null);
-additionRemise = signal<number | null>(null);
+  additionRemise = signal<number | null>(null);
+
+  enPaiement = signal(false);
+
+  verificationRetour = signal(false);
 
   commandeId = '';
   restaurantId = '';
@@ -54,7 +58,30 @@ additionRemise = signal<number | null>(null);
     this.restaurantId = lireParamAncetre(this.route, 'restaurantId') ?? '';
     this.code = this.route.snapshot.queryParamMap.get('code') ?? '';
     await this.actualiser();
+
+    // Retour depuis PayDunya : le webhook peut mettre quelques secondes à
+    // confirmer le paiement — on revérifie plusieurs fois avant d'abandonner.
+    if (this.route.snapshot.queryParamMap.get('paiement') === 'retour') {
+      this.verificationRetour.set(true);
+      this.rafraichirPeriodiquement();
+    }
   }
+
+
+private async rafraichirPeriodiquement(tentative: number = 0): Promise<void> {
+  if (tentative >= 6) {
+    this.verificationRetour.set(false);
+    return;
+  }
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  await this.actualiser();
+
+  if (this.paiementConfirme()) {
+    this.verificationRetour.set(false);
+    return;
+  }
+  this.rafraichirPeriodiquement(tentative + 1);
+}
 
   async actualiser(): Promise<void> {
     this.chargement.set(true);
@@ -120,12 +147,16 @@ sousTotalAvantRemise(): number {
     return !!c && !this.paiementConfirme() && c.statut !== 'ANNULEE';
   }
 
-  async payerEnLigne(methode: string): Promise<void> {
-    const c = this.commande();
-    if (!c) return;
-    await this.publicOrderService.payer(c.id, methode);
-    this.paiementConfirme.set(true);
+async payer(): Promise<void> {
+  this.enPaiement.set(true);
+  try {
+    const url = await this.publicOrderService.payerCommande(this.commandeId);
+    window.location.href = url;
+  } catch {
+    alert('Une erreur est survenue lors de la préparation du paiement.');
+    this.enPaiement.set(false);
   }
+}
 
   retourMenu(): void {
     this.router.navigate(['/m', this.restaurantId], { queryParams: { code: this.code } });
