@@ -1,6 +1,6 @@
 // src/environments/environment.ts
 export const environment = {
   production: true,
-  apiUrl: 'https://menuteranga-backend.onrender.com/api',
+  apiUrl: 'https://menuqr-backend-qh12.onrender.com/api',
   storageUrl: ''  // ← bien présent ?
 };
