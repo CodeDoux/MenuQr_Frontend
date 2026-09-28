@@ -14,7 +14,7 @@
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
       <label class="field">
         <span class="field-label">Email</span>
-        <input type="email" formControlName="email" class="field-input" placeholder="admin@menuqr.com" autocomplete="username" />
+        <input type="email" formControlName="email" class="field-input" placeholder="admin@gmail.com" autocomplete="username" />
         @if (form.get('email')?.touched && form.get('email')?.invalid) {
           <span class="field-error">Email valide requis.</span>
         }
