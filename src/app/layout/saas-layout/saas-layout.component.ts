@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { NotificationBellComponent } from '../../features/notifications/notification-bell/notification-bell.component';
 import { AuthService } from '../../core/services/auth.service';
 import { signal } from '@angular/core'; // déjà importé normalement
+import { SubscriptionService } from '../../core/services/subcription.service';
 
 
 @Component({
@@ -15,6 +16,7 @@ import { signal } from '@angular/core'; // déjà importé normalement
 })
 export class SaasLayoutComponent {
   readonly currentUser;
+   readonly joursRestantsEssai;
 
   readonly navItemsBruts = [
     { label: 'Dashboard', icon: '◱', route: '/dashboard', permission: null },
@@ -41,11 +43,12 @@ export class SaasLayoutComponent {
   this.verificationEnvoyee.set(true);
 }
 
-  constructor(private readonly auth: AuthService, private readonly router: Router) {
+  constructor(private readonly auth: AuthService, private readonly router: Router, private readonly service: SubscriptionService) {
     this.navItems = this.navItemsBruts.filter(
       (item) => item.permission === null || this.auth.hasPermission(item.permission)
     );
     this.currentUser = this.auth.currentUser;
+    this.joursRestantsEssai = this.service.joursRestantsEssai;
   }
 
   initiales(): string {

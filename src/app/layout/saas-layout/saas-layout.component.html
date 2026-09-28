@@ -23,7 +23,7 @@
         <span class="restaurant-avatar">{{ currentUser()?.restaurantNom?.slice(0, 2)?.toUpperCase() }}</span>
         <div>
           <div class="restaurant-name">{{ currentUser()?.restaurantNom }}</div>
-          <div class="restaurant-plan">Essai — 12 jours restants</div>
+          <div class="restaurant-plan">Essai — {{ joursRestantsEssai() }} jours restants</div>
         </div>
       </div>
     </div>
