@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StatutCommande } from '../../../core/enums/enums';
 import { OrdersService } from '../../../core/services/orders.service';
@@ -26,7 +26,7 @@ const SEUIL_URGENCE_MINUTES = 15;
   templateUrl: './vue-cuisine.component.html',
   styleUrl: './vue-cuisine.component.css',
 })
-export class VueCuisineComponent {
+export class VueCuisineComponent implements OnInit{
   readonly StatutCommande = StatutCommande;
   readonly LABEL_MODE = LABEL_MODE;
   readonly ICONE_MODE = ICONE_MODE;
@@ -55,6 +55,9 @@ export class VueCuisineComponent {
       { id: 'preparation', titre: 'En préparation', icone: '🔥', commandes: this.enPreparation, annulable: false, actionVisible: true },
       { id: 'pretes', titre: 'Prêtes', icone: '🔔', commandes: this.pretes, annulable: false, actionVisible: false },
     ];
+  }
+  ngOnInit(): void {
+    this.service.commandesCuisine();
   }
 
   numeroCourt(id: string): string {

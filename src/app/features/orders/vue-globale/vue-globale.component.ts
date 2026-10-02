@@ -43,7 +43,9 @@ export class VueGlobaleComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.service.chargerCommandesGlobale(1, 20).catch(() => {});
+    this.service.chargerCommandesGlobale(1, 20).catch((error) => {
+      console.error('Erreur lors du chargement des commandes :', error);
+    });
   }
 
   allerPage(page: number): void {
