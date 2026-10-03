@@ -1120,3 +1120,10 @@ button { font-family: inherit; }
   border-radius: var(--radius-sm);
   margin-bottom: 1.25rem;
 }
+/****SIGNUP**/
+
+.password-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
