@@ -30,8 +30,13 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         ) {
           authService.forceLogout();
 
+          const restaurantStatus = error.error?.restaurant_status;
+
           router.navigate(['/login'], {
-            queryParams: { reason: code }
+            queryParams: {
+              reason: code,
+              status: restaurantStatus
+            }
           });
 
           return throwError(() => error);
@@ -69,7 +74,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
               errorMessage =
                 validationErrors[firstErrorKey][0];
             }
-
           }
 
         } else if (error.status === 429) {
