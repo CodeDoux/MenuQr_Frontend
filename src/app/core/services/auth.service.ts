@@ -121,6 +121,12 @@ export class AuthService {
     }
   }
 
+  forceLogout(): void {
+  this._currentUser.set(null);
+  localStorage.removeItem(TOKEN_STORAGE_KEY);
+  localStorage.removeItem(USER_STORAGE_KEY);
+}
+
   private chargerDepuisStockage(): UtilisateurConnecte | null {
     try {
       const brut = localStorage.getItem(USER_STORAGE_KEY);
