@@ -61,8 +61,11 @@ export class SaasLayoutComponent {
       .toUpperCase();
   }
 
- deconnexion(): void {
-    this.auth.logout();
-    window.location.href = '/login';
-  }
+ async deconnexion(): Promise<void> {
+  await this.auth.logout();
+
+  await this.router.navigate(['/login'], {
+    replaceUrl: true
+  });
+}
 }
