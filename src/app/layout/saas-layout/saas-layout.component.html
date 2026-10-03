@@ -47,7 +47,7 @@
       </div>
     </header>
 
-   @if (currentUser()?.emailVerifie === false) {
+   @if (currentUser()?.email_verifie === false) {
   <div class="banniere-verification">
     <span>✉️ Vérifiez votre adresse email pour sécuriser votre compte.</span>
     <button type="button" class="banniere-verification-btn" (click)="demanderVerification()" [disabled]="verificationEnvoyee()">

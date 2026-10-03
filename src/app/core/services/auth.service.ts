@@ -93,7 +93,7 @@ export class AuthService {
       id: user.id,
       nomComplet: user.nom_complet,
       email: user.email,
-      emailVerifie: user.email_verifie ?? true, // true par défaut si absent (ex. anciens comptes)
+      email_verifie: user.email_verifie ?? true, // true par défaut si absent (ex. anciens comptes)
       restaurantId: restaurant.id,
       restaurantNom: restaurant.nom,
       role: role as any,
@@ -209,7 +209,7 @@ export class AuthService {
   creerCompteInvite(input: { email: string; nomComplet: string; motDePasse: string; role: RoleCode; restaurantNom: string }): UtilisateurConnecte {
     const utilisateur: UtilisateurConnecte = {
       id: 'mock-' + Math.random().toString(36).slice(2, 10),
-      nomComplet: input.nomComplet, email: input.email, emailVerifie: true,
+      nomComplet: input.nomComplet, email: input.email, email_verifie: true,
       restaurantId: 'rest-001', restaurantNom: input.restaurantNom,
       role: input.role, permissions: [],
     };
