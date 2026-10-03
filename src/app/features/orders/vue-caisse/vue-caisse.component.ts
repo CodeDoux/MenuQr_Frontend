@@ -41,6 +41,10 @@ export class VueCaisseComponent {
     this.moyensPaiementActifs = () => this.settingsService.moyensPaiement().filter((m) => m.estActif);
   }
 
+  commandesActives(commandes: any[]): any[] {
+  return commandes.filter(c => c.statut !== 'ANNULEE');
+}
+
   numeroCourt(id: string): string {
     return '#' + id.slice(-4).toUpperCase();
   }

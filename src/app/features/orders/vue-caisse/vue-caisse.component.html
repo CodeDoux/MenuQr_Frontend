@@ -8,10 +8,10 @@
       <div class="card vk-card">
         <div class="vk-card-header">
           <span class="vk-table-numero">🪑 Table {{ item.addition.tableNumero ?? '—' }}</span>
-          <span class="vk-nb-commandes">{{ item.commandes.length }} commande(s)</span>
+          <span class="vk-nb-commandes">{{ commandesActives(item.commandes).length }} commande(s)</span>
         </div>
 
-        @for (c of item.commandes; track c.id) {
+        @for (c of commandesActives(item.commandes); track c.id) {
           <div class="caisse-commande-bloc">
             <div class="table-muted caisse-commande-titre">{{ numeroCourt(c.id) }} · {{ LABEL_MODE[c.mode] }}</div>
             <ul class="vk-lignes">
