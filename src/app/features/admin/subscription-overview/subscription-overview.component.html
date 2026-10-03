@@ -19,9 +19,9 @@
       @for (r of restaurants(); track r.id) {
         <tr>
           <td class="table-strong">{{ r.nom }}</td>
-          <td class="table-muted">{{ r.offreNom }}</td>
-          <td><app-badge [label]="LABEL_STATUT[r.abonnementStatut]" [tone]="TONE_STATUT[r.abonnementStatut]" /></td>
-          <td class="table-muted">{{ r.dateFinAbonnement | date: 'dd/MM/yyyy' }}</td>
+          <td class="table-muted">{{ r.offre_nom }}</td>
+          <td><app-badge [label]="LABEL_STATUT[r.abonnement_statut]" [tone]="TONE_STATUT[r.abonnement_statut]" /></td>
+          <td class="table-muted">{{ r.date_fin_abonnement | date: 'dd/MM/yyyy' }}</td>
         </tr>
       }
     </tbody>
